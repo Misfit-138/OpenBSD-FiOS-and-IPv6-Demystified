@@ -94,6 +94,18 @@ Enable `dhcpleased`:
 ```sh
 rcctl enable dhcpleased
 ```
+### `/etc/dhcp6leased.conf`:
+```conf
+# dhcp6leased.conf for OpenBSD 7.7
+# WAN interface: ix1, LAN interface: ix0
+
+# Enable rapid commit for faster DHCPv6 exchange
+# request rapid commit
+
+# Request prefix delegation and assign first /64 to LAN
+request prefix delegation on ix1 for { ix0/64 }
+
+```
 ### `/etc/hostname.ix0` (LAN):
 
 ### Create a ULA (Unique Local Address)- IPv6's equivalent to RFC 1918 private addresses like 192.168.x.x in IPv4.
