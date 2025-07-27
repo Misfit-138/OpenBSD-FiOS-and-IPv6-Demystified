@@ -14,10 +14,10 @@ OpenBSD is a powerful, elegant, and secure operating system. It excels as a fire
 - `dhcpd` (IPv4 DHCP server daemon)
 - `dhcpleased` - (IPv4 DHCP client daemon replacing the older ISC dhclient)
 - `pf` (OpenBSD's Packet Filter)
-- `unbound` (Validating, recursive, caching DNS resolver)
+- `slaacd` (OpenBSD's stateless address autoconfiguration daemon that automatically configures IPv6 addresses and routes using router solicitations/advertisements)
 - `dhcp6leased` (OpenBSD's IPv6 prefix delegation client)
 - `rad` (OpenBSD's Router Advertisement Daemon)
-- `slaacd` (IPv6 address autoconfiguration daemon)
+- `unbound` (Validating, recursive, caching DNS resolver)
 - `rpz` (Response Policy Zones- DNS filtering feature in `unbound` )
 
 
@@ -234,14 +234,14 @@ You should see something like:
 ```
 ...prefix delegation #1 2600:4040:AAAA:BBBB::/56 received on ix1 from server ...
 ```
-
+Copy this prefix; We will use it to create your GUA, for the antispoofing rule in pf.conf.
 #### 6. Stop it (Ctrl+C) and start `dhcp6leased` normally
 
 ```sh
 rcctl start dhcp6leased
 ```
 
-#### 7. Update `rad.conf` with your ULA to advertise DNS to your LAN:
+#### 7. Update `rad.conf` with your ULA (from hostname.ix0) to advertise DNS to your LAN:
 
 ```conf
 interface ix0 {
@@ -285,7 +285,7 @@ pfctl -f /etc/pf.conf
 
 ## 12. 🔐 DNS and `unbound`
 
-Unbound is a recursive, caching DNS resolver with DNSSEC validation and RPZ support. The following configuration forwards DNS over TLS to Google and blocks malicious domains.
+Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TLS, and RPZ support. The following configuration forwards DNS over TLS to Google and blocks malicious domains.
 
 ### `/var/unbound/etc/unbound.conf`
 
@@ -319,9 +319,12 @@ server:
     hide-identity: yes
     hide-version: yes
     prefetch: yes
+
+    # Enable DNSSEC:
     auto-trust-anchor-file: "/var/unbound/db/root.key"
 
-    module-config: "respip validator iterator"
+    # Uncomment to load rpz module and configure below:
+    # module-config: "respip validator iterator"
 
     cache-min-ttl: 3600
     serve-expired: yes
@@ -362,6 +365,17 @@ dig google.com AAAA
 ```
 https://test-ipv6.com/ can be utilized from clients.
 
+# What is happening (To the best of my understanding):
+| Step | Daemon               | Role                                                                    |
+| ---- | -------------------- | ----------------------------------------------------------------------- |
+| 1    | **`slaacd`**         | Sends RS, receives Verizon RA, installs default IPv6 route on WAN `ix1` |
+| 2    | **`dhcp6leased`**    | Requests delegated prefix, writes to `/var/db/dhcp6leased/ix0`          |
+| 3    | **`dhcp6leased`**    | Applies GUA to LAN `ix0`                                                |
+| 4    | **`rad`**            | Advertises prefix + gateway on `ix0` (LAN)                              |
+| 5    | **`unbound`**        | Serves DNS to LAN using ULA or GLA address                              |
+| 6    | **`dhcpleased`**     | Handles IPv4 autoconf on `ix1` (WAN)                                    |
+
+
 ## **ENJOY!**
 
 
@@ -397,9 +411,8 @@ They're great tools, but I find them unnecessarily complex, especially for routi
 ### Why Google DNS?
 
 - In my region, Google DNS is fast and reliable.
-- DNS-over-TLS is enabled, providing a "measure of privacy" and security.
-- Other providers didn’t perform well for me.
-- Configure your system to your own preference!
+- Other providers and root servers did not perform well for me.
+- Feel free to configure your system to your own preference!
   
 ### Aren’t Verizon FiOS delegated prefixes dynamic?
 
