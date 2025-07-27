@@ -1,0 +1,3 @@
+# /etc/hostname.if (WAN)
+inet autoconf
+inet6 autoconf
