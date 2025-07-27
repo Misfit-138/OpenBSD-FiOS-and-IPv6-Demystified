@@ -1,0 +1,5 @@
+# /etc/hostname.if (LAN)
+inet 192.168.1.1 255.255.255.0 192.168.1.255
+inet6
+# Add this line to create the ULA alias for your router
+inet6 alias fd00:AAAA:BBBB:CCCC::1/64
