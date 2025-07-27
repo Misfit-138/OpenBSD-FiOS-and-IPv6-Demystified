@@ -12,6 +12,7 @@ OpenBSD is a powerful, elegant, and secure operating system. It excels as a fire
 
 - OpenBSD 7.7
 - `dhcpd` (IPv4 DHCP server daemon)
+- `dhcpleased` - (IPv4 DHCP client daemon replacing the older ISC dhclient)
 - `pf` (OpenBSD's Packet Filter)
 - `unbound` (Validating, recursive, caching DNS resolver)
 - `dhcp6leased` (OpenBSD's IPv6 prefix delegation client)
