@@ -46,15 +46,11 @@ Follow the official instructions at: https://www.openbsd.org/faq/faq4.html
 
 You will need a WAN interface configured with automatic IPv4/IPv6 and a LAN interface with static IPv4 for now.
 
-### 2. Enable required daemons (slaacd **should** be enabled by default)
+### 2. Check for running and enable daemons (slaacd **should** be enabled by default)
 
 ```sh
-rcctl enable dhcpd
-rcctl set dhcpd flags ix0
-rcctl enable slaacd
-rcctl enable rad
-rcctl enable dhcp6leased
-rcctl enable unbound
+rcctl ls started
+rcctl ls on
 ```
 
 ### 3. Disable `resolvd`  
@@ -89,7 +85,14 @@ nameserver ::1
 lookup file bind
 search home.arpa  # <--- replace with your local domain name
 ```
-
+### Create `/etc/dhcpleased.conf` to ignore ISP DNS:
+```conf
+interface ix1 { ignore dns }
+```
+Enable `dhcpleased`:
+```sh
+rcctl enable dhcpleased
+```
 ### `/etc/hostname.ix0` (LAN):
 
 ### Create a ULA (Unique Local Address)- IPv6's equivalent to RFC 1918 private addresses like 192.168.x.x in IPv4.
@@ -121,7 +124,11 @@ inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create you
 inet autoconf
 inet6 autoconf
 ```
-
+Enable and start `dhcpd`:
+```sh
+rcctl enable dhcpd
+rcctl set dhcpd flags ix0
+```
 ## 🔥 `pf.conf` (Firewall Rules)
 
 A clean and concise dual stack PF configuration with minimal logging, which works with both IPv4 and IPv6. It is based on a "block all in, let anything out" foundation, with selected filtering for functionality; this is generally fine for a trusted home LAN, but again, KNOW WHAT YOU ARE DOING.
@@ -197,6 +204,10 @@ pass in quick on egress inet6 proto udp from any port 547 to any port 546
 ```conf
 interface ix0 { }
 ```
+Enable rad:
+```sh
+rcctl enable rad
+```
 
 ## 5. REBOOT, then Acquire Delegated Prefix
 (Rebooting is not strictly necessary, however, it will demonstrate that our system configuration survives a restart.)
@@ -204,16 +215,16 @@ Reboot:
 ```sh
 reboot
 ```
-#### Ensure rad, dhcpd, unbound, dhcp6leased and slaacd are running:
+#### Ensure rad, dhcpd, dhcpleased, and slaacd are running:
 
 ```sh
 rcctl ls started
 ```
 
-#### Run `dhcp6leased` manually to observe prefix delegation
+#### Enable and run `dhcp6leased` manually to observe prefix delegation
 
 ```sh
-rcctl stop dhcp6leased
+rcctl enable dhcp6leased
 dhcp6leased -d
 ```
 
@@ -332,8 +343,16 @@ forward-zone:
 #    url: https://raw-rpz-blocklist
 #    rpz-action-override: nxdomain
 ```
+Enable `unbound`
+```sh
+rcctl enable unbound
+```
 
 ## 13. Reboot and test
+Ensure rad, dhcpd, unbound, dhcpleased, dhcp6leased and slaacd are running:
+```sh
+rcctl ls started
+```
 Test your configuration from the router using the tools of your choice, e.g.:
 ```sh
 ifconfig ix0
