@@ -47,7 +47,7 @@ Follow the official instructions at: https://www.openbsd.org/faq/faq4.html
 
 You will need a WAN interface configured with automatic IPv4/IPv6 and a LAN interface with static IPv4 for now.
 
-### 2. Check for running and enable daemons (slaacd **should** be enabled by default)
+### 2. Check for *running* and *enabled* daemons (slaacd **should** be enabled by default)
 
 ```sh
 rcctl ls started
@@ -241,12 +241,12 @@ You should see something like:
 rcctl start dhcp6leased
 ```
 
-#### 7. Update `rad.conf` with your delegated prefix to advertise DNS to your LAN:
+#### 7. Update `rad.conf` with your ULA to advertise DNS to your LAN:
 
 ```conf
 interface ix0 {
     dns {
-        nameserver 2600:4040:AAAA:BBBB::1
+        nameserver fd00:AAAA:BBBB:CCCC::1
     }
 }
 ```
@@ -314,7 +314,6 @@ server:
     access-control: 127.0.0.0/8 allow
     access-control: ::1 allow
     access-control: 192.168.1.0/24 allow
-    access-control: 2600:4040:AAAA:BBBB::/64 allow
     access-control: fd00:AAAA:BBBB:CCCC::/64 allow
 
     hide-identity: yes
