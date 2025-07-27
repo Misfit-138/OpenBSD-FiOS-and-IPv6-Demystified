@@ -1,8 +1,8 @@
-# OpenBSD Router/Firewall with Verizon FiOS Dual Stack (IPv4 + IPv6)
+# OpenBSD 7.7 Router/Firewall with Verizon FiOS Dual Stack (IPv4 + IPv6)
 
 ## Overview
 
-This guide describes a **proven method** to configure an OpenBSD 7.7-based home router/firewall with **dual stack IPv4 and IPv6** using **Verizon FiOS**. It includes support for dynamic IPv6 prefix delegation, DNS advertisement to LAN clients, DNS over TLS using `unbound` to forward to Google, and DNS blocklisting utilizing RPZ. 
+This guide describes a **proven method** to configure an OpenBSD 7.7-based home router/firewall with **dual stack IPv4 and IPv6** using **Verizon FiOS**. It includes support for dynamic IPv6 prefix delegation, DNS advertisement to LAN clients, DNS over TLS using `unbound` to forward to Google, and optionally, DNS blocklisting utilizing RPZ. 
 
 ## Why?
 
@@ -33,7 +33,7 @@ This guide contains network security configurations that will control your firew
 4. **Keep backups** of working configurations
 5. **Know how to recover** if something goes wrong
 
-**Your network and requirements are different. Adapt accordingly and verify each setting matches your environment.**
+**Each network's requirements are different. Adapt accordingly and verify each setting matches your environment.**
 
 **YOU ARE RESPONSIBLE** for understanding and securing your own network. Use this guide as reference material, not as a copy-paste solution.
 
@@ -176,7 +176,9 @@ pass out quick inet6 keep state
 pass in on $lan keep state
 
 # ICMP
+# IPv4
 pass in quick inet proto icmp from any to any icmp-type { echoreq, unreach } keep state
+# IPv6
 pass in quick inet6 proto ipv6-icmp from any to any icmp6-type {
     echoreq, echorep, unreach, toobig, timex, paramprob,
     neighbrsol, neighbradv, routersol, routeradv
@@ -196,7 +198,8 @@ pass in quick on egress inet6 proto udp from any port 547 to any port 546
 interface ix0 { }
 ```
 
-## 5. REBOOT and Acquire Delegated Prefix
+## 5. REBOOT, then Acquire Delegated Prefix
+(Rebooting is not strictly necessary, however, it will demonstrate that our system configuration survives a restart.)
 Reboot:
 ```sh
 reboot
@@ -324,10 +327,10 @@ forward-zone:
     forward-addr: 2001:4860:4860::8888@853#dns.google
     forward-addr: 2001:4860:4860::8844@853#dns.google
 
-rpz:
-    name: multi-list-pro
-    url: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/rpz/pro.txt
-    rpz-action-override: nxdomain
+#rpz:
+#    name: my preferred blocklist
+#    url: https://raw-rpz-blocklist
+#    rpz-action-override: nxdomain
 ```
 
 ## 13. Reboot and test
@@ -377,7 +380,7 @@ They're great tools, but I find them unnecessarily complex, especially for routi
 - In my region, Google DNS is fast and reliable.
 - DNS-over-TLS is enabled, providing a "measure of privacy" and security.
 - Other providers didn’t perform well for me.
-- Configure for your own preference!
+- Configure your system to your own preference!
   
 ### Aren’t Verizon FiOS delegated prefixes dynamic?
 
