@@ -69,12 +69,13 @@ rcctl disable resolvd
 net.inet.ip.forwarding=1
 net.inet6.ip6.forwarding=1
 ```
-
+### `/etc/dhcpd.conf`
 ```conf
+
 # /etc/dhcpd.conf
 subnet 192.168.1.0 netmask 255.255.255.0 {
 	option routers 192.168.1.1;
-	option domain-name-servers 192.168.1.1;
+	oyou might want to also have unbound listen on a global IPv6 address, or clients on other networks might not be able to reach your DNS serverption domain-name-servers 192.168.1.1;
 	range 192.168.1.4 192.168.1.254;
 }
 ```
