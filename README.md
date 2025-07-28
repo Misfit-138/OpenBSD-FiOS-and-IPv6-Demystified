@@ -298,7 +298,7 @@ block in quick on egress inet6 from 2600:4040:AAAA:BBBB::/64 to any
 pfctl -f /etc/pf.conf
 ```
 
-## 12. 🔐 DNS and `unbound`
+## 12. DNS and `unbound`
 
 Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TLS, and RPZ support. The following configuration forwards DNS over TLS to Google and blocks malicious domains.
 
@@ -380,23 +380,21 @@ dig google.com AAAA
 ```
 https://test-ipv6.com/ can be utilized from clients.
 
-# What is happening (To the best of my understanding):
+# What is happening here (To the best of my understanding):
 | Step | Daemon               | Role                                                                    |
 | ---- | -------------------- | ----------------------------------------------------------------------- |
 | 1    | **`slaacd`**         | Sends RS, receives Verizon RA, installs default IPv6 route on WAN `ix1` |
 | 2    | **`dhcp6leased`**    | Requests delegated prefix, writes to `/var/db/dhcp6leased/ix0`          |
-| 3    | **`dhcp6leased`**    | Applies GUA to LAN `ix0`                                                |
-| 4    | **`rad`**            | Advertises prefix + gateway on `ix0` (LAN)                              |
-| 5    | **`unbound`**        | Serves DNS to LAN using ULA or GLA address                              |
+| 3    | **Kernel**           | Applies GUA to LAN `ix0` as directed by dhcp6leased                     |
+| 4    | **`rad`**            | Advertises prefix + gateway + DNS on `ix0` (LAN)                        |
+| 5    | **`unbound`**        | Serves DNS to LAN using ULA address                                     |
 | 6    | **`dhcpleased`**     | Handles IPv4 autoconf on `ix1` (WAN)                                    |
-
 
 ## **ENJOY!**
 
-
 If you have not done so already, I recommend setting up dhcpd.conf for local hostname resolution by using static reservations, in conjunction with unbound.conf. An excellent guide which expands on this is here: https://openbsdrouterguide.net/
 
-## 📄 License
+## License
 
 OpenBSD and this project are licensed under the **BSD style License** in the source directory of this repository.
 
@@ -427,11 +425,11 @@ They're great tools, but I find them unnecessarily complex, especially for routi
 
 - In my region, Google DNS is fast and reliable.
 - Other providers and root servers did not perform well for me.
-- Feel free to configure your system to your own preference!
+- Feel free to configure your system to your own preference.
   
 ### Aren’t Verizon FiOS delegated prefixes dynamic?
 
-Theoretically, yes; They can change. If this concerns you, it’s possible to script detection and config updates.
+Theoretically, yes; They can change. If this concerns you, I recommend creating a script which detects the change, writing it to a file, and `include` the file in `pf.conf`, so the IPv6 antispoof rule remains intact.
 
 ## 🙏 Final Thoughts
 
