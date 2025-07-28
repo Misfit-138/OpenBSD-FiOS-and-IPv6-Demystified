@@ -115,9 +115,9 @@ Why it's useful:
 * Unlike global IPv6 addresses (which can change when your ISP changes your delegated prefix), ULAs remain constant.
 * Ensures local services and device-to-device communication continues working even if your ISP prefix changes-Provides a fallback for local network services.
 
-You can easily create your own, using `jot`:
+You can easily create your own random ULA using `jot`:
 ```sh
-jot -r 5 0 255 | xargs printf "fd%02x:%02x%02x:%02x%02x::1/64\n"
+jot -r 6 0 255 | xargs printf "fd00:%02x%02x:%02x%02x:%02x%02x::1/64\n"
 ```
 The output should be something like:
 ```sh
