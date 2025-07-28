@@ -247,12 +247,15 @@ You should see something like:
 ...prefix delegation #1 2600:4040:AAAA:BBBB::/56 received on ix1 from server ...
 ```
 Copy this prefix; We will use it to create your GUA, for the antispoofing rule in pf.conf.
-#### 6. Stop it (Ctrl+C) and start `dhcp6leased` normally
-
+#### 6. Send GUA to `ix0`:
+Stop `dhcp6leased` (Ctrl+C) and start it normally:
 ```sh
 rcctl start dhcp6leased
 ```
-
+Restart `slaacd` to assign the GUA to ix0:
+```sh
+rcctl restart slaacd
+```
 #### 7. Update `rad.conf` with your ULA (from hostname.ix0) to advertise DNS to your LAN:
 
 ```conf
