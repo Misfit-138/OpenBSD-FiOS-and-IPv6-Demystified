@@ -144,7 +144,7 @@ rcctl set dhcpd flags ix0
 ```
 ## 🔥 `pf.conf` (Firewall Rules)
 
-A clean and concise dual stack PF configuration with minimal logging, which works with both IPv4 and IPv6. It is based on a "block all in, let anything out" foundation, with selected filtering for functionality; this is generally fine for a trusted home LAN, but again, KNOW WHAT YOU ARE DOING.
+A clean and concise dual stack PF configuration with minimal logging, which works with both IPv4 and IPv6. It is based on a "block all in, let anything out" foundation, with some extra security against spoofing, and selected filtering for functionality; this is generally fine for a trusted home LAN, but again, KNOW WHAT YOU ARE DOING.
 
 # ⚠️ IMPORTANT SECURITY DISCLAIMER ⚠️
 
