@@ -252,7 +252,7 @@ Stop `dhcp6leased` (Ctrl+C) and start it normally:
 ```sh
 rcctl start dhcp6leased
 ```
-Restart `slaacd` to assign the GUA to ix0:
+Restart `slaacd` to jumpstart assigning the GUA to ix0:
 ```sh
 rcctl restart slaacd
 ```
@@ -278,7 +278,7 @@ rcctl restart rad
 ifconfig ix0
 ```
 
-You should see your IPv6 global address:
+You should see your IPv6 global address (GUA):
 
 ```
 inet6 2600:4040:AAAA:BBBB::1 prefixlen 64
