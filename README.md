@@ -283,12 +283,12 @@ rcctl restart rad
 ifconfig ix0
 ```
 
-You should see your IPv6 global address (GUA):
+In addition to your IPv4, you should see your IPv6 global address (GUA):
 
 ```
 inet6 2600:4040:AAAA:BBBB::1 prefixlen 64
 ```
-## The IPv6 Prefix Delegation model (This ain't IPv4):
+## The IPv6 Prefix Delegation model (This ain't IPv4!):
 
 Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your router via DHCPv6 rather than assigning a Global Unicast Address (GUA) directly to the router’s WAN interface. This aligns with IPv6’s design principles, which support end-to-end connectivity without the need for NAT.
 
