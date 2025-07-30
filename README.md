@@ -425,6 +425,7 @@ https://test-ipv6.com/ can be utilized from clients.
 | 3    | **`slaacd`**         | Runs on LAN clients and router LAN interface; processes RAs, generates and configures GUA and default route  |
 | 4    | **`unbound`**        | Serves DNS to LAN clients using ULA address                                                               |
 | 5    | **`dhcpleased`**     | Handles IPv4 DHCP on WAN `ix1`, assigns IPv4 address and default route                                    |
+| 6    | **`dhcpd`**          | The IPv4 dhcp server; hands out IPv4 local addresses on LAN |
 
 
 
