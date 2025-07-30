@@ -4,11 +4,13 @@
 
 ## Overview
 
-This guide describes a **proven method** to configure an OpenBSD 7.7-based home router/firewall with **dual stack IPv4 and IPv6** using **Verizon FiOS**. It includes support for dynamic IPv6 prefix delegation, DNS advertisement to LAN clients, DNS over TLS using `unbound` to forward to Google, and optionally, DNS blocklisting utilizing RPZ. 
+This guide describes a **proven method** to configure an OpenBSD 7.7-based home router/firewall with **dual stack IPv4 and IPv6** using **Verizon FiOS**. It includes support for dynamic IPv6 prefix delegation, DNS advertisement to LAN clients, DNS over TLS using `unbound` to forward to Google, and optionally, DNS blocklisting utilizing RPZ. It also aims to explain the basic functionality of the OpenBSD IPv6 system.
 
 ## Why?
 
-Because simplicity is beautiful; OpenBSD is beautiful. It excels as a firewall/router platform, offering correctness, security, elegance and transparency. It resists the trend to incorporate bloatware disguised as features, inefficiency disguised as modernity, and unnecessary complexity. This guide shares a working configuration to help others build a reliable OpenBSD-based network gateway using the stable, default system tools found in the default `base` system.
+*Because IPv6 is new and mysterious to me, and in my pursuit of understanding it, I wanted to share something with the community that may be helpful.
+
+*Because simplicity is beautiful; OpenBSD is beautiful. It excels as a firewall/router platform, offering correctness, security, elegance and transparency. It resists the trend to incorporate bloatware disguised as features, inefficiency disguised as modernity, and unnecessary complexity. This guide shares a working configuration to help others build a reliable OpenBSD-based network gateway using the stable, default system tools found in the `base` system.
 
 ## 🔧 OpenBSD `base` Tools Used
 
@@ -437,11 +439,16 @@ OpenBSD and this project are licensed under the **BSD style License** in the sou
 **Misfit-138**
 
 **"Standing on the shoulders of giants"**
+
+Without the following resources and people, this guide would have been impossible for me.
+
+* Florian Obser: Created OpenBSD's modern IPv6 infrastructure by writing slaacd (OpenBSD 6.2), rad (OpenBSD 6.4), and dhcp6leased (OpenBSD 7.6) - the three daemons that handle IPv6 autoconfiguration, router advertisements, and prefix delegation respectively.
+* Jeremy Evans: https://code.jeremyevans.net/2024-11-03-adding-ipv6-to-my-home-network.html
+* Jeffrey Forman: https://write.jeffreyforman.net/posts/2022/verizon-fios-native-ipv6/
 * https://www.openbsd.org/faq/pf/example1.html
 * https://openbsdrouterguide.net/
 * https://dataswamp.org/
-* https://code.jeremyevans.net/2024-11-03-adding-ipv6-to-my-home-network.html
-* https://write.jeffreyforman.net/posts/2022/verizon-fios-native-ipv6/
+
 
 
 ## ❓ FAQ
