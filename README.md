@@ -23,6 +23,9 @@ In addition to explaining the basic functionality of the OpenBSD IPv6 system, th
 - `unbound` (Validating, recursive, caching DNS resolver)
 - `rpz` (Response Policy Zones- DNS filtering feature in `unbound` )
 
+## Hardware requirements:
+
+Your choice of hardware will be dictated by your own network requirements, but, generally, a machine with at least 2 NICs (one for WAN, one for LAN) that is of a supported architecture will work. 
 
 # ⚠️ DISCLAIMER ⚠️
 
