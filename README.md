@@ -345,8 +345,7 @@ Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TL
 server:
     interface: 127.0.0.1
     interface: ::1
-    interface: ix0  # <--- replace with your actual LAN interface
-    interface: ::
+    interface: fd00:AAAA:BBBB:CCCC::1  # replace with your ULA from hostname.ix0
     interface-automatic: yes
     do-ip6: yes
 
