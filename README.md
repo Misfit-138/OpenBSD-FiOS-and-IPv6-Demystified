@@ -8,15 +8,15 @@ This guide describes a **proven method** to configure an OpenBSD 7.7-based home 
 
 ## Why?
 
-OpenBSD is a powerful, elegant, and secure operating system. It excels as a firewall/router platform, offering correctness, simplicity, and transparency. This guide shares a working configuration to help others build a reliable OpenBSD-based network gateway.
+Because simplicity is beautiful; OpenBSD is beautiful. It excels as a firewall/router platform, offering correctness, security, elegance and transparency. It resists the trend to incorporate bloatware disguised as features, inefficiency disguised as modernity, and unnecessary complexity. This guide shares a working configuration to help others build a reliable OpenBSD-based network gateway using the stable, default system tools found in the default `base` system.
 
-## 🔧 OpenBSD Tools Used
+## 🔧 OpenBSD `base` Tools Used
 
 - OpenBSD 7.7
 - `dhcpd` (IPv4 DHCP server daemon)
-- `dhcpleased` - (IPv4 DHCP client daemon replacing the older ISC dhclient)
+- `dhcpleased` - (OpenBSD's IPv4 DHCP client daemon replacing the older ISC dhclient)
 - `pf` (OpenBSD's Packet Filter)
-- `slaacd` (OpenBSD's stateless address autoconfiguration daemon that automatically configures IPv6 addresses and routes using router solicitations/advertisements)
+- `slaacd` (StateLess Address Automatic Configuration daemon)
 - `dhcp6leased` (OpenBSD's IPv6 prefix delegation client)
 - `rad` (OpenBSD's Router Advertisement Daemon)
 - `unbound` (Validating, recursive, caching DNS resolver)
@@ -45,9 +45,9 @@ This guide contains network security configurations that will control your firew
 ## 📦 Installation Steps
 
 ### 1. Install OpenBSD 7.7
-Follow the official instructions at: https://www.openbsd.org/faq/faq4.html
+Official instructions at: https://www.openbsd.org/faq/faq4.html
 
-You will need a WAN interface configured with automatic IPv4/IPv6 and a LAN interface with static IPv4 for now.
+During the install set up a WAN interface configured with automatic IPv4/IPv6 and a LAN interface with static IPv4 for now.
 
 ### 2. Check for *running* and *enabled* daemons (slaacd **should** be enabled by default)
 
@@ -57,7 +57,7 @@ rcctl ls on
 ```
 
 ### 3. Disable `resolvd`  
-We want full control over DNS (avoid using ISP DNS):
+We want full control over DNS (to avoid using ISP DNS):
 
 ```sh
 rcctl stop resolvd
@@ -123,7 +123,7 @@ The output should be something like:
 ```sh
 fd00:AAAA:BBBB:CCCC::1/64
 ```
-We'll use this ULA as an alias for the LAN interface.
+We'll use this ULA as an alias for the LAN interface in `hostname.if` and to plug into `rad.conf` and `unbound.conf`.
 ```sh
 # /etc/hostname.ix0 (LAN):
 inet 192.168.1.1 255.255.255.0 192.168.1.255
@@ -137,7 +137,7 @@ inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create you
 inet autoconf
 inet6 autoconf
 ```
-Enable and start `dhcpd`:
+Enable and start `dhcpd` to serve IPv4 addresses on tha LAN:
 ```sh
 rcctl enable dhcpd
 rcctl set dhcpd flags ix0
@@ -224,7 +224,7 @@ rcctl enable rad
 
 ## 5. REBOOT, then Acquire Delegated Prefix
 (Rebooting is not strictly necessary, however, it will demonstrate that our system configuration survives a restart.)
-Reboot:
+
 ```sh
 reboot
 ```
@@ -272,7 +272,7 @@ interface ix0 {
 rcctl restart rad
 ```
 
-#### 9. Verify interface address
+#### 9. Verify interface address by checking your LAN:
 
 ```sh
 ifconfig ix0
@@ -283,6 +283,36 @@ You should see your IPv6 global address (GUA):
 ```
 inet6 2600:4040:AAAA:BBBB::1 prefixlen 64
 ```
+## The IPv6 Prefix Delegation model (This ain't IPv4):
+
+Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your router via DHCPv6 rather than assigning a Global Unicast Address (GUA) directly to the router’s WAN interface. This aligns with IPv6’s design principles, which support end-to-end connectivity without the need for NAT.
+
+### How It Works on OpenBSD 7.7
+
+**`dhcp6leased`** handles all DHCPv6 communication with Verizon on the WAN interface. It sends a request for prefix delegation (IA_PD) and receives a delegated prefix, usually a /56. It then subdivides that prefix according to its configuration and **records subprefixes assigned to each LAN interface** in its internal lease database located at `/var/db/dhcp6leased/`.
+
+Note: `dhcp6leased` does **not directly configure addresses** on interfaces—it only manages prefix delegation and records the mapping for other daemons to use.
+
+**`rad`** (Router Advertisement Daemon) reads the assigned subprefixes from the `dhcp6leased` lease database and sends Router Advertisements (RAs) on the LAN interface(s), to advertise the corresponding subnet (and DNS, if configured as such). This allows clients to self-configure IPv6 addresses using SLAAC.
+
+> ⚠️ `rad` must be restarted or reloaded manually to pick up new prefix data.
+
+**`slaacd`** runs on the OpenBSD router's LAN interface(s) (as well as LAN client devices). On all of these, it listens for Router Advertisements sent by the OpenBSD router itself, configures IPv6 addresses using SLAAC, and installs a default route via the router’s link-local address (fe80::/10).
+
+### Why This Design Works
+
+**No WAN GUA Needed**  
+Unlike IPv4, where a public WAN address is necessary for NAT, IPv6 routers simply route packets using their delegated prefix. There’s no need for a GUA on the WAN interface in this setup.
+
+**Link-Local Sufficient**  
+The router's WAN interface uses a link-local IPv6 address (`fe80::/10`) to communicate with Verizon’s upstream router, which is sufficient for both routing and DHCPv6.
+
+**Delegated GUA on LAN**  
+The router receives its own IPv6 address on each LAN interface by processing its own Router Advertisements via `slaacd`. These addresses are derived from the delegated prefix.
+
+**Efficient and Compliant**  
+This design reflects IPv6 best practices and conserves address space while enabling native, end-to-end IPv6 routing for all LAN clients—without NAT.
+
 
 #### 10. Update `pf.conf` IPv6 antispoofing rule
 
@@ -305,6 +335,8 @@ Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TL
 ### `/var/unbound/etc/unbound.conf`
 
 ```conf
+# unbound.conf
+# uncomment what is needed/preferred
 server:
     interface: 127.0.0.1
     interface: ::1
@@ -319,8 +351,9 @@ server:
     private-domain: home.arpa.
 
     tls-cert-bundle: "/etc/ssl/cert.pem"
-
-    include: "/var/unbound/etc/unbound.localhosts.conf"
+    # Include a localhosts.conf file for reverse lookups
+    # see https://openbsdrouterguide.net/
+    #include: "/var/unbound/etc/unbound.localhosts.conf"
 
     local-zone: "192.168.1.0/24" static
 
@@ -336,7 +369,7 @@ server:
     prefetch: yes
 
     # Enable DNSSEC:
-    auto-trust-anchor-file: "/var/unbound/db/root.key"
+    # auto-trust-anchor-file: "/var/unbound/db/root.key"
 
     # Uncomment to load rpz module and configure below:
     # module-config: "respip validator iterator"
@@ -347,14 +380,14 @@ server:
 remote-control:
     control-enable: yes
     control-interface: /var/run/unbound.sock
-
-forward-zone:
-    name: "."
-    forward-tls-upstream: yes
-    forward-addr: 8.8.8.8@853#dns.google
-    forward-addr: 8.8.4.4@853#dns.google
-    forward-addr: 2001:4860:4860::8888@853#dns.google
-    forward-addr: 2001:4860:4860::8844@853#dns.google
+# Uncomment to forward to Google DNS
+#forward-zone:
+    #name: "."
+    #forward-tls-upstream: yes
+    #forward-addr: 8.8.8.8@853#dns.google
+    #forward-addr: 8.8.4.4@853#dns.google
+    #forward-addr: 2001:4860:4860::8888@853#dns.google
+    #forward-addr: 2001:4860:4860::8844@853#dns.google
 
 #rpz:
 #    name: my preferred blocklist
@@ -374,21 +407,22 @@ rcctl ls started
 Test your configuration from the router using the tools of your choice, e.g.:
 ```sh
 ifconfig ix0
-ping6 google.com
-dig -6 google.com
-dig google.com AAAA
+ping6 
+dig -6 @fd00:AAAA:BBBB:CCCC::1 example.com AAAA
+dig example.com AAAA
 ```
 https://test-ipv6.com/ can be utilized from clients.
 
-# What is happening here (To the best of my understanding):
-| Step | Daemon               | Role                                                                    |
-| ---- | -------------------- | ----------------------------------------------------------------------- |
-| 1    | **`slaacd`**         | Sends RS, receives Verizon RA, installs default IPv6 route on WAN `ix1` |
-| 2    | **`dhcp6leased`**    | Requests delegated prefix, writes to `/var/db/dhcp6leased/ix0`          |
-| 3    | **Kernel**           | Applies GUA to LAN `ix0` as directed by dhcp6leased                     |
-| 4    | **`rad`**            | Advertises prefix + gateway + DNS on `ix0` (LAN)                        |
-| 5    | **`unbound`**        | Serves DNS to LAN using ULA address                                     |
-| 6    | **`dhcpleased`**     | Handles IPv4 autoconf on `ix1` (WAN)                                    |
+# What is happening here (summary):
+| Step | Daemon               | Role                                                                                                       |
+| ---- | -------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 1    | **`dhcp6leased`**    | Sends DHCPv6 request to Verizon on WAN `ix1`, receives delegated prefix, writes lease info to `/var/db/dhcp6leased/ix1` |
+| 2    | **`rad`**            | Reads prefix info from `dhcp6leased`, advertises delegated subprefix, gateway (and DNS) on LAN `ix0`             |
+| 3    | **`slaacd`**         | Runs on LAN clients and router LAN interface; processes RAs, generates and configures GUA and default route  |
+| 4    | **`unbound`**        | Serves DNS to LAN clients using ULA address                                                               |
+| 5    | **`dhcpleased`**     | Handles IPv4 DHCP on WAN `ix1`, assigns IPv4 address and default route                                    |
+
+
 
 ## **ENJOY!**
 
