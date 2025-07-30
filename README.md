@@ -4,7 +4,7 @@
 
 ## Overview
 
-In addition to explaining the basic functionality of the OpenBSD IPv6 system, this guide describes a **proven method** to configure an OpenBSD 7.7-based home router/firewall with **dual stack IPv4 and IPv6** using **Verizon FiOS**. It includes support for dynamic IPv6 prefix delegation, DNS advertisement to LAN clients, DNSSEC, root server querying, or DNS over TLS using `unbound` to forward to Google, and optionally, DNS blocklisting utilizing RPZ. 
+In addition to explaining the basic functionality of the OpenBSD IPv6 system, this guide describes a **proven method** to configure an OpenBSD 7.7-based router/firewall with **dual stack IPv4 and IPv6** using residential **Verizon FiOS**. It includes support for dynamic IPv6 prefix delegation, DNS advertisement to LAN clients, DNSSEC, root server querying, or DNS over TLS using `unbound` to forward to Google, and optionally, DNS blocklisting utilizing RPZ. 
 ## Why?
 
 - Because IPv6 is new and mysterious to me, and in my pursuit of understanding it, I wanted to share something with the community that may be helpful.
