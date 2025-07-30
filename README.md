@@ -8,9 +8,9 @@ This guide describes a **proven method** to configure an OpenBSD 7.7-based home 
 
 ## Why?
 
-*Because IPv6 is new and mysterious to me, and in my pursuit of understanding it, I wanted to share something with the community that may be helpful.
+- Because IPv6 is new and mysterious to me, and in my pursuit of understanding it, I wanted to share something with the community that may be helpful.
 
-*Because simplicity is beautiful; OpenBSD is beautiful. It excels as a firewall/router platform, offering correctness, security, elegance and transparency. It resists the trend to incorporate bloatware disguised as features, inefficiency disguised as modernity, and unnecessary complexity. This guide shares a working configuration to help others build a reliable OpenBSD-based network gateway using the stable, default system tools found in the `base` system.
+- Because simplicity is beautiful; OpenBSD is beautiful. It excels as a firewall/router platform, offering correctness, security, elegance and transparency. It resists the trend to incorporate bloatware disguised as features, inefficiency disguised as modernity, and unnecessary complexity. This guide shares a working configuration to help others build a reliable OpenBSD-based network gateway using the stable, default system tools found in the `base` system.
 
 ## 🔧 OpenBSD `base` Tools Used
 
