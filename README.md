@@ -335,7 +335,7 @@ pfctl -f /etc/pf.conf
 
 ## 12. DNS and `unbound`
 
-Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TLS, and RPZ support. The following configuration forwards DNS over TLS to Google and blocks malicious domains.
+Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TLS, and RPZ support. The following example allows for using the root servers or forwarding DNS over TLS to Google, as well as blocking malicious domains, depending on how you wish to proceed.
 
 ### `/var/unbound/etc/unbound.conf`
 
