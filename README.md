@@ -1,6 +1,6 @@
 # Demystifying OpenBSD 7.7 Router/Firewalls with Verizon FiOS Dual Stack (IPv4 + IPv6)
 
-![Example Image](openbsdmountain.jpg)
+![Example Image](openbsdmountain2.jpg)
 
 ## Overview
 
