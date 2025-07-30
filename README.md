@@ -145,6 +145,7 @@ Enable and start `dhcpd` to serve IPv4 addresses on tha LAN:
 ```sh
 rcctl enable dhcpd
 rcctl set dhcpd flags ix0
+rcctl start dhcpd
 ```
 ## 🔥 `pf.conf` (Firewall Rules)
 
