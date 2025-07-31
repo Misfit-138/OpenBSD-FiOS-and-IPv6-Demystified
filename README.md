@@ -59,7 +59,7 @@ During the install set up a WAN interface configured with automatic IPv4/IPv6 an
 rcctl ls started
 rcctl ls on
 ```
-`slaacd` **should** be enabled by default, but disable for now:
+`slaacd` **should** be enabled by default in a fresh install, but disable for now:
 ```sh
 rcctl stop slaacd
 rcctl disable slaacd
@@ -74,13 +74,14 @@ rcctl disable resolvd
 ```
 ## 4. Edit configuration files
 ### `/etc/sysctl.conf`
-
+Turning the system into a router that will forward IPv4/IPv6 packets between network interfaces is simple and easy:
 ```conf
 # sysctl.conf for router/firewall
 net.inet.ip.forwarding=1
 net.inet6.ip6.forwarding=1
 ```
 ### `/etc/dhcpd.conf`
+A simple, sane, working example:
 ```conf
 
 # /etc/dhcpd.conf
@@ -91,22 +92,50 @@ subnet 192.168.1.0 netmask 255.255.255.0 {
 }
 ```
 ### `/etc/resolv.conf`
-
+This file configures the *router's* resolving behavior.
 ```conf
 nameserver 127.0.0.1
 nameserver ::1
 lookup file bind
 search home.arpa  # <--- replace with your local domain name
 ```
-### Create `/etc/dhcpleased.conf` to ignore ISP DNS:
+`nameserver 127.0.0.1`→ Use the local DNS server running on IPv4 loopback (localhost). This means the system will try to send DNS queries to itself at 127.0.0.1.
+
+`nameserver ::1`→ Same as above, but for IPv6 loopback. This allows DNS queries to be sent to localhost using IPv6.
+
+`lookup file bind`→ This controls the order of name resolution:
+
+`file` means check /etc/hosts first.
+
+`bind` Originally meant the **Berkeley Internet Name Domain (BIND)** software, which is the original and widely used DNS resolver and server suite developed at Berkeley in the early days of the Internet. It’s a legacy term that stuck. Now, it simply means *ask the DNS servers listed above (127.0.0.1 and ::1) if the name wasn’t found in /etc/hosts*.
+
+search home.arpa
+→ If you type just a short hostname (like, myserver), the system will try appending .home.arpa to it, making it myserver.home.arpa. This helps with resolving names in your home network automatically.
+
+
+### Create `/etc/dhcpleased.conf` 
+
+dhcpleased does the following:
+- Sends DHCP Discover/Request messages to find and lease an IPv4 address.
+- Receives offers from a DHCP server, selects one, and requests it.
+- Writes lease info to /var/db/dhcpleased/ so it persists across reboots.
+- Configures your interface with:
+  - IPv4 address
+  - Default gateway (route add default)
+  - DNS resolvers (written to /etc/resolv.conf)
+  - Renews leases as needed to keep the IP assignment active.
+The following simple example with ignore ISP DNS assignment (recommended in this guide). Along with disbling `resolvd`, (recommended above) this give us full control over our DNS:
 ```conf
 interface ix1 { ignore dns }
 ```
-Enable `dhcpleased`:
+`dhcpleased` is automatically started by rc.d on interfaces marked with `inet autoconf` in `/etc/hostname.if`, so it should be enable and running. 
+
+Restart with:
 ```sh
-rcctl enable dhcpleased
-rcctl start dhcpleased
+rcctl restart dhcpleased
 ```
+At this point, you may wish to go back and re-check your resolv.conf, to ensure it has not been overwritten.
+
 ### `/etc/dhcp6leased.conf`:
 This simple file is all that is needed, and is quite self explanatory:
 ```conf
@@ -143,7 +172,7 @@ inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create you
 ```
 
 ### `/etc/hostname.ix1` (WAN):
-
+Simple, clean and brainless. And, it *just works*:
 ```sh
 inet autoconf
 inet6 autoconf
@@ -247,15 +276,9 @@ This simply directs `rad` to the current LAN interface (`ix0`) we are using in o
 reboot
 ```
 
-#### Start `dhcpd`, `dhcpleased` for IPv4:
+#### Start (or restart) `dhcpd`, `dhcpleased` for IPv4 if not already running:
 ```sh
-rcctl enable dhcpd
-rcctl start dhcpd
-rcctl enable dhcpleased
-rcctl start dhcpleased
-
-```
-```sh
+rcctl ls on
 rcctl ls started
 ```
 
@@ -311,7 +334,8 @@ In addition to your IPv4, you should see your IPv6 global address (GUA):
 inet6 2600:4040:AAAA:BBBB::1 prefixlen 64
 ```
 
-##*You are getting close to the summit!*##
+*You are getting close to the summit!*
+
 ## The IPv6 Prefix Delegation model (This ain't IPv4!):
 
 Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your router via DHCPv6 rather than assigning a Global Unicast Address (GUA) directly to the router’s WAN interface. This aligns with IPv6’s design principles, which support end-to-end connectivity without the need for NAT.
