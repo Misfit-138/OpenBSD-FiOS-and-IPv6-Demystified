@@ -123,7 +123,8 @@ dhcpleased does the following:
   - Default gateway (route add default)
   - DNS resolvers (written to /etc/resolv.conf)
   - Renews leases as needed to keep the IP assignment active.
-The following simple example with ignore ISP DNS assignment (recommended in this guide). Along with disbling `resolvd`, (recommended above) this give us full control over our DNS:
+
+The following simple example will ignore ISP DNS assignment (recommended). Along with disbling `resolvd`, (recommended above) this gives us full control over our DNS:
 ```conf
 interface ix1 { ignore dns }
 ```
