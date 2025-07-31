@@ -127,7 +127,7 @@ The following simple example with ignore ISP DNS assignment (recommended in this
 ```conf
 interface ix1 { ignore dns }
 ```
-`dhcpleased` is automatically started on interfaces marked with `inet autoconf` in `/etc/hostname.if`, so it should be enable and running. 
+`dhcpleased` is automatically started on interfaces marked with `inet autoconf` in `/etc/hostname.if`, so it should be enabled and running on `ix1` after a fresh install if you chose (autoconf). 
 
 Restart with:
 ```sh
