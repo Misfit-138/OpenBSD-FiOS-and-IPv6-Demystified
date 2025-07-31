@@ -65,7 +65,7 @@ rcctl stop slaacd
 rcctl disable slaacd
 ```
 
-### 3. Disable `resolvd`  
+### 3. Disable `resolvd` (recommended)  
 If you want full control over DNS (to avoid using ISP DNS):
 
 ```sh
