@@ -429,7 +429,7 @@ rcctl ls started
 Test your configuration from the router using the tools of your choice, e.g.:
 ```sh
 ifconfig ix0
-ping6 
+ping6 example.com
 dig -6 @fd00:AAAA:BBBB:CCCC::1 example.com AAAA
 dig example.com AAAA
 ```
