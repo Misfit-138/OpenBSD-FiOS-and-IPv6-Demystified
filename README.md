@@ -230,10 +230,7 @@ pass in quick on egress inet6 proto udp from any port 547 to any port 546
 ```conf
 interface ix0 { }
 ```
-Enable rad:
-```sh
-rcctl enable rad
-```
+*Do not enable rad at this point.* 
 
 ## 5. REBOOT, then Acquire Delegated Prefix
 (Rebooting is not strictly necessary, however, it will demonstrate that our system configuration survives a restart.)
@@ -241,7 +238,8 @@ rcctl enable rad
 ```sh
 reboot
 ```
-#### Ensure rad, dhcpd, dhcpleased, and slaacd are running:
+
+#### Ensure dhcpd, dhcpleased, and slaacd are running:
 
 ```sh
 rcctl ls started
@@ -278,11 +276,12 @@ interface ix0 {
     }
 }
 ```
-
-#### 8. Restart `rad`
+*Wait until dhcp6leased has received the delegated prefix (you can monitor with `ifconfig ix0`), then, enable and start `rad`. This ensures Router Advertisements carry the correct prefix and DNS information.*
+#### 8. Enable and start `rad`
 
 ```sh
-rcctl restart rad
+rcctl enable rad
+rcctl start rad
 ```
 
 #### 9. Verify interface address by checking your LAN:
@@ -296,6 +295,8 @@ In addition to your IPv4, you should see your IPv6 global address (GUA):
 ```
 inet6 2600:4040:AAAA:BBBB::1 prefixlen 64
 ```
+
+##*You are getting close to the summit!*##
 ## The IPv6 Prefix Delegation model (This ain't IPv4!):
 
 Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your router via DHCPv6 rather than assigning a Global Unicast Address (GUA) directly to the router’s WAN interface. This aligns with IPv6’s design principles, which support end-to-end connectivity without the need for NAT.
