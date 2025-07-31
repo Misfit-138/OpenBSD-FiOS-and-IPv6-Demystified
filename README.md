@@ -124,7 +124,7 @@ dhcpleased does the following:
   - DNS resolvers (written to /etc/resolv.conf)
   - Renews leases as needed to keep the IP assignment active.
 
-The following simple example will ignore ISP DNS assignment (recommended). Along with disbling `resolvd`, (recommended above) this gives us full control over our DNS:
+The following simple example will ignore ISP DNS assignment (recommended). Along with disabling `resolvd`, (recommended above) this gives us full control over our DNS:
 ```conf
 interface ix1 { ignore dns }
 ```
