@@ -449,7 +449,7 @@ https://test-ipv6.com/ can be utilized from clients.
 
 ## **ENJOY!**
 
-If you have not done so already, I recommend setting up dhcpd.conf for local hostname resolution by using static reservations, in conjunction with unbound.conf. An excellent guide which expands on this is here: https://openbsdrouterguide.net/
+If you have not done so already, I recommend setting up `dhcpd.conf` and `unbound.conf` for local hostname resolution by using static reservations, in conjunction with unbound.conf. An excellent guide which expands on this is here: https://openbsdrouterguide.net/
 
 ## License
 
