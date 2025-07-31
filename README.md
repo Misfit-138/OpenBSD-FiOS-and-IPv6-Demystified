@@ -61,7 +61,7 @@ rcctl ls on
 ```
 
 ### 3. Disable `resolvd`  
-We want full control over DNS (to avoid using ISP DNS):
+If you want full control over DNS (to avoid using ISP DNS):
 
 ```sh
 rcctl stop resolvd
