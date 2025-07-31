@@ -127,7 +127,7 @@ The following simple example with ignore ISP DNS assignment (recommended in this
 ```conf
 interface ix1 { ignore dns }
 ```
-`dhcpleased` is automatically started by rc.d on interfaces marked with `inet autoconf` in `/etc/hostname.if`, so it should be enable and running. 
+`dhcpleased` is automatically started on interfaces marked with `inet autoconf` in `/etc/hostname.if`, so it should be enable and running. 
 
 Restart with:
 ```sh
@@ -269,23 +269,7 @@ This simply directs `rad` to the current LAN interface (`ix0`) we are using in o
 
 *Do not enable rad at this point.* 
 
-## 5a. Acquire IPv4 address and routes and forward packets.
-
-#### Start (or restart) `dhcpd`, `dhcpleased` for IPv4 if not already running:
-(From the freshly installed system, dhcpleased should be enabled and running).
-
-```sh
-rcctl ls on
-rcctl ls started
-```
-
-```sh
-rcctl enable dhcpd 
-rcctl restart dhcpd
-rcctl enable dhcpleased
-rcctl start dhcpleased
-```
-## 5b. Acquire Delegated Prefix (IPv6)
+## 5. Acquire Delegated Prefix (IPv6)
 
 #### Enable and run `dhcp6leased` manually to observe prefix delegation
 
