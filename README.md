@@ -53,11 +53,16 @@ Official instructions at: https://www.openbsd.org/faq/faq4.html
 
 During the install set up a WAN interface configured with automatic IPv4/IPv6 and a LAN interface with static IPv4 for now.
 
-### 2. Check for *running* and *enabled* daemons (slaacd **should** be enabled by default)
+### 2. Check for *running* and *enabled* daemons 
 
 ```sh
 rcctl ls started
 rcctl ls on
+```
+`slaacd` **should** be enabled by default, but disable for now:
+```sh
+rcctl stop slaacd
+rcctl disable slaacd
 ```
 
 ### 3. Disable `resolvd`  
@@ -100,8 +105,10 @@ interface ix1 { ignore dns }
 Enable `dhcpleased`:
 ```sh
 rcctl enable dhcpleased
+rcctl start dhcpleased
 ```
 ### `/etc/dhcp6leased.conf`:
+This simple file is all that is needed, and is quite self explanatory:
 ```conf
 # dhcp6leased.conf for OpenBSD 7.7
 # WAN interface: ix1, LAN interface: ix0
@@ -141,7 +148,7 @@ inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create you
 inet autoconf
 inet6 autoconf
 ```
-Enable and start `dhcpd` to serve IPv4 addresses on tha LAN:
+Enable and start `dhcpd` to serve IPv4 addresses on the LAN:
 ```sh
 rcctl enable dhcpd
 rcctl set dhcpd flags ix0
@@ -226,21 +233,28 @@ pass in quick on egress inet6 proto udp from any port 547 to any port 546
 ### Initial Configuration
 
 #### Create `/etc/rad.conf`
-
+We'll create a simple `rad.conf`, only as a logical placeholder for now.
 ```conf
 interface ix0 { }
 ```
+This simply directs `rad` to the current LAN interface (`ix0`) we are using in our example.
+
 *Do not enable rad at this point.* 
 
-## 5. REBOOT, then Acquire Delegated Prefix
-(Rebooting is not strictly necessary, however, it will demonstrate that our system configuration survives a restart.)
+## 5. Acquire Delegated Prefix
 
 ```sh
 reboot
 ```
 
-#### Ensure dhcpd, dhcpleased, and slaacd are running:
+#### Start `dhcpd`, `dhcpleased` for IPv4:
+```sh
+rcctl enable dhcpd
+rcctl start dhcpd
+rcctl enable dhcpleased
+rcctl start dhcpleased
 
+```
 ```sh
 rcctl ls started
 ```
@@ -263,11 +277,12 @@ Stop `dhcp6leased` (Ctrl+C) and start it normally:
 ```sh
 rcctl start dhcp6leased
 ```
-Restart `slaacd` to jumpstart assigning the GUA to ix0:
+Start `slaacd` to jumpstart assigning the GUA to ix0:
 ```sh
-rcctl restart slaacd
+rcctl enable slaacd
+rcctl start slaacd
 ```
-#### 7. Update `rad.conf` with your ULA (from hostname.ix0) to advertise DNS to your LAN:
+#### 7. Update `rad.conf` with your ULA (from hostname.ix0) to advertise to your LAN:
 
 ```conf
 interface ix0 {
