@@ -326,6 +326,24 @@ Uncomment and update this line with your GUA:
 ```pf
 block in quick on egress inet6 from 2600:4040:AAAA:BBBB::/64 to any
 ```
+This rule blocks IPv6 packets coming from the internet that claim to be from your GUA (2600:4040:AAAA:BBBB::/64). It is essentially serving as an IPv6 anti-spoofing measure.
+Right below it you will see `block in quick from fd00::/8` These are private-use addresses and should never appear from outside. Blocking them explicitly is good practice.
+
+Why this matters:
+
+Legitimate traffic from your internal network should never arrive through your external interface - it should only come from inside your network. If packets with your internal addresses show up on the external interface, they're fake (spoofed).
+
+So, in addition to  `antispoof quick for { egress $lan }` we are layering security.
+
+`antispoof` handles general interface/source mismatches; it blocks packets that come from the wrong interface (e.g., a LAN IP on the WAN), while the `block in quick on egress inet6 from fd00::/8 to any` and `block in quick on egress inet6 from $gua_prefix to any` offer explicit, guaranteed protection based on address — not just interface.
+
+So:
+
+`antispoof` checks where a packet came from.
+
+The explicit IPv6 rules check what kind of address a packet is using.
+
+Both matter. Together, they catch different kinds of spoofing.
 
 #### 11. Reload `pf` rules
 
