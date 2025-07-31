@@ -269,17 +269,14 @@ This simply directs `rad` to the current LAN interface (`ix0`) we are using in o
 
 *Do not enable rad at this point.* 
 
-## 5. Acquire Delegated Prefix
-
-```sh
-reboot
-```
+## 5a. Acquire IPv4 address and routes and forward packets.
 
 #### Start (or restart) `dhcpd`, `dhcpleased` for IPv4 if not already running:
 ```sh
 rcctl ls on
 rcctl ls started
 ```
+## 5b. Acquire Delegated Prefix (IPv6)
 
 #### Enable and run `dhcp6leased` manually to observe prefix delegation
 
@@ -327,7 +324,7 @@ rcctl start rad
 ifconfig ix0
 ```
 
-In addition to your IPv4, you should see your IPv6 global address (GUA):
+In addition to your IPv4 address, you should see your IPv6 Global Unicast Address (GUA):
 
 ```
 inet6 2600:4040:AAAA:BBBB::1 prefixlen 64
