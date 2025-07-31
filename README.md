@@ -192,7 +192,7 @@ rcctl start dhcpd
 A clean and concise dual stack PF configuration with minimal logging, which works with both IPv4 and IPv6. It is based on a "block all in, let anything out" foundation, with some extra security against spoofing, and selected filtering for functionality; this is generally fine for a trusted home LAN, but again, KNOW WHAT YOU ARE DOING.
 
 ## *IPv6 essential considerations:*
-- There must be a route-to or pass out rule in `pf.conf` for IPv6 outbound from LAN to WAN. This is easy to forget and will silently block IPv6. Our example let's everything out- `pass out quick inet6 keep state`.
+- There must be a route-to or pass out rule in `pf.conf` for IPv6 outbound from LAN to WAN. This is easy to forget and will silently block IPv6. This is covered, because our example let's everything out- `pass out quick inet6 keep state`.
 - ICMPv6 needs to be allowed on WAN and LAN or many things break — neighbor discovery, path MTU discovery, RA, etc. This is covered by `pass in quick inet6 proto ipv6-icmp from any to any icmp6-type {
     echoreq, echorep, unreach, toobig, timex, paramprob,
     neighbrsol, neighbradv, routersol, routeradv
