@@ -141,6 +141,13 @@ ifconfig ix1
 ```
 You should see a valid IPv4 address.
 
+### Enable and start `dhcpd` to serve IPv4 addresses on the LAN:
+```sh
+rcctl enable dhcpd
+rcctl set dhcpd flags ix0
+rcctl start dhcpd
+```
+
 ### `/etc/dhcp6leased.conf`:
 This simple file is all that is needed, and is quite self explanatory:
 ```conf
@@ -182,12 +189,7 @@ Simple, clean and brainless. And, it *just works*:
 inet autoconf
 inet6 autoconf
 ```
-Enable and start `dhcpd` to serve IPv4 addresses on the LAN:
-```sh
-rcctl enable dhcpd
-rcctl set dhcpd flags ix0
-rcctl start dhcpd
-```
+
 ## 🔥 `pf.conf` (Firewall Rules)
 
 A clean and concise dual stack PF configuration with minimal logging, which works with both IPv4 and IPv6. It is based on a "block all in, let anything out" foundation, with some extra security against spoofing, and selected filtering for functionality; this is generally fine for a trusted home LAN, but again, KNOW WHAT YOU ARE DOING.
