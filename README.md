@@ -469,9 +469,13 @@ rcctl enable unbound
 ```
 
 ## 13. Reboot and test
-Ensure rad, dhcpd, unbound, dhcpleased, dhcp6leased and slaacd are running:
+Ensure dhcpleased, dhcpd, dhcp6leased, rad, slaacd and unbound are enabled and running:
 ```sh
+rcctl ls on
 rcctl ls started
+```
+```sh
+reboot
 ```
 Test your configuration from the router using the tools of your choice, e.g.:
 ```sh
