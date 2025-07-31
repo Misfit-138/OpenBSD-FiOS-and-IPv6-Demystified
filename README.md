@@ -151,6 +151,14 @@ rcctl start dhcpd
 
 A clean and concise dual stack PF configuration with minimal logging, which works with both IPv4 and IPv6. It is based on a "block all in, let anything out" foundation, with some extra security against spoofing, and selected filtering for functionality; this is generally fine for a trusted home LAN, but again, KNOW WHAT YOU ARE DOING.
 
+## *IPv6 essential considerations:*
+- There must be a route-to or pass out rule in `pf.conf` for IPv6 outbound from LAN to WAN. This is easy to forget and will silently block IPv6. Our example let's everything out- `pass out quick inet6 keep state`.
+- ICMPv6 needs to be allowed on WAN and LAN or many things break — neighbor discovery, path MTU discovery, RA, etc. This is covered by `pass in quick inet6 proto ipv6-icmp from any to any icmp6-type {
+    echoreq, echorep, unreach, toobig, timex, paramprob,
+    neighbrsol, neighbradv, routersol, routeradv
+} keep state`
+- Inbound DHCPv6 client <-> server traffic (udp port 546 <- 547) must be enabled on WAN ix1. Our example covers this with `pass in quick on egress inet6 proto udp from any port 547 to any port 546`.
+
 # ⚠️ IMPORTANT SECURITY DISCLAIMER ⚠️
 
 **THIS CODE DEFINES THE SYSTEM FIREWALL BEHAVIOR. USE AT YOUR OWN RISK.**
@@ -356,7 +364,7 @@ pfctl -f /etc/pf.conf
 Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TLS, and RPZ support. The following example allows for using the root servers or forwarding DNS over TLS to Google, as well as blocking malicious domains, depending on how you wish to proceed.
 
 ### `/var/unbound/etc/unbound.conf`
-
+Notice `interface-automatic: yes` is enabled so Unbound binds to GUA dynamically if assigned late.
 ```conf
 # unbound.conf
 # uncomment what is needed/preferred
