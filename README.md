@@ -14,12 +14,12 @@ In addition to explaining the basic functionality of the OpenBSD IPv6 system, th
 ## 🔧 OpenBSD `base` Tools Used
 
 - OpenBSD 7.7
+- `pf` (OpenBSD's Packet Filter)
 - `dhcpd` (IPv4 DHCP server daemon)
 - `dhcpleased` - (OpenBSD's IPv4 DHCP client daemon replacing the older ISC dhclient)
-- `pf` (OpenBSD's Packet Filter)
-- `slaacd` (StateLess Address Automatic Configuration daemon)
 - `dhcp6leased` (OpenBSD's IPv6 prefix delegation client)
 - `rad` (OpenBSD's Router Advertisement Daemon)
+- `slaacd` (StateLess Address Automatic Configuration daemon)
 - `unbound` (Validating, recursive, caching DNS resolver)
 - `rpz` (Response Policy Zones- DNS filtering feature in `unbound` )
 
