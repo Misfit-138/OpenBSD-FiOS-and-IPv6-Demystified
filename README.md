@@ -312,11 +312,12 @@ You should see something like:
 ```
 ...prefix delegation #1 2600:4040:AAAA:BBBB::/56 received on ix1 from server ...
 ```
-**Update the `# block in quick on egress inet6 from 2600:AAAA:BBBB:CCCC::/64 to any` line in your pf.conf with your actual prefix.**
+## 5b. **Update pf.conf anti spoofing rule:
+Uncomment `# block in quick on egress inet6 from 2600:AAAA:BBBB:CCCC::/64 to any` in your pf.conf and update with your actual prefix.**
 
-*This will block all spoofed traffic claiming to be from your /64.*
+*This will block all spoofed traffic attempting to enter your WAN claiming to be from your GUA.*
 
-#### 6. Send GUA to `ix0`:  (IPv6)
+## 6. Send GUA to `ix0`:  (IPv6)
 Stop `dhcp6leased` (Ctrl+C) and start it normally:
 ```sh
 rcctl start dhcp6leased
@@ -326,7 +327,7 @@ Start `slaacd` to jumpstart assigning the GUA to ix0:
 rcctl enable slaacd
 rcctl start slaacd
 ```
-#### 7. Update `rad.conf` with your ULA (from hostname.ix0) to advertise to your LAN:  (IPv6)
+## 7. Update `rad.conf` with your ULA (from hostname.ix0) to advertise to your LAN:  (IPv6)
 
 ```conf
 interface ix0 {
@@ -336,14 +337,14 @@ interface ix0 {
 }
 ```
 *Wait until dhcp6leased has received the delegated prefix (you can monitor with `ifconfig ix0`), then, enable and start `rad`. This ensures Router Advertisements carry the correct prefix and DNS information.*
-#### 8. Enable and start `rad`
+## 8. Enable and start `rad`
 
 ```sh
 rcctl enable rad
 rcctl start rad
 ```
 
-#### 9. Verify interface addresses by checking your LAN:  (IPv4/IPv6)
+## 9. Verify interface addresses by checking your LAN:  (IPv4/IPv6)
 
 ```sh
 ifconfig ix0
