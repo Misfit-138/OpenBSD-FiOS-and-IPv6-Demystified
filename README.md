@@ -185,14 +185,33 @@ inet 192.168.1.1 255.255.255.0 192.168.1.255
 inet6
 inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create your own.)
 ```
+- `inet 192.168.1.1 255.255.255.0 192.168.1.255`:  
+  Assigns a static IPv4 address to the interface, using a standard /24 subnet. Devices on the LAN will use this as their IPv4 gateway.
 
+- `inet6`:  
+  Enables IPv6 processing on the interface without assigning a static IPv6 address. This line is essential for SLAAC and for receiving Router Advertisements (RAs) from `rad`.  
+  Without this line, `slaacd` will not run on the interface, and the interface will not receive a dynamic Global Unicast Address (GUA) or an automatic default route.  
+  With this line present, `slaacd` autoconfigures a GUA when RAs are received.
+
+- `inet6 alias fd00:AAAA:BBBB:CCCC::1/64`:  
+  Assigns a stable Unique Local Address (ULA) to the interface. For use with internal-only services (like unbound or NTP), providing consistent local IPv6 reachability even if the delegated GUA prefix changes or is unavailable.
+
+This simple setup ensures:
+- Dual-stack (IPv4 + IPv6) support on the LAN
+- Dynamic GUA assignment via SLAAC (enabled by `inet6`)
+- A fixed local IPv6 address for internal services (via ULA)
+  
 ### `/etc/hostname.ix1` (WAN) should *probably* be configured during install:  (IPv4/IPv6)
 Simple, clean and brainless. And, it *just works*:
 ```sh
+# /etc/hostname.ix1 (WAN)
 inet autoconf
 inet6 autoconf
 ```
 
+- `inet autoconf`: Enables DHCPv4 on the WAN interface. The system will automatically obtain a a public IPv4 address, subnet mask, and default gateway from the ISP using DHCP.
+- `inet6 autoconf`: Enables IPv6 autoconfiguration on the interface. This allows the router to obtain a link-local IPv6 address on the WAN and communicate with the ISP’s DHCPv6 server for prefix delegation via `dhcp6leased`.
+  
 ## 🔥 `pf.conf` (Firewall Rules)  (IPv4/IPv6)
 
 A clean and concise dual stack PF configuration with minimal logging, which works with both IPv4 and IPv6. It is based on a "block all in, let anything out" foundation, with security against spoofing, and selected filtering for functionality; this verbatim configuration is generally fine for a trusted home LAN, but again, KNOW WHAT YOU ARE DOING.
