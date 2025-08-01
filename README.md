@@ -487,6 +487,7 @@ OpenBSD and this project are licensed under the **BSD style License** in the sou
 Without the following resources and people, this guide would have been impossible for me.
 
 * Florian Obser: Created OpenBSD's modern IPv6 infrastructure by writing slaacd (OpenBSD 6.2), rad (OpenBSD 6.4), and dhcp6leased (OpenBSD 7.6) - the three daemons that handle IPv6 autoconfiguration, router advertisements, and prefix delegation respectively.
+* https://www.youtube.com/watch?v=Q4b26mqb_G8
 * Jeremy Evans: https://code.jeremyevans.net/2024-11-03-adding-ipv6-to-my-home-network.html
 * Jeffrey Forman: https://write.jeffreyforman.net/posts/2022/verizon-fios-native-ipv6/
 * https://www.openbsd.org/faq/pf/example1.html
