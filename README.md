@@ -65,7 +65,7 @@ rcctl stop slaacd
 rcctl disable slaacd
 ```
 
-### 3. Disable `resolvd` (recommended)  
+### 3. Disable `resolvd` (recommended)  (IPv4/IPv6)
 If you want full control over DNS (to avoid using ISP DNS):
 
 ```sh
@@ -73,14 +73,16 @@ rcctl stop resolvd
 rcctl disable resolvd
 ```
 ## 4. Edit configuration files
-### `/etc/sysctl.conf`
+### `/etc/sysctl.conf`  (IPv4/IPv6)
 Turning the system into a router that will forward IPv4/IPv6 packets between network interfaces is simple and easy:
 ```conf
 # sysctl.conf for router/firewall
 net.inet.ip.forwarding=1
 net.inet6.ip6.forwarding=1
 ```
-### `/etc/dhcpd.conf`
+### `/etc/dhcpd.conf`  (IPv4)
+Setting up an IPv4 DHCP server is also straightforward.
+
 A simple, sane, working example:
 ```conf
 
@@ -91,7 +93,7 @@ subnet 192.168.1.0 netmask 255.255.255.0 {
 	range 192.168.1.10 192.168.1.254;
 }
 ```
-### `/etc/resolv.conf`
+### `/etc/resolv.conf`  (IPv4/IPv6)
 This file configures the *router's* resolving behavior.
 ```conf
 nameserver 127.0.0.1
@@ -112,7 +114,7 @@ search home.arpa  # <--- replace with your local domain name
 `search home.arpa`→ If you type just a short hostname (like, myserver), the system will try appending .home.arpa to it, making it myserver.home.arpa. This helps with resolving names in your home network automatically.
 
 
-### Create `/etc/dhcpleased.conf` 
+### Create `/etc/dhcpleased.conf`  (IPv4)
 
 dhcpleased does the following:
 - Sends DHCP Discover/Request messages to find and lease an IPv4 address.
@@ -148,7 +150,7 @@ rcctl set dhcpd flags ix0
 rcctl start dhcpd
 ```
 
-### `/etc/dhcp6leased.conf`:
+### `/etc/dhcp6leased.conf`:  (IPv6)
 This simple file is all that is needed, and is quite self explanatory:
 ```conf
 # dhcp6leased.conf for OpenBSD 7.7
@@ -158,7 +160,7 @@ This simple file is all that is needed, and is quite self explanatory:
 request prefix delegation on ix1 for { ix0/64 }
 
 ```
-### `/etc/hostname.ix0` (LAN):
+### `/etc/hostname.ix0` (LAN):  (IPv4/IPv6)
 
 ### Create a ULA (Unique Local Address)- IPv6's equivalent to RFC 1918 private addresses like 192.168.x.x in IPv4.
 Why it's useful:
@@ -184,14 +186,14 @@ inet6
 inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create your own.)
 ```
 
-### `/etc/hostname.ix1` (WAN) should *probably* be configured during install:
+### `/etc/hostname.ix1` (WAN) should *probably* be configured during install:  (IPv4/IPv6)
 Simple, clean and brainless. And, it *just works*:
 ```sh
 inet autoconf
 inet6 autoconf
 ```
 
-## 🔥 `pf.conf` (Firewall Rules)
+## 🔥 `pf.conf` (Firewall Rules)  (IPv4/IPv6)
 
 A clean and concise dual stack PF configuration with minimal logging, which works with both IPv4 and IPv6. It is based on a "block all in, let anything out" foundation, with security against spoofing, and selected filtering for functionality; this is generally fine for a trusted home LAN, but again, KNOW WHAT YOU ARE DOING.
 
@@ -263,7 +265,7 @@ pass in quick inet6 proto ipv6-icmp from any to any icmp6-type {
 pass in quick on egress inet6 proto udp from any port 547 to any port 546
 ```
 
-## 📡 `rad.conf` (Router Advertisement)
+## 📡 `rad.conf` (Router Advertisement)  (IPv6)
 
 ### Initial Configuration
 
@@ -291,7 +293,7 @@ You should see something like:
 ...prefix delegation #1 2600:4040:AAAA:BBBB::/56 received on ix1 from server ...
 ```
 
-#### 6. Send GUA to `ix0`:
+#### 6. Send GUA to `ix0`:  (IPv6)
 Stop `dhcp6leased` (Ctrl+C) and start it normally:
 ```sh
 rcctl start dhcp6leased
@@ -301,7 +303,7 @@ Start `slaacd` to jumpstart assigning the GUA to ix0:
 rcctl enable slaacd
 rcctl start slaacd
 ```
-#### 7. Update `rad.conf` with your ULA (from hostname.ix0) to advertise to your LAN:
+#### 7. Update `rad.conf` with your ULA (from hostname.ix0) to advertise to your LAN:  (IPv6)
 
 ```conf
 interface ix0 {
@@ -318,7 +320,7 @@ rcctl enable rad
 rcctl start rad
 ```
 
-#### 9. Verify interface address by checking your LAN:
+#### 9. Verify interface addresses by checking your LAN:  (IPv4/IPv6)
 
 ```sh
 ifconfig ix0
@@ -362,13 +364,13 @@ The router receives its own IPv6 address on each LAN interface by processing its
 **Efficient and Compliant**  
 This design reflects IPv6 best practices and conserves address space while enabling native, end-to-end IPv6 routing for all LAN clients—without NAT.
 
-#### 10. Reload `pf` rules
+#### 10. Reload `pf` rules:  (IPv4/IPv6)
 
 ```sh
 pfctl -f /etc/pf.conf
 ```
 
-## 11. DNS and `unbound`
+## 11. DNS and `unbound`  (IPv4/IPv6)
 
 Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TLS, and RPZ support. The following example allows for using the root servers or forwarding DNS over TLS to Google, as well as blocking malicious domains, depending on how you wish to proceed.
 
