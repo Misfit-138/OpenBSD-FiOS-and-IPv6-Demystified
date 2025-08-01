@@ -503,16 +503,12 @@ I found it 20 years ago, (though I am still a novice) fell in love with it, and 
 
 They're great tools, but I find them unnecessarily complex, especially for routing/firewalling. OpenBSD has fewer surprises and a consistent, coherent philosophy.
 
-### Why Google DNS?
+### Why do you include Google DNS?
 
 - In my region, Google DNS is fast and reliable.
 - Other providers and root servers did not perform well for me.
 - Feel free to configure your system to your own preference.
   
-### Aren’t Verizon FiOS delegated prefixes dynamic?
-
-Theoretically, yes; They can change. If this concerns you, I recommend creating a script which detects the change, writing it to a file, and `include` the file in `pf.conf`, so the IPv6 antispoof rule remains intact.
-
 ## 🙏 Final Thoughts
 
 This guide exists to help others get a solid OpenBSD dual stack router working with Verizon FiOS. I spent weeks testing, reading, and tweaking. If it helps one person, it was worth the effort.
