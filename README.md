@@ -382,7 +382,7 @@ So, in addition to  `antispoof quick for { egress $lan }` we are layering securi
 
 `antispoof` handles general interface/source mismatches; it blocks packets that come from the wrong interface (e.g., a LAN IP on the WAN), while the `block in quick on egress inet6 from fd00::/8 to any` and `block in quick on egress inet6 from $gua_prefix to any` offer explicit, guaranteed protection based on address — not just interface.
 
-So:
+To sum up:
 
 `antispoof` checks where a packet came from.
 
