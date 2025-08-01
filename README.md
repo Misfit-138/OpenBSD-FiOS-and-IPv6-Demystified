@@ -209,7 +209,7 @@ inet autoconf
 inet6 autoconf
 ```
 
-- `inet autoconf`: Enables DHCPv4 on the WAN interface. The system will automatically obtain a a public IPv4 address, subnet mask, and default gateway from the ISP using DHCP.
+- `inet autoconf`: Enables DHCPv4 on the WAN interface. The system will automatically obtain a a public IPv4 address, subnet mask, and default gateway from the ISP via `dhcpleased`.
 - `inet6 autoconf`: Enables IPv6 autoconfiguration on the interface. This allows the router to obtain a link-local IPv6 address on the WAN and communicate with the ISP’s DHCPv6 server for prefix delegation via `dhcp6leased`.
   
 ## 🔥 `pf.conf` (Firewall Rules)  (IPv4/IPv6)
