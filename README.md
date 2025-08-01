@@ -232,8 +232,6 @@ match out on egress inet from !(egress:network) to any nat-to (egress:0)
 
 # Anti-spoofing
 antispoof quick for { egress $lan }
-block in quick on egress inet6 from fd00::/8 to any 
-#block in quick on egress inet6 from 2600:4040:AAAA:BBBB::/64 to any  # uncomment after IPv6 global address is acquired and insert your actual address
 
 # Block martian traffic
 block in quick on egress inet from <martians> to any
@@ -291,7 +289,7 @@ You should see something like:
 ```
 ...prefix delegation #1 2600:4040:AAAA:BBBB::/56 received on ix1 from server ...
 ```
-Copy this prefix; We will use it to create your GUA, for the antispoofing rule in pf.conf.
+
 #### 6. Send GUA to `ix0`:
 Stop `dhcp6leased` (Ctrl+C) and start it normally:
 ```sh
@@ -363,40 +361,13 @@ The router receives its own IPv6 address on each LAN interface by processing its
 **Efficient and Compliant**  
 This design reflects IPv6 best practices and conserves address space while enabling native, end-to-end IPv6 routing for all LAN clients—without NAT.
 
-
-#### 10. Update `pf.conf` IPv6 antispoofing rule
-
-Uncomment and update this line with your GUA:
-
-```pf
-block in quick on egress inet6 from 2600:4040:AAAA:BBBB::/64 to any
-```
-This rule blocks IPv6 packets coming from the internet that claim to be from your GUA (2600:4040:AAAA:BBBB::/64). It is essentially serving as an IPv6 anti-spoofing measure.
-Right below it you will see `block in quick from fd00::/8` These are private-use addresses and should never appear from outside. Blocking them explicitly is good practice.
-
-Why this matters:
-
-Legitimate traffic from your internal network should never arrive through your external interface - it should only come from inside your network. If packets with your internal addresses show up on the external interface, they're fake (spoofed).
-
-So, in addition to  `antispoof quick for { egress $lan }` we are layering security.
-
-`antispoof` handles general interface/source mismatches; it blocks packets that come from the wrong interface (e.g., a LAN IP on the WAN), while the `block in quick on egress inet6 from fd00::/8 to any` and `block in quick on egress inet6 from $gua_prefix to any` offer explicit, guaranteed protection based on address — not just interface.
-
-To sum up:
-
-`antispoof` checks where a packet came from.
-
-The explicit IPv6 rules check what kind of address a packet is using.
-
-Both matter. Together, they catch different kinds of spoofing.
-
-#### 11. Reload `pf` rules
+#### 10. Reload `pf` rules
 
 ```sh
 pfctl -f /etc/pf.conf
 ```
 
-## 12. DNS and `unbound`
+## 11. DNS and `unbound`
 
 Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TLS, and RPZ support. The following example allows for using the root servers or forwarding DNS over TLS to Google, as well as blocking malicious domains, depending on how you wish to proceed.
 
@@ -466,7 +437,7 @@ Enable `unbound`
 rcctl enable unbound
 ```
 
-## 13. Reboot and test
+## 12. Reboot and test
 Ensure dhcpleased, dhcpd, dhcp6leased, rad, slaacd and unbound are enabled and running:
 ```sh
 rcctl ls on
