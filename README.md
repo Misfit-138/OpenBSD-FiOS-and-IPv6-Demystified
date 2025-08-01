@@ -175,7 +175,8 @@ The output should be something like:
 ```sh
 fd00:AAAA:BBBB:CCCC::1/64
 ```
-We'll use this ULA as an alias for the LAN interface in `hostname.if` and to plug into `rad.conf` and `unbound.conf`.
+We'll use this ULA as an alias for the LAN interface in `hostname.if` and to plug into `rad.conf` and `unbound.conf`. In this way, we have a permanent address for our LAN interface that will not change, unlike the dynamic prefix (and therefore, the Global Unicast Address (GUA) within) from the ISP. 
+
 ```sh
 # /etc/hostname.ix0 (LAN):
 inet 192.168.1.1 255.255.255.0 192.168.1.255
@@ -183,7 +184,7 @@ inet6
 inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create your own.)
 ```
 
-### `/etc/hostname.ix1` (WAN):
+### `/etc/hostname.ix1` (WAN) should *probably* be configured during install:
 Simple, clean and brainless. And, it *just works*:
 ```sh
 inet autoconf
@@ -192,7 +193,7 @@ inet6 autoconf
 
 ## 🔥 `pf.conf` (Firewall Rules)
 
-A clean and concise dual stack PF configuration with minimal logging, which works with both IPv4 and IPv6. It is based on a "block all in, let anything out" foundation, with some extra security against spoofing, and selected filtering for functionality; this is generally fine for a trusted home LAN, but again, KNOW WHAT YOU ARE DOING.
+A clean and concise dual stack PF configuration with minimal logging, which works with both IPv4 and IPv6. It is based on a "block all in, let anything out" foundation, with security against spoofing, and selected filtering for functionality; this is generally fine for a trusted home LAN, but again, KNOW WHAT YOU ARE DOING.
 
 ## *IPv6 essential considerations:*
 - There must be a route-to or pass out rule in `pf.conf` for IPv6 outbound from LAN to WAN. This is easy to forget and will silently block IPv6. This is covered, because our example let's everything out- `pass out quick inet6 keep state`.
