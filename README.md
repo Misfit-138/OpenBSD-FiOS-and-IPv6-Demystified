@@ -432,7 +432,7 @@ remote-control:
 
 #rpz:
 #    name: my preferred blocklist
-#    url: https://raw-rpz-blocklist
+#    url: https://raw-rpz-blocklist  # enter the url of a well-maintained, raw blocklist in rpz format
 #    rpz-action-override: nxdomain
 ```
 Enable `unbound`
