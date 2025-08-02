@@ -137,7 +137,7 @@ Restart with:
 rcctl restart dhcpleased
 ```
 At this point, you may wish to go back and re-check your resolv.conf, to ensure it has not been overwritten.
-### Check for IPv4 address:
+### Check WAN for public IPv4 address:
 ```sh
 ifconfig ix1
 ```
