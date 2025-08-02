@@ -315,12 +315,12 @@ You should see something like:
 ```
 ...prefix delegation #1 2600:4040:AAAA:BBBB::/56 received on ix1 from server ...
 ```
-
-## 6. Send GUA to `ix0`:  (IPv6)
 Stop `dhcp6leased` (Ctrl+C) and start it normally:
 ```sh
 rcctl start dhcp6leased
 ```
+## 6. Send GUA to `ix0`:  (IPv6)
+
 Start `slaacd` to jumpstart assigning the GUA to ix0:
 ```sh
 rcctl enable slaacd
@@ -335,7 +335,7 @@ interface ix0 {
     }
 }
 ```
-*Wait until dhcp6leased has received the delegated prefix (you can monitor with `ifconfig ix0`), then, enable and start `rad`. This ensures Router Advertisements carry the correct prefix and DNS information.*
+*Wait until `dhcp6leased` has received the delegated prefix and `slaacd` has assigned it, (you can check with `ifconfig ix0`), then, enable and start `rad`. This ensures Router Advertisements carry the correct prefix and DNS information.*
 ## 8. Enable and start `rad`
 
 ```sh
