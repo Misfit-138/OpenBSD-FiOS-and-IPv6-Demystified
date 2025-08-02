@@ -327,7 +327,7 @@ rcctl enable slaacd
 rcctl start slaacd
 ```
 ## 7. Update `rad.conf` with your ULA (from hostname.ix0) to advertise both the *prefix* and *address* to your LAN:  (IPv6)
-- Clients will receive both the DNS address (::1) and the prefix.
+- Clients will receive both the DNS address (fd00:AAAA:BBBB:CCCC::1) and the prefix (fd00:AAAA:BBBB:CCCC::/64).
 - They will autoconfigure ULA addresses like fd00:AAAA:BBBB:CCCC::abcd for themselves using SLAAC.
 - *They then use those ULA source addresses to query DNS* at your router’s ULA (fd00:AAAA:BBBB:CCCC::1).
 
