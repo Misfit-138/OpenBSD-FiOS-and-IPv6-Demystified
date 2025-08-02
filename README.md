@@ -342,9 +342,10 @@ interface ix0 {
 ```
 *Wait until `dhcp6leased` has received the delegated prefix and `slaacd` has assigned it, (you can check with `ifconfig ix0`), then, enable and start `rad`. This ensures Router Advertisements carry the correct prefix and DNS information.*
 
-We've essentially created a ULA subnet (fd00:AAAA:BBBB:CCCC::/64) on the LAN for the specific purpose of stable internal DNS service, despite our upstream GUA prefix being dynamic and subject to change, and configured Unbound to listen on the ULA address fd00:AAA:BBBB:CCCC::1
+We've essentially created a ULA subnet (fd00:AAAA:BBBB:CCCC::/64) on the LAN for the specific purpose of stable internal DNS service, (despite our upstream GUA prefix being dynamic and subject to change), and configured Unbound to listen on the ULA address fd00:AAA:BBBB:CCCC::1
 
-This concept was strange to me at first, since coming from the frugality of IPv4, it seemed excessive to create an 18 quintillion address space simply for my little network's DNS. But IPv6 encourages this for:
+This concept was strange to me at first, since coming from the frugality of IPv4, it seemed excessive to create 18 quintillion addresses simply for my little network's DNS. 
+But IPv6 encourages this for:
 
 Stability: Your ULA doesn’t change like your Verizon-assigned GUA. This makes it a perfect anchor for DNS, which needs consistency.
 
