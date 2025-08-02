@@ -313,7 +313,7 @@ You should see something like:
 ...prefix delegation #1 2600:4040:AAAA:BBBB::/56 received on ix1 from server ...
 ```
 ## 5b. Update pf.conf anti spoofing rule:
-Uncomment `# block in quick on egress inet6 from 2600:AAAA:BBBB:CCCC::/64 to any` in your pf.conf and update with your actual prefix.
+Uncomment `# block in quick on egress inet6 from 2600:AAAA:BBBB:CCCC::/64 to any` in your pf.conf and update with your actual prefix. Feel free to define a macro, like `$ipv6_GUA`.
 
 *This will block all spoofed traffic attempting to enter your WAN claiming to be from your GUA.*
 
