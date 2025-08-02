@@ -194,7 +194,7 @@ inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create you
   With this line present, `slaacd` autoconfigures a GUA when RAs are received.
 
 - `inet6 alias fd00:AAAA:BBBB:CCCC::1/64`:  
-  Assigns a stable Unique Local Address (ULA) to the interface. For use with internal-only services (like unbound or NTP), providing consistent local IPv6 reachability even if the delegated GUA prefix changes or is unavailable.
+  Assigns a stable Unique Local Address (ULA) to the LAN interface. For use with internal-only services (like unbound or NTP), providing consistent local IPv6 reachability even if the delegated GUA prefix changes or is unavailable.
 
 This simple setup ensures:
 - Dual-stack (IPv4 + IPv6) support on the LAN
@@ -283,7 +283,11 @@ pass in quick inet6 proto ipv6-icmp from any to any icmp6-type {
 # DHCPv6 client
 pass in quick on egress inet6 proto udp from any port 547 to any port 546
 ```
+### Reload `pf` rules:  (IPv4/IPv6)
 
+```sh
+pfctl -f /etc/pf.conf
+```
 ## 📡 `rad.conf` (Router Advertisement)  (IPv6)
 
 ### Initial Configuration
@@ -345,7 +349,7 @@ rcctl start rad
 ifconfig ix0
 ```
 
-In addition to your IPv4 address, you should see your IPv6 Global Unicast Address (GUA):
+In addition to your IPv4 LAN address, you should see your IPv6 Global Unicast Address (GUA):
 
 ```
 inet6 2600:4040:AAAA:BBBB::1 prefixlen 64
@@ -383,13 +387,7 @@ The router receives its own IPv6 address on each LAN interface by processing its
 **Efficient and Compliant**  
 This design reflects IPv6 best practices and conserves address space while enabling native, end-to-end IPv6 routing for all LAN clients—without NAT.
 
-## 10. Reload `pf` rules:  (IPv4/IPv6)
-
-```sh
-pfctl -f /etc/pf.conf
-```
-
-## 11. DNS and `unbound`  (IPv4/IPv6)
+## 10. DNS and `unbound`  (IPv4/IPv6)
 
 Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TLS, and RPZ support. The following example allows for using the root servers or forwarding DNS over TLS to Google, as well as blocking malicious domains, depending on how you wish to proceed.
 
@@ -457,7 +455,7 @@ Enable `unbound`
 rcctl enable unbound
 ```
 
-## 12. Reboot and test
+## 11. Reboot and test
 Ensure dhcpleased, dhcpd, dhcp6leased, rad, slaacd and unbound are enabled and running:
 ```sh
 rcctl ls on
