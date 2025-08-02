@@ -189,7 +189,7 @@ inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create you
   Assigns a static IPv4 address to the interface, using a standard /24 subnet. Devices on the LAN will use this as their IPv4 gateway.
 
 - `inet6`:  
-  Enables IPv6 processing on the interface without assigning a static IPv6 address. This line is essential for SLAAC and for receiving Router Advertisements (RAs) from `rad`.  
+  Enables IPv6 processing on the LAN interface without assigning a static IPv6 address. This line is essential for SLAAC and for receiving Router Advertisements (RAs) from `rad`.  
   Without this line, `slaacd` will not run on the interface, and the interface will not receive a dynamic Global Unicast Address (GUA) or an automatic default route.  
   With this line present, `slaacd` autoconfigures a GUA when RAs are received.
 
@@ -210,7 +210,7 @@ inet6 autoconf
 ```
 
 - `inet autoconf`: Enables DHCPv4 on the WAN interface. The system will automatically obtain a public IPv4 address, subnet mask, and default gateway from the ISP via `dhcpleased`.
-- `inet6 autoconf`: Enables IPv6 autoconfiguration on the interface. This allows the router to obtain a link-local IPv6 address on the WAN and communicate with the ISP’s DHCPv6 server for prefix delegation via `dhcp6leased`.
+- `inet6 autoconf`: Enables IPv6 autoconfiguration on the WAN interface. This allows the router to obtain a link-local IPv6 address on the WAN and communicate with the ISP’s DHCPv6 server for prefix delegation via `dhcp6leased`.
   
 ### 🔥 `pf.conf` (Firewall Rules)  (IPv4/IPv6)
 
