@@ -254,7 +254,6 @@ match out on egress inet from !(egress:network) to any nat-to (egress:0)
 
 # Anti-spoofing
 antispoof quick for { egress $lan }
-# block in quick on egress inet6 from 2600:AAAA:BBBB:CCCC::/64 to any  # uncomment after acquiring delegated prefix
 
 # Block martian traffic
 block in quick on egress inet from <martians> to any
@@ -312,10 +311,6 @@ You should see something like:
 ```
 ...prefix delegation #1 2600:4040:AAAA:BBBB::/56 received on ix1 from server ...
 ```
-## 5b. Update pf.conf anti spoofing rule:
-Uncomment `# block in quick on egress inet6 from 2600:AAAA:BBBB:CCCC::/64 to any` in your pf.conf and update with your actual prefix. Feel free to define a macro, like `$ipv6_prefix`.
-
-*This will block all spoofed traffic attempting to enter your WAN claiming to be from anywhere within your /64 prefix.*
 
 ## 6. Send GUA to `ix0`:  (IPv6)
 Stop `dhcp6leased` (Ctrl+C) and start it normally:
@@ -534,10 +529,6 @@ They're great tools, but I find them unnecessarily complex, especially for routi
 - In my region, Google DNS is fast and reliable.
 - Other providers and root servers did not perform well for me.
 - Feel free to configure your system to your own preference.
-
-### What about the dynamic 2600::/64 rule in pf.conf?
-
-Yes, theoretically, Verizon can change your dynamic prefix without warning. Until I find a better solution, this rule must be changed manually or scripted accordingly; One method is to have a script check for a change in the prefix, write to a file, and `include` that in pf.conf, with a $gua_prefix macro.
   
 ## 🙏 Final Thoughts
 
