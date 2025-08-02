@@ -416,9 +416,9 @@ Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TL
 # unbound.conf
 # uncomment what is needed/preferred
 server:
-    interface: 127.0.0.1
-    interface: ::1
-    interface: ix0
+    interface: ix0  # All IPv4 and IPv6 addresses assigned to this interface.
+    interface: 127.0.0.1  # Loopback on the router itself
+    interface: ::1  # ipv6 Loopback on the router itself
     
     private-address: 192.168.0.0/16
     private-address: fd00::/8
