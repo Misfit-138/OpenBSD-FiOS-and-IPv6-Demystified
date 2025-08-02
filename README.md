@@ -48,12 +48,12 @@ This guide contains network security configurations that will control your firew
 # In this guide, ix1 is WAN, ix0 is LAN
 ## 📦 Installation Steps
 
-### 1. Install OpenBSD 7.7
+## 1. Install OpenBSD 7.7
 Official instructions at: https://www.openbsd.org/faq/faq4.html
 
 During the install set up a WAN interface configured with automatic IPv4/IPv6 and a LAN interface with static IPv4 for now.
 
-### 2. Check for *running* and *enabled* daemons 
+## 2. Check for *running* and *enabled* daemons 
 
 ```sh
 rcctl ls started
@@ -65,7 +65,7 @@ rcctl stop slaacd
 rcctl disable slaacd
 ```
 
-### 3. Disable `resolvd` (recommended)  (IPv4/IPv6)
+## 3. Disable `resolvd` (recommended)  (IPv4/IPv6)
 If you want full control over DNS (to avoid using ISP DNS):
 
 ```sh
@@ -212,7 +212,7 @@ inet6 autoconf
 - `inet autoconf`: Enables DHCPv4 on the WAN interface. The system will automatically obtain a public IPv4 address, subnet mask, and default gateway from the ISP via `dhcpleased`.
 - `inet6 autoconf`: Enables IPv6 autoconfiguration on the interface. This allows the router to obtain a link-local IPv6 address on the WAN and communicate with the ISP’s DHCPv6 server for prefix delegation via `dhcp6leased`.
   
-## 🔥 `pf.conf` (Firewall Rules)  (IPv4/IPv6)
+### 🔥 `pf.conf` (Firewall Rules)  (IPv4/IPv6)
 
 A clean and concise dual stack PF configuration with minimal logging, which works with both IPv4 and IPv6. It is based on a "block all in, let anything out" foundation, with security against spoofing, and selected filtering for functionality; this verbatim configuration is generally fine for a trusted home LAN, but again, KNOW WHAT YOU ARE DOING.
 
@@ -289,7 +289,7 @@ pass in quick on egress inet6 proto udp from any port 547 to any port 546
 
 ### Initial Configuration
 
-#### Create `/etc/rad.conf`
+### Create `/etc/rad.conf`
 We'll create a simple `rad.conf`, only as a logical placeholder for now.
 ```conf
 interface ix0 { }
@@ -300,7 +300,7 @@ This simply directs `rad` to the current LAN interface (`ix0`) we are using in o
 
 ## 5. Acquire Delegated Prefix (IPv6)
 
-#### Enable and run `dhcp6leased` manually to observe prefix delegation
+### Enable and run `dhcp6leased` manually to observe prefix delegation
 
 ```sh
 rcctl enable dhcp6leased
@@ -362,7 +362,7 @@ inet6 2600:4040:AAAA:BBBB::1 prefixlen 64
 
 Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your router via DHCPv6 rather than assigning a Global Unicast Address (GUA) directly to the router’s WAN interface. This aligns with IPv6’s design principles, which support end-to-end connectivity without the need for NAT.
 
-### How It Works on OpenBSD 7.7
+## How It Works on OpenBSD 7.7
 
 **`dhcp6leased`** handles all DHCPv6 communication with Verizon on the WAN interface. It sends a request for prefix delegation (IA_PD) and receives a delegated prefix, usually a /56. It then subdivides that prefix according to its configuration and **records subprefixes assigned to each LAN interface** in its internal lease database located at `/var/db/dhcp6leased/`.
 
@@ -388,7 +388,7 @@ The router receives its own IPv6 address on each LAN interface by processing its
 **Efficient and Compliant**  
 This design reflects IPv6 best practices and conserves address space while enabling native, end-to-end IPv6 routing for all LAN clients—without NAT.
 
-#### 10. Reload `pf` rules:  (IPv4/IPv6)
+## 10. Reload `pf` rules:  (IPv4/IPv6)
 
 ```sh
 pfctl -f /etc/pf.conf
