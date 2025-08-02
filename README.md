@@ -333,7 +333,7 @@ rcctl start slaacd
 
 ```conf
 interface ix0 {
-    prefix fd00:AAA:BBB:CCC::/64
+    prefix fd00:AAAA:BBBB:CCCC::/64
     dns {
         nameserver fd00:AAAA:BBBB:CCCC::1
     }
