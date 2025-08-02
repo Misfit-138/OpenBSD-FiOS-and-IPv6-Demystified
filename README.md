@@ -399,7 +399,7 @@ pfctl -f /etc/pf.conf
 Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TLS, and RPZ support. The following example allows for using the root servers or forwarding DNS over TLS to Google, as well as blocking malicious domains, depending on how you wish to proceed.
 
 ### `/var/unbound/etc/unbound.conf`
-Notice `interface-automatic: yes` is enabled so Unbound binds to GUA dynamically if assigned late.
+
 ```conf
 # unbound.conf
 # uncomment what is needed/preferred
@@ -407,8 +407,6 @@ server:
     interface: 127.0.0.1
     interface: ::1
     interface: fd00:AAAA:BBBB:CCCC::1  # replace with your ULA from hostname.ix0
-    interface-automatic: yes
-    do-ip6: yes
 
     private-address: 192.168.0.0/16
     private-address: fd00::/8
