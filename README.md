@@ -423,7 +423,7 @@ server:
     private-address: 192.168.0.0/16
     private-address: fd00::/8
     private-address: fe80::/10
-    private-domain: home.arpa.
+    private-domain: home.arpa
 
     tls-cert-bundle: "/etc/ssl/cert.pem"
     # Include a localhosts.conf file for reverse lookups
