@@ -437,7 +437,7 @@ server:
     access-control: 127.0.0.0/8 allow
     access-control: ::1 allow
     access-control: 192.168.1.0/24 allow
-    access-control: fd00:AAAA:BBBB:CCCC::/64 allow
+    # access-control: fd00:AAAA:BBBB:CCCC::/64 allow  # <--- Replace with your actual ULA.
 
     hide-identity: yes
     hide-version: yes
