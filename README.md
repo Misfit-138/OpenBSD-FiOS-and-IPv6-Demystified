@@ -223,7 +223,7 @@ A clean and concise dual stack PF configuration with minimal logging, which work
     echoreq, echorep, unreach, toobig, timex, paramprob,
     neighbrsol, neighbradv, routersol, routeradv
 } keep state`
-- Inbound DHCPv6 client <-> server traffic (udp port 546 <- 547) must be enabled on WAN ix1. Our example covers this with `pass in quick on egress inet6 proto udp from any port 547 to any port 546`.
+- `dhcp6leased` <-> server traffic (udp port 546 <- 547) must be enabled on WAN ix1. Our example covers this with `pass in quick on egress inet6 proto udp from any port 547 to any port 546`.
 
 # ⚠️ IMPORTANT SECURITY DISCLAIMER ⚠️
 
