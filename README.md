@@ -153,9 +153,7 @@ rcctl start dhcpd
 ### `/etc/dhcp6leased.conf`:  (IPv6)
 This simple file is all that is needed, and is quite self explanatory:
 ```conf
-# dhcp6leased.conf for OpenBSD 7.7
 # WAN interface: ix1, LAN interface: ix0
-
 # Request prefix delegation and assign first /64 to LAN
 request prefix delegation on ix1 for { ix0/64 }
 
