@@ -96,6 +96,7 @@ subnet 192.168.1.0 netmask 255.255.255.0 {
 ### `/etc/resolv.conf`  (IPv4/IPv6)
 This file configures the *router's* resolving behavior.
 ```conf
+# /etc/resolv.conf
 nameserver 127.0.0.1
 nameserver ::1
 lookup file bind
@@ -128,6 +129,7 @@ dhcpleased does the following:
 
 The following simple example will ignore ISP DNS assignment (recommended). Along with disabling `resolvd`, (recommended above) this gives us full control over our DNS:
 ```conf
+# /etc/dhcpleased.conf
 interface ix1 { ignore dns }
 ```
 `dhcpleased` is automatically started on interfaces marked with `inet autoconf` in `/etc/hostname.if`, so it should be enabled and running on `ix1` after a fresh install if you chose (autoconf). 
@@ -153,6 +155,7 @@ rcctl start dhcpd
 ### `/etc/dhcp6leased.conf`:  (IPv6)
 This simple file is all that is needed, and is quite self explanatory:
 ```conf
+# /etc/dhcp6leased.conf
 # WAN interface: ix1, LAN interface: ix0
 # Request prefix delegation and assign first /64 to LAN
 request prefix delegation on ix1 for { ix0/64 }
@@ -227,6 +230,7 @@ A clean and concise dual stack PF configuration with minimal logging, which work
 **THIS CODE DEFINES THE SYSTEM FIREWALL BEHAVIOR. USE AT YOUR OWN RISK.**
 
 ```pf
+# /etc/pf.conf
 # Interface macros
 lan = "ix0"
 
@@ -316,6 +320,7 @@ rcctl start slaacd
 ## 7. 📡 Create `/etc/rad.conf` (Router Advertisement)  (IPv6)
 Direct `rad` to advertise on `ix0` (LAN):
 ```conf
+# /etc/rad.conf
 interface ix0 {
     prefix fd00:AAAA:BBBB:CCCC::/64
     dns {
@@ -400,7 +405,7 @@ Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TL
 ### `/var/unbound/etc/unbound.conf`
 
 ```conf
-# unbound.conf
+# /var/unbound/etc/unbound.conf
 # uncomment what is needed/preferred
 server:
     interface: ix0  # All IPv4 and IPv6 addresses assigned to this interface.
