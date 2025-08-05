@@ -212,7 +212,7 @@ inet6 autoconf
 - `inet autoconf`: Enables DHCPv4 on the WAN interface. The system will automatically obtain a public IPv4 address, subnet mask, and default gateway from the ISP via `dhcpleased`.
 - `inet6 autoconf`: Enables IPv6 autoconfiguration on the WAN interface. This allows the router to obtain a link-local IPv6 address on the WAN and communicate with the ISP’s DHCPv6 server for prefix delegation via `dhcp6leased`.
   
-### 🔥 `pf.conf` (Firewall Rules)  (IPv4/IPv6)
+### 🔥 `/etc/pf.conf` (Firewall Rules)  (IPv4/IPv6)
 
 A clean and concise dual stack PF configuration with minimal logging, which works with both IPv4 and IPv6. It is based on a "block all in, let anything out" foundation, with security against spoofing, and selected filtering for functionality; this verbatim configuration is generally fine for a trusted home LAN, but again, KNOW WHAT YOU ARE DOING.
 
@@ -458,9 +458,10 @@ remote-control:
 #    url: https://raw-rpz-blocklist  # enter the url of a well-maintained, raw blocklist in rpz format
 #    rpz-action-override: nxdomain
 ```
-Enable `unbound`
+Enable and start `unbound`
 ```sh
 rcctl enable unbound
+rcctl start unbound
 ```
 
 ## 11. Reboot and test
