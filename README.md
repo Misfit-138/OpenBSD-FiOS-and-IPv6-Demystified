@@ -288,18 +288,6 @@ pass in quick on egress inet6 proto udp from any port 547 to any port 546
 ```sh
 pfctl -f /etc/pf.conf
 ```
-## 📡 `rad.conf` (Router Advertisement)  (IPv6)
-
-### Initial Configuration
-
-### Create `/etc/rad.conf`
-We'll create a simple `rad.conf`, only as a logical placeholder for now.
-```conf
-interface ix0 { }
-```
-This simply directs `rad` to the current LAN interface (`ix0`) we are using in our example.
-
-*Do not enable rad at this point.* 
 
 ## 5. Acquire Delegated Prefix (IPv6)
 
@@ -326,11 +314,9 @@ Start `slaacd` to jumpstart assigning the GUA to ix0:
 rcctl enable slaacd
 rcctl start slaacd
 ```
-## 7. Update `rad.conf` with your ULA (from hostname.ix0) to advertise both the *prefix* and *address* to your LAN:  (IPv6)
-- Clients will receive both the DNS address (fd00:AAAA:BBBB:CCCC::1) and the prefix (fd00:AAAA:BBBB:CCCC::/64).
-- They will autoconfigure ULA addresses like fd00:AAAA:BBBB:CCCC::abcd for themselves using SLAAC.
-- *They then use those ULA source addresses to query DNS* at your router’s ULA (fd00:AAAA:BBBB:CCCC::1).
 
+## 7. ## 📡 Create `/etc/rad.conf` (Router Advertisement)  (IPv6)
+Direct `rad` to advertise on `ix0` (LAN):
 ```conf
 interface ix0 {
     prefix fd00:AAAA:BBBB:CCCC::/64
@@ -338,22 +324,25 @@ interface ix0 {
         nameserver fd00:AAAA:BBBB:CCCC::1
     }
 }
-
 ```
+*Substitute with your actual ULA created above (from hostname.ix0).*
+
+This configures `rad`  to advertise both the *prefix* and *address* to your LAN:  (IPv6)
+- Clients will receive both the DNS address (fd00:AAAA:BBBB:CCCC::1) and the prefix (fd00:AAAA:BBBB:CCCC::/64).
+- They will autoconfigure ULA addresses like fd00:AAAA:BBBB:CCCC::abcd for themselves using SLAAC.
+- *They then use those ULA source addresses to query DNS* at your router’s ULA (fd00:AAAA:BBBB:CCCC::1).
+
 *Wait until `dhcp6leased` has received the delegated prefix and `slaacd` has assigned it, (you can check with `ifconfig ix0`), then, enable and start `rad`. This ensures Router Advertisements carry the correct prefix and DNS information.*
 
 We've essentially created a ULA subnet (fd00:AAAA:BBBB:CCCC::/64) on the LAN for the specific purpose of stable internal DNS service, (despite our upstream GUA prefix being dynamic and subject to change), and configured `unbound` to listen on the ULA address fd00:AAA:BBBB:CCCC::1
 
-This concept was strange to me at first, since coming from the frugality of IPv4, it seemed excessive to create 18 quintillion addresses simply for my little network's DNS. 
-But IPv6 encourages this for:
+This concept was strange to me at first, since, coming from the frugality of IPv4, it seemed excessive to create 18 quintillion addresses simply for my little network's DNS. 
 
-Stability: Your ULA doesn’t change like your Verizon-assigned GUA. This makes it a perfect anchor for DNS, which needs consistency.
-
-Privacy: ULAs aren't routable on the public Internet, so there's no exposure.
-
-Simplicity: You avoid having to dynamically reconfigure Unbound or clients whenever your GUA changes.
-
-Reachability: Clients can always find Unbound at fd00:AAAA:BBBB:CCCC::1, even if your global prefix changes.
+But, IPv6 actually encourages this for:
+- Stability: Your ULA doesn’t change like your Verizon-assigned GUA. This makes it a perfect anchor for DNS, which needs consistency.
+- Privacy: ULAs aren't routable on the public Internet, so there's no exposure.
+- Simplicity: You avoid having to dynamically reconfigure Unbound or clients whenever your GUA changes.
+- Reachability: Clients can always find Unbound at fd00:AAAA:BBBB:CCCC::1, even if your global prefix changes.
 
 ## 8. Enable and start `rad`
 
