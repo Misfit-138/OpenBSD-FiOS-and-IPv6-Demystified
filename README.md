@@ -315,7 +315,7 @@ rcctl enable slaacd
 rcctl start slaacd
 ```
 
-## 7. ## 📡 Create `/etc/rad.conf` (Router Advertisement)  (IPv6)
+## 7. 📡 Create `/etc/rad.conf` (Router Advertisement)  (IPv6)
 Direct `rad` to advertise on `ix0` (LAN):
 ```conf
 interface ix0 {
