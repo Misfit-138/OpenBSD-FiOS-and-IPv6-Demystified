@@ -31,7 +31,8 @@ After reading, you should have a working understanding of what your OpenBSD fire
 
 ## Hardware requirements:
 
-Your choice of hardware will be dictated by your own network requirements, but, generally, a machine with at least 2 NICs (one for WAN, one for LAN) that is of a supported architecture will work. 
+Your choice of hardware will be dictated by your own network requirements, but, generally, a machine with at least 2 NICs (one for WAN, one for LAN) that is of a supported architecture will work.
+Intel NICs are particularly well supported.
 
 # ⚠️ DISCLAIMER ⚠️
 
