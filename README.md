@@ -73,6 +73,14 @@ rcctl stop slaacd
 rcctl disable slaacd
 ```
 
+`dhcp6leased` might be running also.
+
+Disable for now:
+```sh
+rcctl stop dhcp6leased 
+rcctl disable dhcp6leased 
+```
+
 ## 3. Disable `resolvd` (recommended for a router)  (IPv4/IPv6)
 I would recommend having full control over DNS (to avoid ISP DNS being assigned to router via DHCP):
 
@@ -126,6 +134,7 @@ search home.arpa  # <--- replace with your local domain name
 ### Create `/etc/dhcpleased.conf`  (IPv4)
 
 dhcpleased does the following:
+- Runs on interface(s) configured with `inet autoconf` (`ix1` in our example)
 - Sends DHCP Discover/Request messages to find and lease an IPv4 address.
 - Receives offers from a DHCP server, selects one, and requests it.
 - Writes lease info to /var/db/dhcpleased/ so it persists across reboots.
@@ -135,7 +144,7 @@ dhcpleased does the following:
   - DNS resolvers (written to /etc/resolv.conf)
   - Renews leases as needed to keep the IP assignment active.
 
-The following simple example will ignore ISP DNS assignment (recommended). Also disable `resolvd`, (recommended above). This gives us full control over our DNS:
+The following simple example will ignore ISP DNS assignment (recommended). Also, be sure to disable `resolvd`, (recommended above). This gives us full control over our DNS:
 ```conf
 # /etc/dhcpleased.conf
 interface ix1 { ignore dns }
@@ -154,6 +163,9 @@ ifconfig ix1
 You should see a valid IPv4 address.
 
 ### `/etc/dhcp6leased.conf`:  (IPv6)
+
+`dhcp6leased` is based on `dhcpleased` and serves a similar purpose and function, but for IPv6. It runs on interface(s) configured with `inet6 autoconf`.
+
 This simple file is all that is needed:
 ```conf
 # /etc/dhcp6leased.conf
