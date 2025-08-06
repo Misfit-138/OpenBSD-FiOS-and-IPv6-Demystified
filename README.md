@@ -153,13 +153,6 @@ ifconfig ix1
 ```
 You should see a valid IPv4 address.
 
-### Enable and start `dhcpd` to serve IPv4 addresses on the LAN:
-```sh
-rcctl enable dhcpd
-rcctl set dhcpd flags ix0
-rcctl start dhcpd
-```
-
 ### `/etc/dhcp6leased.conf`:  (IPv6)
 This simple file is all that is needed:
 ```conf
@@ -436,13 +429,26 @@ But, IPv6 actually encourages this for:
 - Reachability: Clients can always find Unbound at fd00:AAAA:BBBB:CCCC::1, even if your global prefix changes.
 
 ## 8. Enable and start `rad`
+
 *Wait until `dhcp6leased` has received the delegated prefix and `slaacd` has assigned it, (you can check with `ifconfig ix0`), then, enable and start `rad`. This ensures Router Advertisements carry the correct prefix and DNS information.*
 ```sh
 rcctl enable rad
 rcctl start rad
 ```
+## 8b. Enable and start `dhcpd` to serve IPv4 addresses on the LAN:
+```sh
+rcctl enable dhcpd
+rcctl set dhcpd flags ix0
+rcctl start dhcpd
+```
+## 9. Reboot and verify.
+Rebooting is not strictly necessary at this point, but it will prove our configurations survive a system restart.
 
-## 9. Verify interface addresses by checking your LAN:  (IPv4/IPv6)
+```sh
+reboot
+```
+
+Verify LAN address assignments:  (IPv4/IPv6)
 
 ```sh
 ifconfig ix0
@@ -451,6 +457,9 @@ ifconfig ix0
 In addition to your IPv4 LAN address, you should see your IPv6 Global Unicast Address (GUA):
 
 ```
+...
+inet 192.168.1.1
+...
 inet6 2600:4040:AAAA:BBBB::1 prefixlen 64
 ```
 
