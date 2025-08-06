@@ -437,8 +437,7 @@ But, IPv6 actually encourages this for:
 - Reachability: Clients can always find Unbound at fd00:AAAA:BBBB:CCCC::1, even if your global prefix changes.
 
 ## 7. Enable and start `rad`
-
-*Wait until `dhcp6leased` has received the delegated prefix and `slaacd` has assigned a GUA from it to your LAN, (you can check with `ifconfig ix0`), then, enable and start `rad`. This ensures Router Advertisements carry the correct prefix and DNS information.*
+Wait until dhcp6leased has received the delegated prefix. Then, enable and start rad, so that it advertises the correct prefix and DNS info on LAN.  
 ```sh
 rcctl enable rad
 rcctl start rad
