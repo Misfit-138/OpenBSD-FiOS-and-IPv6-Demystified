@@ -237,7 +237,7 @@ Why it's useful:
 * Unlike **GUA**s (which can change when your ISP changes your delegated prefix), **ULA**s remain constant.
 * Ensures local services and device-to-device communication continues working even if your ISP prefix changes-Provides a fallback for local network services.
 
-You can easily create your own random ULA using `jot`:
+You *could* easily create your own random ULA/prefix using `jot`:
 ```sh
 jot -r 6 0 255 | xargs printf "fd00:%02x%02x:%02x%02x:%02x%02x::1/64\n"
 ```
@@ -245,7 +245,21 @@ The output should be something like:
 ```sh
 fd00:AAAA:BBBB:CCCC::1/64
 ```
-We'll use this ULA as an alias for the LAN interface in `hostname.if` and to plug into `rad.conf` and `unbound.conf`. In this way, we have a permanent address on our LAN interface, for private use that will not change, unlike the dynamic prefix (and therefore, the Global Unicast Address (GUA) within) from the ISP assigned to the LAN. *More on this later.*
+But, ULAs are private and not routable on the internet, so feel free to arbitrarily create your own ULA which is more readable;
+```fd00:0red:dead:0000::1/64``` is perfectly fine as well.
+
+So, now we have:
+- A ULA: fd00:AAAA:BBBB:CCCC::1 = ULA (the individual address)
+- A subnet/prefix: fd00:AAAA:BBBB:CCCC::/64 = ULA prefix (the subnet)
+
+Terminology clarification:
+
+When we write out fd00:AAAA:BBBB:CCCC::1/64, we are specifying:
+- The router's individual ULA address: fd00:AAAA:BBBB:CCCC::1
+- With subnet information: /64
+- The prefix itself is: fd00:AAAA:BBBB:CCCC::/64
+
+We will use this ULA as an alias for the LAN interface in `hostname.ix0`. The prefix will be used in `unbound.conf`, and Later, we will use **both the prefix and the ULA** to plug into `rad.conf`. In this way, we have a permanent address on our LAN interface as well as a /64 subnet for private use that will not change, unlike the dynamic prefix and the Global Unicast Address (GUA) within from the ISP assigned to the LAN. *More on this later.*
 
 ```sh
 # /etc/hostname.ix0 (LAN):
