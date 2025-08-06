@@ -260,7 +260,7 @@ When we write out fd00:AAAA:BBBB:CCCC::1/64, we are specifying:
 - The *individual ULA address*: fd00:AAAA:BBBB:CCCC::1 with subnet information: /64
 - The *prefix* is: fd00:AAAA:BBBB:CCCC::/64
 
-We will use this ULA as an alias for the LAN interface in `hostname.ix0`. The prefix will be used in `unbound.conf`, and Later, we will use **both the prefix and the ULA** to plug into `rad.conf` to advertise to our LAN clients. In this way, we have a permanent address on our LAN interface as well as a /64 subnet for private use that will not change, unlike the dynamic prefix and the Global Unicast Address (GUA) within from the ISP assigned to the LAN. *More on this later.*
+We will use the ULA as an alias for the LAN interface in `hostname.ix0`. The prefix will be used in `unbound.conf`, and Later, we will use **both the prefix and the ULA** to plug into `rad.conf` to advertise to our LAN clients. In this way, we have a permanent address on our LAN interface as well as a /64 subnet for private use that will not change, unlike the dynamic prefix and the Global Unicast Address (GUA) within from the ISP assigned to the LAN. *More on this later.*
 
 ```sh
 # /etc/hostname.ix0 (LAN):
