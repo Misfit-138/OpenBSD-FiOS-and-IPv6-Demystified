@@ -174,7 +174,7 @@ request prefix delegation on ix1 for { ix0/64 }
 
 ## Breakdown: ##
 
-56 bits: Fixed by Verizon (2006:4040:AAAA:BB)
+56 bits: Fixed by Verizon (2006:4040:1234:56)
 
 8 bits: Yours for subnetting (00, 01, 02... ff)
 
