@@ -496,11 +496,11 @@ Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your route
 
 Note: `dhcp6leased` does **not directly configure addresses** on interfaces- it only manages prefix delegation and records the mapping for other daemons to use.
 
-**`slaacd`** runs on the OpenBSD router's LAN interface(s) (LAN client devices also use ther own **SLAAC**). `slaacd` configures IPv6 addresses using SLAAC, and installs a default route via the router’s link-local address (fe80::/10).
-
 **`rad`** (Router Advertisement Daemon) reads the assigned subprefixes from the `dhcp6leased` lease database and sends Router Advertisements (RAs) on the LAN interface(s), to advertise the corresponding subnet (and DNS, if configured as such). This allows clients to self-configure IPv6 addresses using SLAAC.
 
 > ⚠️ `rad` must be restarted or reloaded manually to pick up new prefix data.
+
+**`slaacd`** runs on the OpenBSD router's LAN interface(s) (LAN client devices also use ther own **SLAAC**). `slaacd` configures IPv6 addresses using SLAAC, and installs a default route via the router’s link-local address (fe80::/10).
 
 ### Why This Design Works
 
