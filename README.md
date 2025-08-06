@@ -4,12 +4,18 @@
 
 ## Overview
 
-In addition to explaining the basic functionality of the OpenBSD IPv6 system, this guide describes a **proven method** to configure an OpenBSD 7.7-based router/firewall with **dual stack IPv4 and IPv6** using residential **Verizon FiOS**. It includes support for dynamic IPv6 prefix delegation, DNS advertisement to LAN clients, DNSSEC, root server querying, or DNS over TLS using `unbound` to forward to Google, and optionally, DNS blocklisting utilizing RPZ. 
+This guide describes a **proven method** to configure an OpenBSD 7.7-based router/firewall with **dual stack IPv4 and IPv6** using residential **Verizon FiOS**. It includes support for dynamic IPv6 prefix delegation, DNS advertisement to LAN clients, DNSSEC, root server querying, or DNS over TLS using `unbound` to forward to Google, and optionally, DNS blocklisting utilizing RPZ.
+
+Additionally, it attempts to explain how all the relevant components work together, under the hood, to provide functionality.
+
 ## Why?
 
 - Because IPv6 is new and mysterious to me, and in my pursuit of understanding it, I wanted to share something with the community that may be helpful.
+- Because simplicity is beautiful; OpenBSD is beautiful. It excels as a firewall/router platform, offering correctness, security, elegance and transparency. It resists the trend to incorporate bloatware disguised as features, inefficiency disguised as modernity, and unnecessary complexity. 
 
-- Because simplicity is beautiful; OpenBSD is beautiful. It excels as a firewall/router platform, offering correctness, security, elegance and transparency. It resists the trend to incorporate bloatware disguised as features, inefficiency disguised as modernity, and unnecessary complexity. This guide shares a working configuration to help others build a reliable OpenBSD-based network gateway using the stable, default system tools found in the `base` system.
+This guide shares a working configuration to help others build a reliable OpenBSD-based network gateway using the default tools found in the `base` system.
+
+After reading, you should have a working understanding of what your OpenBSD firewall/router is doing and how it does so.
 
 ## 🔧 OpenBSD `base` Tools Used
 
