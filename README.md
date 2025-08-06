@@ -46,6 +46,7 @@ This guide contains network security configurations that will control your firew
 
 ---
 # In this guide, ix1 is WAN, ix0 is LAN
+
 ## 📦 Installation Steps
 
 ## 1. Install OpenBSD 7.7
@@ -65,8 +66,8 @@ rcctl stop slaacd
 rcctl disable slaacd
 ```
 
-## 3. Disable `resolvd` (recommended)  (IPv4/IPv6)
-If you want full control over DNS (to avoid using ISP DNS):
+## 3. Disable `resolvd` (recommended for a router)  (IPv4/IPv6)
+I would recommend having full control over DNS (to avoid ISP DNS being assigned to router via DHCP):
 
 ```sh
 rcctl stop resolvd
@@ -153,21 +154,87 @@ rcctl start dhcpd
 ```
 
 ### `/etc/dhcp6leased.conf`:  (IPv6)
-This simple file is all that is needed, and is quite self explanatory:
+This simple file is all that is needed:
 ```conf
 # /etc/dhcp6leased.conf
-# WAN interface: ix1, LAN interface: ix0
-# Request prefix delegation and assign first /64 to LAN
 request prefix delegation on ix1 for { ix0/64 }
-
 ```
+**(WAN interface: ix1, LAN interface: ix0)**
+## Explaining this simple file with IPv6 Math
+- IPv6 addresses are 128 bit.
+- A *prefix* defines an IPv6 *subnet*.
+- Verizon gives out /56 prefixes; The first 56 bits are *fixed* by Verizon.
+- Each /64 subnet: The first 64 bits define the subnet. And, since the first 56 are fixed,
+- Bits 56 to 64 = 64 - 56 = 8 bits, so,
+- 8 bits are available for our own subnetting.
+- With 8 bits, we can have 2^8 = 256 different values (0 through 255). This gives us 256 possible /64 subnets for our network.
+- **A /64 prefix defines an IPv6 subnet** that contains 18 Quintillion addresses; Every address in those subnets is a GUA (Global Unicast Address)- Quite generous. 
+- **The `/etc/dhcp6leased.conf` syntax does exactly what it implies: Request prefix delegation on WAN `ix1` and assign the first /64 to LAN `ix0`**
+- The remaining 64 bits are client **SLAAC** territory.
+
+## Breakdown: ##
+
+56 bits: Fixed by Verizon (2006:4040:AAAA:BB)
+
+8 bits: Yours for subnetting (00, 01, 02... ff)
+
+64 bits: Host addresses within each subnet (SLAAC territory)
+
+Math check:
+56 + 8 + 64 = 128 bits
+
+What this gives you:
+- 256 possible subnets (from your 8 bits: 2^8 = 256)
+- Each subnet can have ~18 quintillion hosts (from the 64 host bits: 2^64)
+
+Example subnet:
+
+2006:4040:1234:5601::/64
+
+2006:4040:1234:56 = Verizon's 56 bits
+
+01 = Your subnet choice (1 of 256 possible)
+
+:: = 64 zero bits available for host addresses
+
+On that subnet, SLAAC can assign:
+
+2006:4040:1234:5601::1 (router)
+
+2006:4040:1234:5601::a1b2:c3ff:fed4:5678 (device 1)
+
+2006:4040:1234:5601::dead:beef:cafe:1234 (device 2)
+
+...etc.
+
+So yes - we get 256 massive subnets, each capable of holding far more devices than exist on Earth.
+# Every address in those subnets is a GUA (Global Unicast Address).
+> 
+> **Why they're all GUAs:**
+> * **Global routing prefix**: `2006:4040::/32` is allocated to Verizon by IANA
+> * **Globally routable**: Any address starting with `2006:4040:` can be reached from anywhere on the IPv6 internet
+> * **Unique worldwide**: No other network uses your specific `/56` prefix
+> 
+> **So all of these are GUAs:**
+> * `2006:4040:1234:5600::1` (router on subnet 0)
+> * `2006:4040:1234:5601::dead:beef` (device on subnet 1)
+> * `2006:4040:1234:56ff::a1b2:c3d4` (device on subnet 255)
+> 
+> **What makes them "global":**
+> * They're not private/local addresses (like `fc00::/7` or `fe80::/10`)
+> * They're not multicast (`ff00::/8`) or reserved ranges
+> * They're part of the global IPv6 routing table
+> 
+> **The beauty of IPv6:** Unlike IPv4 where you typically get one public IP and NAT everything else, with IPv6 every device gets its own globally routable address. Your laptop, phone, IoT devices - they all get real internet addresses that can be reached directly (subject to firewall rules).
+> 
+> So yes - you have 256 subnets, each with ~18 quintillion globally unique, internet-routable addresses!
 ### `/etc/hostname.ix0` (LAN):  (IPv4/IPv6)
 
 ### Create a ULA (Unique Local Address)- IPv6's equivalent to RFC 1918 private addresses like 192.168.x.x in IPv4.
 Why it's useful:
 
-* ULAs provide stable, predictable addresses for local network communication.
-* Unlike global IPv6 addresses (which can change when your ISP changes your delegated prefix), ULAs remain constant.
+* **ULA**s provide stable, predictable addresses for local network communication.
+* Unlike **GUA**s (which can change when your ISP changes your delegated prefix), **ULA**s remain constant.
 * Ensures local services and device-to-device communication continues working even if your ISP prefix changes-Provides a fallback for local network services.
 
 You can easily create your own random ULA using `jot`:
@@ -178,7 +245,7 @@ The output should be something like:
 ```sh
 fd00:AAAA:BBBB:CCCC::1/64
 ```
-We'll use this ULA as an alias for the LAN interface in `hostname.if` and to plug into `rad.conf` and `unbound.conf`. In this way, we have a permanent address for our LAN interface that will not change, unlike the dynamic prefix (and therefore, the Global Unicast Address (GUA) within) from the ISP. *More on this later.*
+We'll use this ULA as an alias for the LAN interface in `hostname.if` and to plug into `rad.conf` and `unbound.conf`. In this way, we have a permanent address on our LAN interface, for private use that will not change, unlike the dynamic prefix (and therefore, the Global Unicast Address (GUA) within) from the ISP assigned to the LAN. *More on this later.*
 
 ```sh
 # /etc/hostname.ix0 (LAN):
@@ -408,7 +475,7 @@ Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TL
 # /var/unbound/etc/unbound.conf
 # uncomment what is needed/preferred
 server:
-    interface: ix0  # All IPv4 and IPv6 addresses assigned to this interface.
+    interface: ix0  # All IPv4 and IPv6 addresses assigned to this interface. (192.168.1.1, GUA and ULA)
     interface: 127.0.0.1  # Loopback on the router itself
     interface: ::1  # ipv6 Loopback on the router itself
     
@@ -424,12 +491,14 @@ server:
 
     local-zone: "192.168.1.0/24" static
 
+    # Default deny everything:
     access-control: 0.0.0.0/0 refuse
     access-control: ::0/0 refuse
+    # Allow:
     access-control: 127.0.0.0/8 allow
     access-control: ::1 allow
     access-control: 192.168.1.0/24 allow
-    # access-control: fd00:AAAA:BBBB:CCCC::/64 allow  # <--- Replace with your actual ULA.
+    access-control: fd00:AAAA:BBBB:CCCC::/64 allow  # <--- Replace with your actual ULA.
 
     hide-identity: yes
     hide-version: yes
@@ -461,6 +530,23 @@ remote-control:
 #    url: https://raw-rpz-blocklist  # enter the url of a well-maintained, raw blocklist in rpz format
 #    rpz-action-override: nxdomain
 ```
+Notice the `interface: ix0` clause.
+
+This directs `unbound` to **listen** on all addresses assigned to the LAN interface. 
+
+In our example, this now includes:
+- 192.168.1.1
+- Our **ULA** fd00:AAAA:BBBB:CCCC::1
+- Our **GUA** 2600:4040:AAAA:BBBB:CCCC::1
+
+However, notice the `access-control:` section:
+```conf
+access-control: 192.168.1.0/24 allow
+access-control: fd00:AAAA:BBBB:CCCC::/64
+```
+Only the RFC 1918 subnet 192.168.1.0/24 subnet and our ULA subnet fd00:AAAA:BBBB:CCCC::/64 are granted access.
+So, essentially, unbound listens on the interface, and the `access-control:` limits which addresses are granted access. Therefore, the `interface: ix0` is being used as shorthand. We could also explicitly configure by addresses using `interface:` if we choose.
+
 Enable and start `unbound`
 ```sh
 rcctl enable unbound
