@@ -406,21 +406,8 @@ Stop `dhcp6leased` (Ctrl+C) and start it normally:
 rcctl start dhcp6leased
 ```
 Having negotiated the lease, `dhcp6leased` writes the prefix to `/var/db/dhcp6leased/ix1`
-## 6. Send GUA to `ix0`:  (IPv6)
 
-Recall from above that we configured `hostname.ix0` and included the line: 
-
-```conf
-inet6
-```
-This directs `slaacd` to assign a GUA to `ix0` derived from the prefix within the file `/var/db/dhcp6leased/ix1`
-
-```sh
-rcctl enable slaacd
-rcctl start slaacd
-```
-
-## 7. 📡 Create `/etc/rad.conf` (Router Advertisement)  (IPv6)
+## 6. 📡 Create `/etc/rad.conf` (Router Advertisement)  (IPv6)
 Direct `rad` to advertise on `ix0` (LAN):
 ```conf
 # /etc/rad.conf
@@ -449,13 +436,27 @@ But, IPv6 actually encourages this for:
 - Simplicity: You avoid having to dynamically reconfigure Unbound or clients whenever your GUA changes.
 - Reachability: Clients can always find Unbound at fd00:AAAA:BBBB:CCCC::1, even if your global prefix changes.
 
-## 8. Enable and start `rad`
+## 7. Enable and start `rad`
 
 *Wait until `dhcp6leased` has received the delegated prefix and `slaacd` has assigned a GUA from it to your LAN, (you can check with `ifconfig ix0`), then, enable and start `rad`. This ensures Router Advertisements carry the correct prefix and DNS information.*
 ```sh
 rcctl enable rad
 rcctl start rad
 ```
+## 8. Send GUA to `ix0`:  (IPv6)
+
+Recall from above that we configured `hostname.ix0` and included the line: 
+
+```conf
+inet6
+```
+This directs `slaacd` to run on the interface. After receiving router advertisements from rad, slaacd will assign a GUA to `ix0` derived from the prefix within the file `/var/db/dhcp6leased/ix1`
+
+```sh
+rcctl enable slaacd
+rcctl start slaacd
+```
+
 ## 8b. Enable and start `dhcpd` to serve IPv4 addresses on the LAN:
 ```sh
 rcctl enable dhcpd
