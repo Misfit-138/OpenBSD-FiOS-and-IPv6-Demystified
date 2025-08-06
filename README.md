@@ -430,7 +430,7 @@ But, IPv6 actually encourages this for:
 
 ## 8. Enable and start `rad`
 
-*Wait until `dhcp6leased` has received the delegated prefix and `slaacd` has assigned it, (you can check with `ifconfig ix0`), then, enable and start `rad`. This ensures Router Advertisements carry the correct prefix and DNS information.*
+*Wait until `dhcp6leased` has received the delegated prefix and `slaacd` has assigned a GUA from it to your LAN, (you can check with `ifconfig ix0`), then, enable and start `rad`. This ensures Router Advertisements carry the correct prefix and DNS information.*
 ```sh
 rcctl enable rad
 rcctl start rad
