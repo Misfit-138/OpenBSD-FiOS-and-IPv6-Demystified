@@ -408,7 +408,13 @@ rcctl start dhcp6leased
 Having negotiated the lease, `dhcp6leased` writes the prefix to `/var/db/dhcp6leased/ix1`
 ## 6. Send GUA to `ix0`:  (IPv6)
 
-Start `slaacd` to read `/var/db/dhcp6leased/ix1` and assign a GUA derived from the prefix within that file to ix0:
+Recall from above that we configured `hostname.ix0` and included the line: 
+
+```conf
+inet6
+```
+This directs `slaacd` to assign a GUA to `ix0` derived from the prefix within the file `/var/db/dhcp6leased/ix1`
+
 ```sh
 rcctl enable slaacd
 rcctl start slaacd
