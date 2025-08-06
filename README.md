@@ -381,20 +381,22 @@ pfctl -f /etc/pf.conf
 rcctl enable dhcp6leased
 dhcp6leased -d
 ```
+Recall from above that we configured `/etc/hostname.ix1` with `inet6 autoconf`. Therefore, `dhcp6leased` is called on `ix1`.
 
 You should see something like:
 
 ```
 ...prefix delegation #1 2600:4040:AAAA:BBBB::/56 received on ix1 from server ...
 ```
+
 Stop `dhcp6leased` (Ctrl+C) and start it normally:
 ```sh
 rcctl start dhcp6leased
 ```
-Having negotiated the lease, `dhcp6leased` writes the prefix to `/var/db/dhcp6leased/ix0`
+Having negotiated the lease, `dhcp6leased` writes the prefix to `/var/db/dhcp6leased/ix1`
 ## 6. Send GUA to `ix0`:  (IPv6)
 
-Start `slaacd` to read `/var/db/dhcp6leased/ix0` and assign a GUA derived from the prefix to ix0:
+Start `slaacd` to read `/var/db/dhcp6leased/ix1` and assign a GUA derived from the prefix within that file to ix0:
 ```sh
 rcctl enable slaacd
 rcctl start slaacd
