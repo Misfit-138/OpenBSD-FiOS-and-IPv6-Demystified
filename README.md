@@ -301,7 +301,7 @@ A clean and concise dual stack PF configuration with minimal logging, which work
 
 ## *IPv6 essential considerations:*
 - There must be a route-to or pass out rule in `pf.conf` for IPv6 outbound from LAN to WAN. This is easy to forget and will silently block IPv6. This is covered, because our example let's everything out- `pass out quick inet6 keep state`.
-- ICMPv6 needs to be allowed on WAN and LAN or many things break — neighbor discovery, path MTU discovery, RA, etc. This is covered by `pass in quick inet6 proto ipv6-icmp from any to any icmp6-type {
+- ICMPv6 needs to be allowed on WAN and LAN or many things break- neighbor discovery, path MTU discovery, RA, etc. This is covered by `pass in quick inet6 proto ipv6-icmp from any to any icmp6-type {
     echoreq, echorep, unreach, toobig, timex, paramprob,
     neighbrsol, neighbradv, routersol, routeradv
 } keep state`
@@ -410,14 +410,13 @@ interface ix0 {
     }
 }
 ```
-*Substitute with your actual ULA created above (from hostname.ix0).*
+*Substitute with your actual ULA and prefix created above.*
 
-This configures `rad`  to advertise both the *prefix* and *address* to your LAN:  (IPv6)
+This configures `rad`  to advertise both the ULA *prefix* and *address* to your LAN:
 - Clients will receive both the DNS address (fd00:AAAA:BBBB:CCCC::1) and the prefix (fd00:AAAA:BBBB:CCCC::/64).
-- They will autoconfigure ULA addresses like fd00:AAAA:BBBB:CCCC::abcd for themselves using SLAAC.
+- They will autoconfigure ULA addresses like fd00:AAAA:BBBB:CCCC::abcd for themselves from the prefix using SLAAC.
 - *They then use those ULA source addresses to query DNS* at your router’s ULA (fd00:AAAA:BBBB:CCCC::1).
 
-*Wait until `dhcp6leased` has received the delegated prefix and `slaacd` has assigned it, (you can check with `ifconfig ix0`), then, enable and start `rad`. This ensures Router Advertisements carry the correct prefix and DNS information.*
 
 We've essentially created a ULA subnet (fd00:AAAA:BBBB:CCCC::/64) on the LAN for the specific purpose of stable internal DNS service, (despite our upstream GUA prefix being dynamic and subject to change), and configured `unbound` to listen on the ULA address fd00:AAA:BBBB:CCCC::1
 
@@ -430,7 +429,7 @@ But, IPv6 actually encourages this for:
 - Reachability: Clients can always find Unbound at fd00:AAAA:BBBB:CCCC::1, even if your global prefix changes.
 
 ## 8. Enable and start `rad`
-
+*Wait until `dhcp6leased` has received the delegated prefix and `slaacd` has assigned it, (you can check with `ifconfig ix0`), then, enable and start `rad`. This ensures Router Advertisements carry the correct prefix and DNS information.*
 ```sh
 rcctl enable rad
 rcctl start rad
@@ -458,7 +457,7 @@ Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your route
 
 **`dhcp6leased`** handles all DHCPv6 communication with Verizon on the WAN interface. It sends a request for prefix delegation (IA_PD) and receives a delegated prefix, usually a /56. It then subdivides that prefix according to its configuration and **records subprefixes assigned to each LAN interface** in its internal lease database located at `/var/db/dhcp6leased/`.
 
-Note: `dhcp6leased` does **not directly configure addresses** on interfaces—it only manages prefix delegation and records the mapping for other daemons to use.
+Note: `dhcp6leased` does **not directly configure addresses** on interfaces- it only manages prefix delegation and records the mapping for other daemons to use.
 
 **`slaacd`** runs on the OpenBSD router's LAN interface(s) (LAN client devices also use ther own **SLAAC**). `slaacd` configures IPv6 addresses using SLAAC, and installs a default route via the router’s link-local address (fe80::/10).
 
@@ -478,7 +477,7 @@ The router's WAN interface uses a link-local IPv6 address (`fe80::/10`) to commu
 The router receives its own IPv6 address on each LAN interface by processing its own Router Advertisements via `slaacd`. These addresses are derived from the delegated prefix.
 
 **Efficient and Compliant**  
-This design reflects IPv6 best practices and conserves address space while enabling native, end-to-end IPv6 routing for all LAN clients—without NAT.
+This design reflects IPv6 best practices and conserves address space while enabling native, end-to-end IPv6 routing for all LAN clients- without NAT.
 
 ## 10. DNS and `unbound`  (IPv4/IPv6)
 
