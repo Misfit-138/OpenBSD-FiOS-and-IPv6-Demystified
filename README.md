@@ -391,10 +391,10 @@ Stop `dhcp6leased` (Ctrl+C) and start it normally:
 ```sh
 rcctl start dhcp6leased
 ```
-Having negotiated the lease, dhcp6leased writes the prefix to /var/db/dhcp6leased/ix0
+Having negotiated the lease, `dhcp6leased` writes the prefix to `/var/db/dhcp6leased/ix0`
 ## 6. Send GUA to `ix0`:  (IPv6)
 
-Start `slaacd` to assign a GUA derived from the prefix to ix0:
+Start `slaacd` to read `/var/db/dhcp6leased/ix0` and assign a GUA derived from the prefix to ix0:
 ```sh
 rcctl enable slaacd
 rcctl start slaacd
