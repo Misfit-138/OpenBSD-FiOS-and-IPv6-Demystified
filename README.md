@@ -421,7 +421,7 @@ interface ix0 {
 ```
 *Substitute with your actual ULA and prefix created above.*
 
-This explicitly configures `rad`  to advertise both the ULA *prefix* and *address* to your LAN:
+This explicitly configures `rad`  to advertise the ULA *address* to your LAN. Based on the man page for rad.conf, rad will advertise all addresses assigned to an interface by default. This means:
 - Clients will receive both the DNS address (fd00:AAAA:BBBB:CCCC::1) and the ULA prefix (fd00:AAAA:BBBB:CCCC::/64).
 - They will autoconfigure ULA addresses like fd00:AAAA:BBBB:CCCC::abcd for themselves from the prefix using SLAAC.
 - *They then use those ULA source addresses to query DNS* at your router’s ULA (fd00:AAAA:BBBB:CCCC::1).
@@ -442,11 +442,7 @@ According to `rad.conf(5)`:
 
 *The default behavior is to discover prefixes to announce by inspecting the IPv6 addresses configured on an interface.*
 
-I tried to verify this behavior with `tcpdump`, however I cannot confirm that `rad` actually advertises the DP; I only observed the ULA from rad.conf being advertised.
-
-I can, however, verify that all clients on the network successfully autoconfigure GUAs within the delegated prefix.
-
-This is still a black box to me, and I have not been able to find the truth as to what is actually happening yet. It does work, but I am missing a small but crucial piece of the puzzle. More to come.
+This is still a black box to me, and I have not been able to find the complete truth as to what is actually happening yet. It does work, but I am missing a small but crucial piece of the puzzle. More to come.
 
 ## 7. Enable and start `rad`
 Wait until dhcp6leased has received the delegated prefix. Then, enable and start rad, so that it advertises the correct prefix and DNS info on LAN.  
