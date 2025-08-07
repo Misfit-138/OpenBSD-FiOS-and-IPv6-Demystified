@@ -421,7 +421,7 @@ interface ix0 {
 *Substitute with your actual ULA and prefix created above.*
 
 This configures `rad`  to advertise both the ULA *prefix* and *address* to your LAN:
-- Clients will receive both the DNS address (fd00:AAAA:BBBB:CCCC::1) and the prefix (fd00:AAAA:BBBB:CCCC::/64).
+- Clients will receive both the DNS address (fd00:AAAA:BBBB:CCCC::1) and the ULA prefix (fd00:AAAA:BBBB:CCCC::/64).
 - They will autoconfigure ULA addresses like fd00:AAAA:BBBB:CCCC::abcd for themselves from the prefix using SLAAC.
 - *They then use those ULA source addresses to query DNS* at your router’s ULA (fd00:AAAA:BBBB:CCCC::1).
 
@@ -436,6 +436,14 @@ But, IPv6 actually encourages this for:
 - Simplicity: You avoid having to dynamically reconfigure Unbound or clients whenever your GUA changes.
 - Reachability: Clients can always find Unbound at fd00:AAAA:BBBB:CCCC::1, even if your global prefix changes.
 
+## But what about our Verizon delegated prefix? Don't we need to configure `rad` to advertise it, in `rad.conf`?
+
+No. `rad.conf` does not need the delegated prefix to be explicitly included.
+
+*As long as the prefix is assigned to the interface (by `dhcp6leased`), `rad` will advertise it.* Recall above we configured `dhcp6leased` to assign the first /64 to `ix0`.
+
+This is consistent with OpenBSD's philosophy of minimal config when possible, and it makes IPv6 Just Work™
+
 ## 7. Enable and start `rad`
 Wait until dhcp6leased has received the delegated prefix. Then, enable and start rad, so that it advertises the correct prefix and DNS info on LAN.  
 ```sh
@@ -449,7 +457,7 @@ Recall from above that we configured `hostname.ix0` and included the line:
 ```conf
 inet6
 ```
-This directs `slaacd` to run on the interface. After receiving router advertisements from rad, slaacd will assign a GUA to `ix0` derived from the prefix within the file `/var/db/dhcp6leased/ix1`
+This directs `slaacd` to run on the LAN interface. Therefore, after receiving router advertisements from `rad`, `slaacd` will assign a GUA to `ix0` derived from the prefix within the file `/var/db/dhcp6leased/ix1`
 
 ```sh
 rcctl enable slaacd
