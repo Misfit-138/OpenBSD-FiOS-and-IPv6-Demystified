@@ -284,9 +284,11 @@ inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create you
   Assigns a static IPv4 address to the interface, using a standard /24 subnet. Devices on the LAN will use this as their IPv4 gateway.
 
 - `inet6`:  
-  Enables IPv6 processing on the LAN interface without assigning a static IPv6 address. This line is essential for SLAAC and for receiving Router Advertisements (RAs) from `rad`.  
-  Without this line, `slaacd` will not run on the interface, and the interface will not receive a dynamic Global Unicast Address (GUA) or an automatic default route.  
-  With this line present, `slaacd` autoconfigures a GUA when RAs are received.
+  Enables IPv6 processing on the LAN interface without assigning a static IPv6 address. 
+
+According to `slaacd(8)`:
+
+When acting as a router, `slaacd` can be used to learn delegated prefixes received via DHCPv6-PD, and install those prefixes onto downstream interfaces.
 
 - `inet6 alias fd00:AAAA:BBBB:CCCC::1/64`:  
   Assigns a stable Unique Local Address (ULA) to the LAN interface. For use with internal-only services (like unbound or NTP), providing consistent local IPv6 reachability even if the delegated GUA prefix changes or is unavailable.
@@ -420,7 +422,7 @@ interface ix0 {
 ```
 *Substitute with your actual ULA and prefix created above.*
 
-This configures `rad`  to advertise both the ULA *prefix* and *address* to your LAN:
+This explicitly configures `rad`  to advertise both the ULA *prefix* and *address* to your LAN:
 - Clients will receive both the DNS address (fd00:AAAA:BBBB:CCCC::1) and the ULA prefix (fd00:AAAA:BBBB:CCCC::/64).
 - They will autoconfigure ULA addresses like fd00:AAAA:BBBB:CCCC::abcd for themselves from the prefix using SLAAC.
 - *They then use those ULA source addresses to query DNS* at your router’s ULA (fd00:AAAA:BBBB:CCCC::1).
@@ -435,6 +437,17 @@ But, IPv6 actually encourages this for:
 - Privacy: ULAs aren't routable on the public Internet, so there's no exposure.
 - Simplicity: You avoid having to dynamically reconfigure Unbound or clients whenever your GUA changes.
 - Reachability: Clients can always find Unbound at fd00:AAAA:BBBB:CCCC::1, even if your global prefix changes.
+
+## But what about the Verizon delegated prefix?
+According to `rad.conf(5)`:
+
+The default behavior is to discover prefixes to announce by inspecting the IPv6 addresses configured on an interface.
+
+I tried to verify this behavior with `tcpdump`, however I cannot confirm that `rad` actually advertises the DP; I only observed the ULA from rad.conf being advertised.
+
+I can, however, verify that all clients on the network successfully autoconfigure GUAs within the delegated prefix.
+
+This is still a black box to me, and I have not been able to find the truth as to what is actually happening yet. It does work, but I am missing a small but crucial piece of the puzzle.
 
 ## 7. Enable and start `rad`
 Wait until dhcp6leased has received the delegated prefix. Then, enable and start rad, so that it advertises the correct prefix and DNS info on LAN.  
