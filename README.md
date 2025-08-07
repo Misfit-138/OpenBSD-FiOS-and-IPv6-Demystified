@@ -414,7 +414,6 @@ Direct `rad` to advertise on `ix0` (LAN):
 ```conf
 # /etc/rad.conf
 interface ix0 {
-    prefix fd00:AAAA:BBBB:CCCC::/64
     dns {
         nameserver fd00:AAAA:BBBB:CCCC::1
     }
@@ -441,13 +440,13 @@ But, IPv6 actually encourages this for:
 ## But what about the Verizon delegated prefix?
 According to `rad.conf(5)`:
 
-The default behavior is to discover prefixes to announce by inspecting the IPv6 addresses configured on an interface.
+*The default behavior is to discover prefixes to announce by inspecting the IPv6 addresses configured on an interface.*
 
 I tried to verify this behavior with `tcpdump`, however I cannot confirm that `rad` actually advertises the DP; I only observed the ULA from rad.conf being advertised.
 
 I can, however, verify that all clients on the network successfully autoconfigure GUAs within the delegated prefix.
 
-This is still a black box to me, and I have not been able to find the truth as to what is actually happening yet. It does work, but I am missing a small but crucial piece of the puzzle.
+This is still a black box to me, and I have not been able to find the truth as to what is actually happening yet. It does work, but I am missing a small but crucial piece of the puzzle. More to come.
 
 ## 7. Enable and start `rad`
 Wait until dhcp6leased has received the delegated prefix. Then, enable and start rad, so that it advertises the correct prefix and DNS info on LAN.  
@@ -462,7 +461,7 @@ Recall from above that we configured `hostname.ix0` and included the line:
 ```conf
 inet6
 ```
-This directs `slaacd` to run on the LAN interface. Therefore, after receiving router advertisements from `rad`, `slaacd` will assign a GUA to `ix0` derived from the prefix within the file `/var/db/dhcp6leased/ix1`
+This directs `slaacd` to run on the LAN interface. `slaacd` will assign a GUA to `ix0` derived from the prefix within the file `/var/db/dhcp6leased/ix1`
 
 ```sh
 rcctl enable slaacd
