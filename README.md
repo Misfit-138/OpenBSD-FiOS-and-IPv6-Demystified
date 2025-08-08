@@ -520,7 +520,9 @@ Note: `dhcp6leased` does **not directly configure addresses** on interfaces- it 
 
 **`slaacd`** runs on the OpenBSD router's LAN interface(s) (LAN client devices also use ther own **SLAAC**). `slaacd` configures LAN with prefix and GUA from `/var/db/dhcp6leased/` using SLAAC, and installs a default route.
 
-**`rad`** (Router Advertisement Daemon) reads the assigned subprefixes from `/var/db/dhcp6leased/` and sends Router Advertisements (RAs) on the LAN interface(s), to advertise the corresponding subnet (and DNS, if configured as such). This allows clients to self-configure IPv6 addresses using SLAAC.
+**`rad`** (Router Advertisement Daemon) obtains its prefix information via `getifaddrs()` or the routing socket, which gives the addresses and prefixes assigned to the system interfaces.
+
+It uses this interface information to construct the router advertisement messages. and sends Router Advertisements (RAs) on the LAN interface(s), to advertise the corresponding subnet (and DNS, if configured as such). This allows clients to self-configure IPv6 addresses using SLAAC.
 
 > ⚠️ `rad` must be restarted or reloaded manually to pick up new prefix data.
 
@@ -650,7 +652,7 @@ https://test-ipv6.com/ can be utilized from clients.
 | ---- | -------------------- | ---------------------------------------------------------------------------------------------------------- |
 | 1    | **`dhcp6leased`**    | Sends DHCPv6 request to Verizon on WAN `ix1`, receives delegated prefix, writes lease info to `/var/db/dhcp6leased/ix1` |
 | 2    | **`slaacd`**         | Runs on router LAN interface; assigns prefix and generates GUA from `/var/db/dhcp6leased/ix1` to LAN, assigns default route  |
-| 3    | **`rad`**            | Reads prefix info, advertises delegated prefix, gateway (and DNS) on LAN `ix0`             |
+| 3    | **`rad`**            | Obtains prefix information via `getifaddrs()`, advertises delegated prefix, gateway (and DNS) on LAN `ix0`   |
 | 4    | **`unbound`**        | Serves DNS to LAN clients using ULA address                                                               |
 | 5    | **`dhcpleased`**     | Handles IPv4 DHCP on WAN `ix1`, assigns IPv4 address and default route                                    |
 | 6    | **`dhcpd`**          | The IPv4 dhcp server; hands out IPv4 local addresses on LAN |
