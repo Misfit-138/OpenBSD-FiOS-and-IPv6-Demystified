@@ -464,24 +464,25 @@ Therefore, the dynamic delegated prefix is explicitly declared in `rad.conf`, an
 
 This can be fixed with scripting, but I want to keep it simple. The example works very well, but I hope I can discover a more ideal setup in the future. 
 
-## 7. Send GUA to `ix0`:  (IPv6)
+
+## 7. Enable and start `rad`
+Enable and start rad, so that it advertises the correct prefix and DNS info on LAN.  
+```sh
+rcctl enable rad
+rcctl start rad
+```
+## 8. Send GUA to `ix0`:  (IPv6)
 
 Recall from above that we configured `hostname.ix0` and included the line: 
 
 ```conf
 inet6
 ```
-This directs `slaacd` to run on the LAN interface. `slaacd` will assign a GUA to `ix0` derived from the prefix within the file `/var/db/dhcp6leased/ix1`
+This directs `slaacd` to run on the LAN interface. `slaacd` will assign a GUA to `ix0` derived from the prefix being advertised by `rad`.
 
 ```sh
 rcctl enable slaacd
 rcctl start slaacd
-```
-## 8. Enable and start `rad`
-Enable and start rad, so that it advertises the correct prefix and DNS info on LAN.  
-```sh
-rcctl enable rad
-rcctl start rad
 ```
 ## 8b. Enable and start `dhcpd` to serve IPv4 addresses on the LAN:
 ```sh
@@ -654,8 +655,8 @@ https://test-ipv6.com/ can be utilized from clients.
 | Step | Daemon               | Role                                                                                                       |
 | ---- | -------------------- | ---------------------------------------------------------------------------------------------------------- |
 | 1    | **`dhcp6leased`**    | Sends DHCPv6 request to Verizon on WAN `ix1`, receives delegated prefix, writes lease info to `/var/db/dhcp6leased/ix1` |
-| 2    | **`slaacd`**         | Runs on router LAN interface; generates and configures GUA and default route  |
-| 3    | **`rad`**            | Reads prefix info, advertises delegated subprefix, gateway (and DNS) on LAN `ix0`             |
+| 2    | **`rad`**            | Reads prefix info, advertises delegated prefix, gateway (and DNS) on LAN `ix0`             |
+| 3    | **`slaacd`**         | Runs on router LAN interface; generates and configures GUA and default route  |
 | 4    | **`unbound`**        | Serves DNS to LAN clients using ULA address                                                               |
 | 5    | **`dhcpleased`**     | Handles IPv4 DHCP on WAN `ix1`, assigns IPv4 address and default route                                    |
 | 6    | **`dhcpd`**          | The IPv4 dhcp server; hands out IPv4 local addresses on LAN |
