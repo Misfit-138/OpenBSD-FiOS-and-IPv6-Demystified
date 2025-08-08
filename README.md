@@ -458,33 +458,27 @@ I confirmed this with:
 ```sh
 tcpdump -nvvv -i ix0 icmp6 and 'ip6[40] == 134'
 ```
-So as far as I can tell, `dhcp6leased` gets a delegated prefix, `slaacd` assigns a GUA to `ix0`, but the ULA alias is assigned to `ix0` in `hostname.conf`, which overrides the GUA assignment as far as `rad` is concerned.
+So as far as I can tell, `dhcp6leased` gets a delegated prefix, `slaacd` assigns the prefix and a GUA to `ix0`, but since the ULA alias is assigned to `ix0` in `hostname.conf`, it seems to override the delegated prefix assignment as far as `rad` is concerned.
 
 Therefore, the dynamic delegated prefix is explicitly declared in `rad.conf`, and if it ever changes, `rad` will be advertising the wrong address.
 
-This can be fixed with scripting, but I want to keep it simple. The example works very well, but I hope I can discover a more ideal setup in the future. 
+This can be fixed with scripting, but I want to keep it simple. The example I have included works very well, but I hope I can discover a more ideal setup in the future. 
 
+## 7. Start `slaacd`:  (IPv6)
 
-## 7. Enable and start `rad`
-Enable and start rad, so that it advertises the correct prefix and DNS info on LAN.  
-```sh
-rcctl enable rad
-rcctl start rad
-```
-## 8. Send GUA to `ix0`:  (IPv6)
-
-Recall from above that we configured `hostname.ix0` and included the line: 
-
-```conf
-inet6
-```
-This directs `slaacd` to run on the LAN interface. `slaacd` will assign a GUA to `ix0` derived from the prefix being advertised by `rad`.
+`slaacd` will assign the delegated prefix and GUA to `ix0` derived from the prefix at `/var/db/dhcp6leased/ix1` which `dhcp6leased` created.
 
 ```sh
 rcctl enable slaacd
 rcctl start slaacd
 ```
-## 8b. Enable and start `dhcpd` to serve IPv4 addresses on the LAN:
+## 8. Enable and start `rad`  (IPv6)
+Enable and start rad, so that it advertises the delegated prefix and DNS info on LAN.  
+```sh
+rcctl enable rad
+rcctl start rad
+```
+## 8b. Enable and start `dhcpd` to serve IPv4 addresses on the LAN: (IPv4)
 ```sh
 rcctl enable dhcpd
 rcctl set dhcpd flags ix0
@@ -524,9 +518,9 @@ Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your route
 
 Note: `dhcp6leased` does **not directly configure addresses** on interfaces- it only manages prefix delegation and records the mapping for other daemons to use.
 
-**`slaacd`** runs on the OpenBSD router's LAN interface(s) (LAN client devices also use ther own **SLAAC**). `slaacd` configures IPv6 addresses using SLAAC, and installs a default route via the router’s link-local address (fe80::/10).
+**`slaacd`** runs on the OpenBSD router's LAN interface(s) (LAN client devices also use ther own **SLAAC**). `slaacd` configures LAN with prefix and GUA from `/var/db/dhcp6leased/` using SLAAC, and installs a default route.
 
-**`rad`** (Router Advertisement Daemon) reads the assigned subprefixes from the `dhcp6leased` lease database and sends Router Advertisements (RAs) on the LAN interface(s), to advertise the corresponding subnet (and DNS, if configured as such). This allows clients to self-configure IPv6 addresses using SLAAC.
+**`rad`** (Router Advertisement Daemon) reads the assigned subprefixes from `/var/db/dhcp6leased/` and sends Router Advertisements (RAs) on the LAN interface(s), to advertise the corresponding subnet (and DNS, if configured as such). This allows clients to self-configure IPv6 addresses using SLAAC.
 
 > ⚠️ `rad` must be restarted or reloaded manually to pick up new prefix data.
 
@@ -634,7 +628,7 @@ rcctl start unbound
 ```
 
 ## 11. Reboot and test
-Ensure dhcpleased, dhcpd, dhcp6leased, rad, slaacd and unbound are enabled and running:
+Ensure `dhcpleased`, `dhcpd`, `dhcp6leased`, `rad`, `slaacd` and `unbound` are enabled and running:
 ```sh
 rcctl ls on
 rcctl ls started
@@ -655,8 +649,8 @@ https://test-ipv6.com/ can be utilized from clients.
 | Step | Daemon               | Role                                                                                                       |
 | ---- | -------------------- | ---------------------------------------------------------------------------------------------------------- |
 | 1    | **`dhcp6leased`**    | Sends DHCPv6 request to Verizon on WAN `ix1`, receives delegated prefix, writes lease info to `/var/db/dhcp6leased/ix1` |
-| 2    | **`rad`**            | Reads prefix info, advertises delegated prefix, gateway (and DNS) on LAN `ix0`             |
-| 3    | **`slaacd`**         | Runs on router LAN interface; generates and configures GUA and default route  |
+| 2    | **`slaacd`**         | Runs on router LAN interface; assigns prefix and generates GUA from `/var/db/dhcp6leased/ix1` to LAN, assigns default route  |
+| 3    | **`rad`**            | Reads prefix info, advertises delegated prefix, gateway (and DNS) on LAN `ix0`             |
 | 4    | **`unbound`**        | Serves DNS to LAN clients using ULA address                                                               |
 | 5    | **`dhcpleased`**     | Handles IPv4 DHCP on WAN `ix1`, assigns IPv4 address and default route                                    |
 | 6    | **`dhcpd`**          | The IPv4 dhcp server; hands out IPv4 local addresses on LAN |
