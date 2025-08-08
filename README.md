@@ -402,7 +402,6 @@ You should see something like:
 ```
 ...prefix delegation #1 2600:4040:AAAA:BBBB::/56 received on ix1 from server ...
 ```
-Copy this prefix. We will use it for our `rad.conf` file later.
 
 Stop `dhcp6leased` (Ctrl+C) and start it normally:
 ```sh
@@ -410,31 +409,34 @@ rcctl start dhcp6leased
 ```
 Having negotiated the lease, `dhcp6leased` writes the prefix to `/var/db/dhcp6leased/ix1`
 
+Copy this prefix. We will use it for our `rad.conf`.
+
 ## 6. 📡 Create `/etc/rad.conf` (Router Advertisement)  (IPv6)
-Direct `rad` to advertise on `ix0` (LAN):
+Direct `rad` to advertise the delegated prefix and DNS nameserver `ix0` (LAN):
 ```conf
 # /etc/rad.conf
 interface ix0 {
     prefix 2600:4040:AAAA:BBBB::/64
     dns {
-        nameserver fd00:AAAA:BBBB:CCCC::1
+        nameserver fd00:AAAA:BBBB:CCCC::1  # Your custom ULA alias from hostname.ix0
     }
 }
 
 ```
 *Substitute with your actual ULA and delegated prefix.*
 
-This explicitly configures `rad`  to advertise the delegated prefix and ULA *address* to your LAN. Based on the man page for rad.conf, rad will advertise all addresses assigned to an interface by default. However, in practice, I have found that *IF* a ULA alias is assigned to the LAN (as it is in our example via hostname.ix0), then the ULA prefix is all that is advertised. Therefore, the example `rad.conf` above includes the delegated prefix explicitly configured, as well as the ULA address for DNS.
+This explicitly configures `rad`  to advertise the delegated prefix and DNS nameserver (ULA) to your LAN. Based on the man page for rad.conf, rad will advertise all addresses assigned to an interface by default. However, in practice, I have found that *IF* a ULA alias is assigned to the LAN (as it is in our example via `hostname.ix0`), then the ULA prefix is all that is advertised. Therefore, the example `rad.conf` above includes the delegated prefix explicitly configured, as well as the ULA address for DNS.
 
 This means:
 - Clients will receive both the delegated prefix (2600:4040....::/64) and the DNS address (fd00:AAAA:BBBB:CCCC::1).
-- They will autoconfigure GUA addresses like 2600:4040:AAAA:BBBB::abcd for themselves from the ULA's prefix using SLAAC.
-- They will autoconfigure ULA addresses like fd00:AAAA:BBBB:CCCC::abcd for themselves from the ULA's prefix using SLAAC.
-- *They then use those ULA source addresses to query DNS* at your router’s ULA (fd00:AAAA:BBBB:CCCC::1).
+- They will autoconfigure GUA addresses like 2600:4040:AAAA:BBBB::abcd for themselves derived from the delegated prefix using SLAAC.
+- These GUAs give each device on your network a publicly routable IPv6 address.
+- They will autoconfigure private ULA addresses like fd00:AAAA:BBBB:CCCC::abcd for themselves derived from the ULA's prefix using SLAAC.
+- *They then use those private ULA source addresses to query DNS* at your router’s ULA (fd00:AAAA:BBBB:CCCC::1).
 
 **Why use a ULA for DNS? Why not use our GUA derived from Verizon's delegated prefix? After all, it's our LAN IP address.**
 
-By creating a ULA alias for our LAN ix0, and a corresponding prefix, we've essentially created a *private* ULA subnet (fd00:AAAA:BBBB:CCCC::/64) on the LAN for the specific purpose of stable internal DNS service, and we will configure `unbound` to listen on the ULA address fd00:AAA:BBBB:CCCC::1 and allow traffic in from its subnet. Advertising our GUA as our DNS is a security risk, because GUAs are publicly routable addresses.
+By creating a ULA alias for our LAN ix0, and a corresponding prefix, we've essentially created a *private* ULA subnet (fd00:AAAA:BBBB:CCCC::/64) on the LAN for the specific purpose of stable internal DNS service, and we will configure `unbound` to listen on the ULA address fd00:AAA:BBBB:CCCC::1 and allow traffic in from its subnet. Advertising our GUA as our DNS is a security risk and not best practice, because GUAs are publicly routable addresses.
 
 This concept was strange to me at first, since, coming from the frugality of IPv4, it seemed excessive to create 18 quintillion addresses simply for my little network's DNS. 
 
