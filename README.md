@@ -523,11 +523,12 @@ Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your route
 
 Note: `dhcp6leased` does **not directly configure addresses** on interfaces- it only manages prefix delegation and records the mapping for other daemons to use.
 
+**`slaacd`** runs on the OpenBSD router's LAN interface(s) (LAN client devices also use ther own **SLAAC**). `slaacd` configures IPv6 addresses using SLAAC, and installs a default route via the router’s link-local address (fe80::/10).
+
 **`rad`** (Router Advertisement Daemon) reads the assigned subprefixes from the `dhcp6leased` lease database and sends Router Advertisements (RAs) on the LAN interface(s), to advertise the corresponding subnet (and DNS, if configured as such). This allows clients to self-configure IPv6 addresses using SLAAC.
 
 > ⚠️ `rad` must be restarted or reloaded manually to pick up new prefix data.
 
-**`slaacd`** runs on the OpenBSD router's LAN interface(s) (LAN client devices also use ther own **SLAAC**). `slaacd` configures IPv6 addresses using SLAAC, and installs a default route via the router’s link-local address (fe80::/10).
 
 ### Why This Design Works
 
@@ -653,8 +654,8 @@ https://test-ipv6.com/ can be utilized from clients.
 | Step | Daemon               | Role                                                                                                       |
 | ---- | -------------------- | ---------------------------------------------------------------------------------------------------------- |
 | 1    | **`dhcp6leased`**    | Sends DHCPv6 request to Verizon on WAN `ix1`, receives delegated prefix, writes lease info to `/var/db/dhcp6leased/ix1` |
-| 2    | **`rad`**            | Reads prefix info from `dhcp6leased`, advertises delegated subprefix, gateway (and DNS) on LAN `ix0`             |
-| 3    | **`slaacd`**         | Runs on LAN clients and router LAN interface; processes RAs, generates and configures GUA and default route  |
+| 2    | **`slaacd`**         | Runs on router LAN interface; generates and configures GUA and default route  |
+| 3    | **`rad`**            | Reads prefix info, advertises delegated subprefix, gateway (and DNS) on LAN `ix0`             |
 | 4    | **`unbound`**        | Serves DNS to LAN clients using ULA address                                                               |
 | 5    | **`dhcpleased`**     | Handles IPv4 DHCP on WAN `ix1`, assigns IPv4 address and default route                                    |
 | 6    | **`dhcpd`**          | The IPv4 dhcp server; hands out IPv4 local addresses on LAN |
