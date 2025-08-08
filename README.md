@@ -286,16 +286,11 @@ inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create you
 - `inet6`:  
   Enables IPv6 processing on the LAN interface without assigning a static IPv6 address. 
 
-According to `slaacd(8)`:
-
-When acting as a router, `slaacd` can be used to learn delegated prefixes received via DHCPv6-PD, and install those prefixes onto downstream interfaces.
-
 - `inet6 alias fd00:AAAA:BBBB:CCCC::1/64`:  
   Assigns a stable Unique Local Address (ULA) to the LAN interface. For use with internal-only services (like unbound or NTP), providing consistent local IPv6 reachability even if the delegated GUA prefix changes or is unavailable.
 
 This simple setup ensures:
 - Dual-stack (IPv4 + IPv6) support on the LAN
-- Dynamic GUA assignment via SLAAC (enabled by `inet6`)
 - A fixed local IPv6 address for internal services (via ULA)
   
 ### `/etc/hostname.ix1` (WAN) should *probably* be configured during install:  (IPv4/IPv6)
