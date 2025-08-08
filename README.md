@@ -411,19 +411,18 @@ Direct `rad` to advertise the delegated prefix and DNS nameserver `ix0` (LAN):
 ```conf
 # /etc/rad.conf
 interface ix0 {
-    prefix 2600:4040:AAAA:BBBB::/64
     dns {
         nameserver fd00:AAAA:BBBB:CCCC::1  # Your custom ULA alias from hostname.ix0
     }
 }
 
 ```
-*Substitute with your actual ULA and delegated prefix.*
+*Substitute with your actual ULA.*
 
-This explicitly configures `rad`  to advertise the delegated prefix and DNS nameserver (ULA) to your LAN. Based on the man page for rad.conf, rad will advertise all addresses assigned to an interface by default. However, in practice, I have found that *IF* a ULA alias is assigned to the LAN (as it is in our example via `hostname.ix0`), then the ULA prefix is all that is advertised. Therefore, the example `rad.conf` above includes the delegated prefix explicitly configured, as well as the ULA address for DNS.
+This configures `rad` to advertise the delegated prefix and DNS nameserver (ULA) to your LAN. Based on the man page for `rad.conf`, rad will advertise all addresses assigned to an interface by default.
 
 This means:
-- Clients will receive both the delegated prefix (2600:4040....::/64) and the DNS address (fd00:AAAA:BBBB:CCCC::1).
+- Clients will receive both the delegated prefix (2600:4040....::/64) and the DNS address (fd00:AAAA:BBBB:CCCC::1) configured above.
 - They will autoconfigure GUA addresses like 2600:4040:AAAA:BBBB::abcd for themselves derived from the delegated prefix using SLAAC.
 - These GUAs give each device on your network a publicly routable IPv6 address.
 - They will autoconfigure private ULA addresses like fd00:AAAA:BBBB:CCCC::abcd for themselves derived from the ULA's prefix using SLAAC.
@@ -440,24 +439,6 @@ But, IPv6 actually encourages this for:
 - Privacy: ULAs aren't routable on the public Internet, so there's no exposure.
 - Simplicity: You avoid having to dynamically reconfigure Unbound or whenever your GUA changes.
 - Reachability: Clients can always find Unbound at fd00:AAAA:BBBB:CCCC::1, even if your global prefix changes.
-
-## One caveat:
-
-According to `rad.conf(5)`:
-
-*The default is to discover prefixes to announce by inspecting the IPv6 addresses configured on an interface.*
-
-However, as I stated above, with a ULA alias declared in `hostname.ix0`, and **no explicit prefix declared in `rad.conf`**, `rad` will only advertise the ULA.
-
-I confirmed this with:
-```sh
-tcpdump -nvvv -i ix0 icmp6 and 'ip6[40] == 134'
-```
-So as far as I can tell, `dhcp6leased` gets a delegated prefix, `slaacd` assigns the prefix and a GUA to `ix0`, but since the ULA alias is assigned to `ix0` in `hostname.conf`, it seems to override the delegated prefix assignment as far as `rad` is concerned.
-
-Therefore, the dynamic delegated prefix is explicitly declared in `rad.conf`, and if it ever changes, `rad` will be advertising the wrong address.
-
-This can be fixed with scripting, but I want to keep it simple. The example I have included works very well, but I hope I can discover a more ideal setup in the future. 
 
 ## 7. Start `slaacd`:  (IPv6)
 
@@ -683,6 +664,7 @@ Without the following resources and people, this guide would have been impossibl
 * N.M. Hansteen: Author of **The Book of PF, 4th edition** (Yes, I preordered and got the early access PDF!)
 * Jeremy Evans: https://code.jeremyevans.net/2024-11-03-adding-ipv6-to-my-home-network.html
 * Jeffrey Forman: https://write.jeffreyforman.net/posts/2022/verizon-fios-native-ipv6/
+* dave14305 from GitHub
 * https://www.openbsd.org/faq/pf/example1.html
 * https://openbsdrouterguide.net/
 * https://dataswamp.org/
