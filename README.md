@@ -464,13 +464,7 @@ Therefore, the dynamic delegated prefix is explicitly declared in `rad.conf`, an
 
 This can be fixed with scripting, but I want to keep it simple. The example works very well, but I hope I can discover a more ideal setup in the future. 
 
-## 7. Enable and start `rad`
-Wait until dhcp6leased has received the delegated prefix. Then, enable and start rad, so that it advertises the correct prefix and DNS info on LAN.  
-```sh
-rcctl enable rad
-rcctl start rad
-```
-## 8. Send GUA to `ix0`:  (IPv6)
+## 7. Send GUA to `ix0`:  (IPv6)
 
 Recall from above that we configured `hostname.ix0` and included the line: 
 
@@ -483,7 +477,12 @@ This directs `slaacd` to run on the LAN interface. `slaacd` will assign a GUA to
 rcctl enable slaacd
 rcctl start slaacd
 ```
-
+## 8. Enable and start `rad`
+Enable and start rad, so that it advertises the correct prefix and DNS info on LAN.  
+```sh
+rcctl enable rad
+rcctl start rad
+```
 ## 8b. Enable and start `dhcpd` to serve IPv4 addresses on the LAN:
 ```sh
 rcctl enable dhcpd
