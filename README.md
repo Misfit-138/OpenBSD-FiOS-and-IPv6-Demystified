@@ -442,7 +442,7 @@ But, IPv6 actually encourages this for:
 
 ## 7. Start `slaacd`:  (IPv6)
 
-`slaacd` will assign the delegated prefix and GUA to `ix0` derived from the prefix at `/var/db/dhcp6leased/ix1` which `dhcp6leased` created.
+`slaacd` will work with `dhcp6leased` to establish a link-local address on the WAN interface (`ix0`)
 
 ```sh
 rcctl enable slaacd
@@ -627,7 +627,7 @@ https://test-ipv6.com/ can be utilized from clients.
 | Step | Daemon               | Role                                                                                                       |
 | ---- | -------------------- | ---------------------------------------------------------------------------------------------------------- |
 | 1    | **`dhcp6leased`**    | Sends DHCPv6 request to Verizon on WAN `ix1`, receives delegated prefix, writes lease info to `/var/db/dhcp6leased/ix1` |
-| 2    | **`slaacd`**         | Runs on router LAN interface; assigns prefix and generates GUA from `/var/db/dhcp6leased/ix1` to LAN, assigns default route  |
+| 2    | **`slaacd`**         | Runs on router WAN interface aongside `dhcp6leased`, assigns default route  |
 | 3    | **`rad`**            | Obtains prefix information via `getifaddrs()`, advertises delegated prefix, gateway (and DNS) on LAN `ix0`   |
 | 4    | **`unbound`**        | Serves DNS to LAN clients using ULA address                                                               |
 | 5    | **`dhcpleased`**     | Handles IPv4 DHCP on WAN `ix1`, assigns IPv4 address and default route                                    |
