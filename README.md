@@ -260,7 +260,7 @@ The output should be something like:
 fd00:AAAA:BBBB:CCCC::1/64
 ```
 But, ULAs are private and not routable on the internet, so feel free to arbitrarily create your own ULA which is more readable;
-```fd00:0red:dead:0000::1/64``` is perfectly fine as well.
+```fd00:feed:dead:0000::1/64``` is perfectly fine as well.
 
 So, now we have:
 - A ULA: fd00:AAAA:BBBB:CCCC::1 = ULA (the individual address)
