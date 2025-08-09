@@ -280,17 +280,16 @@ inet 192.168.1.1 255.255.255.0 192.168.1.255
 inet6
 inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create your own.)
 ```
-- `inet 192.168.1.1 255.255.255.0 192.168.1.255`:  
-  Assigns a static IPv4 address to the interface, using a standard /24 subnet. Devices on the LAN will use this as their IPv4 gateway.
+- `inet 192.168.1.1 255.255.255.0 192.168.1.255`:  Assigns a static IPv4 address to the interface, using a standard /24 subnet. Devices on the LAN will use this as their IPv4 gateway.
 
-- `inet6`:  
-  Enables IPv6 processing on the LAN interface without assigning a static IPv6 address. This will allow `dhcp6leased` to assign a Global Unicast Address (GUA) later.  
+- `inet6`:  Enables IPv6 processing on the LAN interface. This will allow `dhcp6leased` to assign a Global Unicast Address (GUA) later. Recall our `dhcp6leased.conf`;
+-- `request prefix delegation on ix1 for { ix0/64 }`
+-- So, `dhcp6leased` is now configured and ready to request a prefix on our WAN interface and assign it, and a GUA within its subnet, to the LAN interface.   
 
-- `inet6 alias fd00:AAAA:BBBB:CCCC::1/64`:  
-  Assigns a stable Unique Local Address (ULA) to the LAN interface. For use with internal-only services (like unbound or NTP), providing consistent local IPv6 reachability even if the delegated GUA prefix changes or is unavailable.
+- `inet6 alias fd00:AAAA:BBBB:CCCC::1/64`:  Assigns a stable Unique Local Address (ULA) to the LAN interface. For use with internal-only services (like DNS via `unbound`), providing consistent local IPv6 reachability even if the delegated GUA prefix changes or is unavailable.
 
 This simple setup ensures:
-- Dual-stack (IPv4 + IPv6) support on the LAN
+- Dual-stack (IPv4 + IPv6) support on the LAN  
 - A fixed local IPv6 address for internal services (via ULA)
   
 ### `/etc/hostname.ix1` (WAN) should *probably* be configured during install:  (IPv4/IPv6)
@@ -302,7 +301,7 @@ inet6 autoconf
 ```
 
 - `inet autoconf`: Enables DHCPv4 on the WAN interface. The system will automatically obtain a public IPv4 address, subnet mask, and default gateway from the ISP via `dhcpleased`.
-- `inet6 autoconf`: Enables IPv6 autoconfiguration on the WAN interface. This allows the router to obtain a link-local IPv6 address on the WAN and communicate with the ISP’s DHCPv6 server for prefix delegation via `dhcp6leased`.
+- `inet6 autoconf`: Enables IPv6 autoconfiguration on the WAN interface. This allows the router to obtain a link-local IPv6 address on the WAN (ostensibily from the kernel), a default route via `slaacd`, and communicate with the ISP’s DHCPv6 server for prefix delegation via `dhcp6leased`.
   
 ### 🔥 `/etc/pf.conf` (Firewall Rules)  (IPv4/IPv6)
 
@@ -514,7 +513,7 @@ Note: `dhcp6leased` does **not directly configure addresses** on interfaces- it 
 Unlike IPv4, where a public WAN address is necessary for NAT, IPv6 routers simply route packets using their delegated prefix. There’s no need for a GUA on the WAN interface in this setup.
 
 **Link-Local Sufficient**  
-The router's WAN interface uses a link-local IPv6 address (`fe80::/10`) to communicate with Verizon’s upstream router, which is sufficient for routing.
+Simply bringing an interface up with the `inet6` or `inet6 autoconf` flags will give the interface a link-local address. The router's WAN interface uses this link-local IPv6 address (`fe80::/10`) to communicate with Verizon’s upstream router, which is sufficient for routing. 
 
 **Delegated GUA on LAN**  
 The router receives its own IPv6 address on each LAN interface via `dhcp6leased`. These addresses are derived from the delegated prefix.
@@ -637,7 +636,7 @@ OpenBSD 7.7’s IPv6 stack uses three distinct but complementary daemons for add
 Its core responsibilities:
 
 ### Address assignment via SLAAC:
-If the RA contains a prefix with the “autonomous address-configuration” (A) flag set, `slaacd` will automatically assign a global unicast address (GUA) or link-local address on that interface. (N/A in our case)
+If the RA contains a prefix with the “autonomous address-configuration” (A) flag set, `slaacd` will automatically assign a global unicast address (GUA) on that interface. (N/A in our case)
 
 ### Default route installation:
 If the RA’s router lifetime is non-zero, `slaacd` installs an IPv6 default route via the RA source.
