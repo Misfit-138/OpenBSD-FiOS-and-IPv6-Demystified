@@ -439,7 +439,7 @@ But, IPv6 actually encourages this for:
 
 ## 7. Start `slaacd`:  (IPv6)
 
-`slaacd` will work with `dhcp6leased` to establish a default route on the WAN interface (`ix1`)
+`slaacd` will work to establish a default route on the WAN interface (`ix1`)
 
 ```sh
 rcctl enable slaacd
