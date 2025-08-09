@@ -174,21 +174,26 @@ request prefix delegation on ix1 for { ix0/64 }
 **(WAN interface: ix1, LAN interface: ix0)**
 ## Explaining this simple file with IPv6 Math
 - IPv6 addresses are 128 bit.
-- A *prefix* defines an IPv6 *subnet*.
 - Verizon gives out /56 prefixes; The first 56 bits are *fixed* by Verizon.
+- A *prefix* defines an IPv6 *subnet*.
 - Each /64 subnet: The first 64 bits define the subnet. And, since the first 56 are fixed,
 - Bits 56 to 64 = 64 - 56 = 8 bits, so,
 - 8 bits are available for our own subnetting.
 - With 8 bits, we can have 2^8 = 256 different values (0 through 255). This gives us 256 possible /64 subnets for our network.
 - **A /64 prefix defines an IPv6 subnet** that contains 18 Quintillion addresses; Every address in those subnets is a GUA (Global Unicast Address)- Quite generous. 
-- **The `/etc/dhcp6leased.conf` syntax does exactly what it implies: Request prefix delegation on WAN `ix1` and assign the first /64 to LAN `ix0`**
 - The remaining 64 bits are client **SLAAC** territory.
+  
+## *The `/etc/dhcp6leased.conf` syntax does exactly what it implies: Request prefix delegation on WAN `ix1` and assign the first /64 to LAN `ix0`*
 
 ## Breakdown: ##
 
 56 bits: Fixed by Verizon (2006:4040:1234:56)
 
++
+
 8 bits: Yours for subnetting (00, 01, 02... ff)
+
++
 
 64 bits: Host addresses within each subnet (SLAAC territory)
 
