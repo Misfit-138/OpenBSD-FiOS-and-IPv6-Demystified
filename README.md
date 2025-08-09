@@ -508,16 +508,13 @@ Note: `dhcp6leased` does **not directly configure addresses** on interfaces- it 
 
 **`rad`** (Router Advertisement Daemon) obtains its prefix information via `getifaddrs()` or the routing socket. It uses this interface information to construct the router advertisement messages and sends Router Advertisements (RAs) on the LAN interface(s), to advertise the corresponding prefix (subnet) (and DNS, if configured as such). This allows clients to self-configure IPv6 addresses using SLAAC.
 
-> ⚠️ `rad` must be restarted or reloaded manually to pick up new prefix data.
-
-
 ### Why This Design Works
 
 **No WAN GUA Needed**  
 Unlike IPv4, where a public WAN address is necessary for NAT, IPv6 routers simply route packets using their delegated prefix. There’s no need for a GUA on the WAN interface in this setup.
 
 **Link-Local Sufficient**  
-The router's WAN interface uses a link-local IPv6 address (`fe80::/10`) to communicate with Verizon’s upstream router, which is sufficient for both routing and DHCPv6.
+The router's WAN interface uses a link-local IPv6 address (`fe80::/10`) to communicate with Verizon’s upstream router, which is sufficient for routing.
 
 **Delegated GUA on LAN**  
 The router receives its own IPv6 address on each LAN interface via `dhcp6leased`. These addresses are derived from the delegated prefix.
@@ -630,6 +627,58 @@ dig -6 @fd00:AAAA:BBBB:CCCC::1 example.com AAAA
 dig example.com AAAA
 ```
 https://test-ipv6.com/ can be utilized from clients.
+
+# Deeper Dive: The Three Main IPv6 Daemons in OpenBSD 7.7
+
+OpenBSD 7.7’s IPv6 stack uses three distinct but complementary daemons for address acquisition, prefix delegation, and router advertisement. Together, these handle both upstream (WAN) and downstream (LAN) IPv6 configuration without requiring third-party tools. Each has a clear purpose, and understanding their separation makes troubleshooting and configuration much easier.
+
+## 1. `slaacd` - SLAAC and RA listener for upstream
+`slaacd` (Stateless Address Automatic Configuration Daemon) listens for IPv6 Router Advertisements (RAs) from the upstream ISP router (e.g., Verizon FiOS gateway) on the WAN interface.
+Its core responsibilities:
+
+### Address assignment via SLAAC:
+If the RA contains a prefix with the “autonomous address-configuration” (A) flag set, `slaacd` will automatically assign a global unicast address (GUA) or link-local address on that interface. (N/A in our case)
+
+### Default route installation:
+If the RA’s router lifetime is non-zero, `slaacd` installs an IPv6 default route via the RA source.
+
+**`slaacd` only processes RAs on interfaces configured for autoconf in hostname.if. It does not serve LAN clients - its scope is inbound RAs from upstream.**
+
+## 2. `dhcp6leased` - DHCPv6 client and PD handler
+`dhcp6leased` is OpenBSD’s built-in DHCPv6 client daemon, introduced in 7.3 and now the standard for 7.7.
+
+Its core responsibilities:
+
+### Prefix Delegation (PD):
+Requests and maintains an IPv6 prefix (often /56 or /60) from the ISP’s DHCPv6 server. This is typically used for downstream LAN addressing.
+
+### Address assignment (IA_NA):
+If the ISP provides a direct IPv6 address for the WAN interface via DHCPv6 (IA_NA), `dhcp6leased` will assign it. Verizon FiOS typically assigns only a delegated prefix (IA_PD) via DHCPv6 to the CPE (router). If configured, `dhcp6leased` then assigns IPv6 addresses (GUAs) on its LAN interface(s) using that delegated prefix. (Recall the `inet6` flag in our `hostname.ix0` which allows for inet6 on LAN). 
+
+### Lease persistence:
+State is stored under /var/db/dhcp6leased/<ifname> so leases survive daemon restarts and reboots.
+
+**On many Verizon FiOS connections, the WAN interface will have only a link-local address and no GUA, even though PD works. This is expected.**
+
+## 3. rad — Router Advertisement Daemon for downstream
+`rad` advertises IPv6 configuration to LAN clients by sending periodic and solicited RAs on LAN interfaces.
+
+Its core responsibilities:
+
+### Prefix advertisement:
+Announces the IPv6 prefix derived from the ISP’s delegated prefix so LAN clients can configure their own GUAs via SLAAC.
+
+### Router lifetime advertisement:
+Informs LAN clients of the router’s availability as the default gateway.
+
+### RDNSS and DNSSL options:
+Can optionally advertise DNS servers (as in our case) to LAN clients, allowing for SLAAC-only networks without the need for DHCPv6.
+
+### Dynamic reconfiguration:
+If the delegated prefix changes (e.g., after a DHCPv6 renewal), `rad` can be reloaded to advertise the updated prefix without restarting the daemon.
+
+## Key Point:
+`rad` only sends outbound RAs to LAN clients. It does not listen for or process inbound RAs from upstream — that’s `slaacd`’s job.
 
 # What is happening here (summary):
 | Step | Daemon               | Role                                                                                                       |
