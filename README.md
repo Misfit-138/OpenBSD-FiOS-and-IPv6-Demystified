@@ -653,8 +653,8 @@ Its core responsibilities:
 ### Prefix Delegation (PD):
 Requests and maintains an IPv6 prefix (often /56 or /60) from the ISP’s DHCPv6 server. This is typically used for downstream LAN addressing.
 
-### Address assignment (IA_NA):
-If the ISP provides a direct IPv6 address for the WAN interface via DHCPv6 (IA_NA), `dhcp6leased` will assign it. Verizon FiOS typically assigns only a delegated prefix (IA_PD) via DHCPv6 to the CPE (router). If configured, `dhcp6leased` then assigns IPv6 addresses (GUAs) on its LAN interface(s) using that delegated prefix. (Recall the `inet6` flag in our `hostname.ix0` which allows for inet6 on LAN, and our `dhcp6leased.conf` which directs `dhcp6leased` to assign the delegated prefix to our LAN- `ix0`.). 
+### Address assignment :
+Verizon FiOS typically assigns only a delegated prefix (IA_PD) via DHCPv6 to the CPE (router). If configured, `dhcp6leased` then assigns IPv6 addresses (GUAs) on its LAN interface(s) using that delegated prefix. (Recall the `inet6` flag in our `hostname.ix0` which allows for inet6 on LAN, and our `dhcp6leased.conf` which directs `dhcp6leased` to assign the delegated prefix to our LAN- `ix0`.). 
 
 ### Lease persistence:
 State is stored under /var/db/dhcp6leased/<ifname> so leases survive daemon restarts and reboots.
