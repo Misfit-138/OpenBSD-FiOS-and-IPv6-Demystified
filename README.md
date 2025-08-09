@@ -272,7 +272,7 @@ When we write out fd00:AAAA:BBBB:CCCC::1/64, we are specifying:
 - The *individual ULA address*: fd00:AAAA:BBBB:CCCC::1 with subnet information: /64
 - The *prefix* is: fd00:AAAA:BBBB:CCCC::/64
 
-We will use the ULA as an alias for the LAN interface in `hostname.ix0`. The prefix will be used in `unbound.conf`, and Later, we will use **both the prefix and the ULA** to plug into `rad.conf` to advertise to our LAN clients. In this way, we have a permanent address on our LAN interface as well as a /64 subnet for private use that will not change, unlike the dynamic prefix and the Global Unicast Address (GUA) within from the ISP assigned to the LAN. *More on this later.*
+We will use the ULA as an alias for the LAN interface in `hostname.ix0` and `rad.conf` to advertise to our LAN clients. The prefix will be used in `unbound.conf`, to allow incoming DNS requests.  In this way, we have a permanent address on our LAN interface as well as a /64 subnet for private use that will not change, unlike the dynamic prefix and the Global Unicast Address (GUA) from the ISP assigned to the LAN. *More on this later.*
 
 ```sh
 # /etc/hostname.ix0 (LAN):
@@ -284,7 +284,7 @@ inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create you
   Assigns a static IPv4 address to the interface, using a standard /24 subnet. Devices on the LAN will use this as their IPv4 gateway.
 
 - `inet6`:  
-  Enables IPv6 processing on the LAN interface without assigning a static IPv6 address. 
+  Enables IPv6 processing on the LAN interface without assigning a static IPv6 address. This will allow `dhcp6leased` to assign a Global Unicast Address (GUA) later.  
 
 - `inet6 alias fd00:AAAA:BBBB:CCCC::1/64`:  
   Assigns a stable Unique Local Address (ULA) to the LAN interface. For use with internal-only services (like unbound or NTP), providing consistent local IPv6 reachability even if the delegated GUA prefix changes or is unavailable.
@@ -402,12 +402,10 @@ Stop `dhcp6leased` (Ctrl+C) and start it normally:
 ```sh
 rcctl start dhcp6leased
 ```
-Having negotiated the lease, `dhcp6leased` writes the prefix to `/var/db/dhcp6leased/ix1`
-
-Copy this prefix. We will use it for our `rad.conf`.
+Having negotiated the lease, `dhcp6leased` writes the prefix to `/var/db/dhcp6leased/ix1` for persistence.
 
 ## 6. 📡 Create `/etc/rad.conf` (Router Advertisement)  (IPv6)
-Direct `rad` to advertise the delegated prefix and DNS nameserver `ix0` (LAN):
+
 ```conf
 # /etc/rad.conf
 interface ix0 {
@@ -415,14 +413,13 @@ interface ix0 {
         nameserver fd00:AAAA:BBBB:CCCC::1  # Your custom ULA alias from hostname.ix0
     }
 }
-
 ```
 *Substitute with your actual ULA.*
 
-This configures `rad` to advertise the delegated prefix and DNS nameserver (ULA) to your LAN. Based on the man page for `rad.conf`, rad will advertise all addresses assigned to an interface by default.
+This configures `rad` to advertise the delegated prefix and DNS nameserver (ULA) to your LAN. `rad` will automatically advertise all IPv6 addresses assigned to an interface by default; At this point, our GUA and LUA.
 
 This means:
-- Clients will receive both the delegated prefix (2600:4040....::/64) and the DNS address (fd00:AAAA:BBBB:CCCC::1) configured above.
+- Clients will receive both the delegated prefix (2600:4040....::/64) and the DNS (ULA) address (fd00:AAAA:BBBB:CCCC::1) configured above.
 - They will autoconfigure GUA addresses like 2600:4040:AAAA:BBBB::abcd for themselves derived from the delegated prefix using SLAAC.
 - These GUAs give each device on your network a publicly routable IPv6 address.
 - They will autoconfigure private ULA addresses like fd00:AAAA:BBBB:CCCC::abcd for themselves derived from the ULA's prefix using SLAAC.
@@ -430,7 +427,7 @@ This means:
 
 ## *Why use a ULA for DNS? Why not use our GUA derived from Verizon's delegated prefix? After all, it's our LAN IP address.*
 
-By creating a ULA alias for our LAN ix0, and a corresponding prefix, we've essentially created a *private* ULA subnet (fd00:AAAA:BBBB:CCCC::/64) on the LAN for the specific purpose of stable internal DNS service, and we will configure `unbound` to listen on the ULA address fd00:AAA:BBBB:CCCC::1 and allow traffic in from its subnet. Advertising our GUA as our DNS is a security risk and not best practice, because GUAs are publicly routable addresses.
+By creating a ULA alias for our LAN ix0, and a corresponding prefix, we've essentially created a *private* ULA subnet (fd00:AAAA:BBBB:CCCC::/64) on the LAN for the specific purpose of stable internal DNS service, and we will configure `unbound` to listen on the ULA address fd00:AAA:BBBB:CCCC::1 and allow traffic in from its subnet. Advertising our GUA as our DNS is not best practice, because GUAs are publicly routable addresses. Yes, `pf` will block the advertisement from leaving, but using a private subnet is advantageous.
 
 This concept was strange to me at first, since, coming from the frugality of IPv4, it seemed excessive to create 18 quintillion addresses simply for my little network's DNS. 
 
@@ -442,18 +439,31 @@ But, IPv6 actually encourages this for:
 
 ## 7. Start `slaacd`:  (IPv6)
 
-`slaacd` will work with `dhcp6leased` to establish a default route on the WAN interface (`ix0`)
+`slaacd` will work with `dhcp6leased` to establish a default route on the WAN interface (`ix1`)
 
 ```sh
 rcctl enable slaacd
 rcctl start slaacd
 ```
+
 ## 8. Enable and start `rad`  (IPv6)
-Enable and start rad, so that it advertises the delegated prefix and DNS info on LAN.  
+Enable and start rad, so that it advertises both the delegated prefix and DNS info on LAN.  
+
+You can verify that both the delegated prefix and ULA are advertised using `tcpdump`:
+
+Open another terminal and do:
+```sh
+tcpdump -i ix0 -s 256 -vvv -n icmp6 and 'ip6[40] == 134'
+```
+Switch to your original terminal and do:
 ```sh
 rcctl enable rad
 rcctl start rad
 ```
+Then switch back to watch the output from `tcpdump`. You should see both your delegated prefix as well as the ULA being advertised.
+
+*I struggled understanding this for weeks until dave14305 was kind enough to share his insight on this. Thank you, dave!*
+
 ## 8b. Enable and start `dhcpd` to serve IPv4 addresses on the LAN: (IPv4)
 ```sh
 rcctl enable dhcpd
@@ -494,11 +504,9 @@ Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your route
 
 Note: `dhcp6leased` does **not directly configure addresses** on interfaces- it only manages prefix delegation and records the mapping for other daemons to use.
 
-**`slaacd`** runs on the OpenBSD router's LAN interface(s) (LAN client devices also use ther own **SLAAC**). `slaacd` configures LAN with prefix and GUA from `/var/db/dhcp6leased/` using SLAAC, and installs a default route.
+**`slaacd`** runs on the OpenBSD router's WAN interface, processing the RA from the ISP, working in concert with `dhcp6leased`, and installs a default route.
 
-**`rad`** (Router Advertisement Daemon) obtains its prefix information via `getifaddrs()` or the routing socket, which gives the addresses and prefixes assigned to the system interfaces.
-
-It uses this interface information to construct the router advertisement messages. and sends Router Advertisements (RAs) on the LAN interface(s), to advertise the corresponding subnet (and DNS, if configured as such). This allows clients to self-configure IPv6 addresses using SLAAC.
+**`rad`** (Router Advertisement Daemon) obtains its prefix information via `getifaddrs()` or the routing socket. It uses this interface information to construct the router advertisement messages and sends Router Advertisements (RAs) on the LAN interface(s), to advertise the corresponding prefix (subnet) (and DNS, if configured as such). This allows clients to self-configure IPv6 addresses using SLAAC.
 
 > ⚠️ `rad` must be restarted or reloaded manually to pick up new prefix data.
 
@@ -512,7 +520,7 @@ Unlike IPv4, where a public WAN address is necessary for NAT, IPv6 routers simpl
 The router's WAN interface uses a link-local IPv6 address (`fe80::/10`) to communicate with Verizon’s upstream router, which is sufficient for both routing and DHCPv6.
 
 **Delegated GUA on LAN**  
-The router receives its own IPv6 address on each LAN interface by processing its own Router Advertisements via `slaacd`. These addresses are derived from the delegated prefix.
+The router receives its own IPv6 address on each LAN interface via `dhcp6leased`. These addresses are derived from the delegated prefix.
 
 **Efficient and Compliant**  
 This design reflects IPv6 best practices and conserves address space while enabling native, end-to-end IPv6 routing for all LAN clients- without NAT.
@@ -626,10 +634,10 @@ https://test-ipv6.com/ can be utilized from clients.
 # What is happening here (summary):
 | Step | Daemon               | Role                                                                                                       |
 | ---- | -------------------- | ---------------------------------------------------------------------------------------------------------- |
-| 1    | **`dhcp6leased`**    | Sends DHCPv6 request to Verizon on WAN `ix1`, receives delegated prefix, writes lease info to `/var/db/dhcp6leased/ix1` |
+| 1    | **`dhcp6leased`**    | Sends DHCPv6 request to Verizon on WAN `ix1`, receives delegated prefix, writes lease info to `/var/db/dhcp6leased/ix1` and assigns GUA to LAN |
 | 2    | **`slaacd`**         | Runs on router WAN interface aongside `dhcp6leased`, assigns default route  |
 | 3    | **`rad`**            | Obtains prefix information via `getifaddrs()`, advertises delegated prefix, gateway (and DNS) on LAN `ix0`   |
-| 4    | **`unbound`**        | Serves DNS to LAN clients using ULA address                                                               |
+| 4    | **`unbound`**        | Serves DNS to LAN clients using ULA address, accepts queries on ULA subnet                                               |
 | 5    | **`dhcpleased`**     | Handles IPv4 DHCP on WAN `ix1`, assigns IPv4 address and default route                                    |
 | 6    | **`dhcpd`**          | The IPv4 dhcp server; hands out IPv4 local addresses on LAN |
 
@@ -664,7 +672,7 @@ Without the following resources and people, this guide would have been impossibl
 * N.M. Hansteen: Author of **The Book of PF, 4th edition** (Yes, I preordered and got the early access PDF!)
 * Jeremy Evans: https://code.jeremyevans.net/2024-11-03-adding-ipv6-to-my-home-network.html
 * Jeffrey Forman: https://write.jeffreyforman.net/posts/2022/verizon-fios-native-ipv6/
-* dave14305 from GitHub
+* dave14305 from GitHub for his insight on `rad`, `slaacd` and `dhcp6leased`
 * https://www.openbsd.org/faq/pf/example1.html
 * https://openbsdrouterguide.net/
 * https://dataswamp.org/
