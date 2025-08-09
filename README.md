@@ -282,8 +282,7 @@ inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create you
 ```
 - `inet 192.168.1.1 255.255.255.0 192.168.1.255`:  Assigns a static IPv4 address to the interface, using a standard /24 subnet. Devices on the LAN will use this as their IPv4 gateway.
 
-- `inet6`:  Enables IPv6 processing on the LAN interface. This will allow `dhcp6leased` to assign a Global Unicast Address (GUA) later. Recall our `dhcp6leased.conf`;
--- `request prefix delegation on ix1 for { ix0/64 }`
+- `inet6`:  Enables IPv6 processing on the LAN interface. With this flag, the kernel will create a link-local address for our interface, and allow `dhcp6leased` to assign a Global Unicast Address (GUA) later. Recall our `dhcp6leased.conf`; `request prefix delegation on ix1 for { ix0/64 }`
 -- So, `dhcp6leased` is now configured and ready to request a prefix on our WAN interface and assign it, and a GUA within its subnet, to the LAN interface.   
 
 - `inet6 alias fd00:AAAA:BBBB:CCCC::1/64`:  Assigns a stable Unique Local Address (ULA) to the LAN interface. For use with internal-only services (like DNS via `unbound`), providing consistent local IPv6 reachability even if the delegated GUA prefix changes or is unavailable.
@@ -499,11 +498,9 @@ Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your route
 
 ## How It Works on OpenBSD 7.7
 
-**`dhcp6leased`** handles all DHCPv6 communication with Verizon on the WAN interface. It sends a request for prefix delegation (IA_PD) and receives a delegated prefix, usually a /56. It then subdivides that prefix according to its configuration and **records subprefixes assigned to each LAN interface** in its internal lease database located at `/var/db/dhcp6leased/`.
+**`dhcp6leased`** handles all *DHCPv6* communication with Verizon on the WAN interface. It sends a request for prefix delegation (IA_PD) and receives a delegated prefix, usually a /56. It then subdivides that prefix according to its configuration and **records subprefixes assigned to each LAN interface** in its internal lease database located at `/var/db/dhcp6leased/`. In our example `hostname.ix1`, `dhcp6leased` is directed to assign the prefix to `ix0`.
 
-Note: `dhcp6leased` does **not directly configure addresses** on interfaces- it only manages prefix delegation and records the mapping for other daemons to use.
-
-**`slaacd`** runs on the OpenBSD router's WAN interface, processing the RA from the ISP, working in concert with `dhcp6leased`, and installs a default route.
+**`slaacd`** runs on the OpenBSD router's WAN interface, processing the RA from the ISP, and installs a default route.
 
 **`rad`** (Router Advertisement Daemon) obtains its prefix information via `getifaddrs()` or the routing socket. It uses this interface information to construct the router advertisement messages and sends Router Advertisements (RAs) on the LAN interface(s), to advertise the corresponding prefix (subnet) (and DNS, if configured as such). This allows clients to self-configure IPv6 addresses using SLAAC.
 
@@ -516,7 +513,7 @@ Unlike IPv4, where a public WAN address is necessary for NAT, IPv6 routers simpl
 Simply bringing an interface up with the `inet6` or `inet6 autoconf` flags will give the interface a link-local address. The router's WAN interface uses this link-local IPv6 address (`fe80::/10`) to communicate with Verizon’s upstream router, which is sufficient for routing. 
 
 **Delegated GUA on LAN**  
-The router receives its own IPv6 address on each LAN interface via `dhcp6leased`. These addresses are derived from the delegated prefix.
+The router receives its own IPv6 address on each LAN interface via `dhcp6leased`. These addresses are derived from the delegated prefix. The LAN interface prefixes are then advertised throughout their internal networks via `rad`, so that client devices may configure their own GUAs, using SLAAC.
 
 **Efficient and Compliant**  
 This design reflects IPv6 best practices and conserves address space while enabling native, end-to-end IPv6 routing for all LAN clients- without NAT.
@@ -652,7 +649,7 @@ Its core responsibilities:
 Requests and maintains an IPv6 prefix (often /56 or /60) from the ISP’s DHCPv6 server. This is typically used for downstream LAN addressing.
 
 ### Address assignment (IA_NA):
-If the ISP provides a direct IPv6 address for the WAN interface via DHCPv6 (IA_NA), `dhcp6leased` will assign it. Verizon FiOS typically assigns only a delegated prefix (IA_PD) via DHCPv6 to the CPE (router). If configured, `dhcp6leased` then assigns IPv6 addresses (GUAs) on its LAN interface(s) using that delegated prefix. (Recall the `inet6` flag in our `hostname.ix0` which allows for inet6 on LAN). 
+If the ISP provides a direct IPv6 address for the WAN interface via DHCPv6 (IA_NA), `dhcp6leased` will assign it. Verizon FiOS typically assigns only a delegated prefix (IA_PD) via DHCPv6 to the CPE (router). If configured, `dhcp6leased` then assigns IPv6 addresses (GUAs) on its LAN interface(s) using that delegated prefix. (Recall the `inet6` flag in our `hostname.ix0` which allows for inet6 on LAN, and our `dhcp6leased.conf` which directs `dhcp6leased` to assign the delegated prefix to our LAN- `ix0`.). 
 
 ### Lease persistence:
 State is stored under /var/db/dhcp6leased/<ifname> so leases survive daemon restarts and reboots.
