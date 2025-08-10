@@ -81,6 +81,16 @@ rcctl stop dhcp6leased
 rcctl disable dhcp6leased 
 ```
 
+## 2b. Disable `dhcpleased`
+`dhcpleased` is automatically started on interfaces marked with `inet autoconf` in `/etc/hostname.if`, so it should be enabled and running on `ix1` after a fresh install if you chose (autoconf). 
+
+Disable for now:
+```sh
+rcctl stop dhcpleased 
+rcctl disable dhcpleased 
+```
+
+
 ## 3. Disable `resolvd` (recommended for a router)  (IPv4/IPv6)
 I would recommend having full control over DNS (to avoid ISP DNS being assigned to router via DHCP):
 
@@ -149,18 +159,6 @@ The following simple example will ignore ISP DNS assignment (recommended). Also,
 # /etc/dhcpleased.conf
 interface ix1 { ignore dns }
 ```
-`dhcpleased` is automatically started on interfaces marked with `inet autoconf` in `/etc/hostname.if`, so it should be enabled and running on `ix1` after a fresh install if you chose (autoconf). 
-
-Restart with:
-```sh
-rcctl restart dhcpleased
-```
-At this point, you may wish to go back and re-check your resolv.conf, to ensure it has not been overwritten.
-### Check WAN for public IPv4 address:
-```sh
-ifconfig ix1
-```
-You should see a valid IPv4 address.
 
 ### `/etc/dhcp6leased.conf`:  (IPv6)
 
@@ -284,7 +282,6 @@ inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create you
 - `inet 192.168.1.1 255.255.255.0 192.168.1.255`:  Assigns a static IPv4 address to the interface, using a standard /24 subnet. Devices on the LAN will use this as their IPv4 gateway.
 
 - `inet6`:  Enables IPv6 processing on the LAN interface. With this flag, the kernel will create a link-local address for our interface, and allow `dhcp6leased` to assign a Global Unicast Address (GUA) later. Recall our `dhcp6leased.conf`; `request prefix delegation on ix1 for { ix0/64 }`
--- So, `dhcp6leased` is now configured and ready to request a prefix on our WAN interface and assign it, and a GUA within its subnet, to the LAN interface.   
 
 - `inet6 alias fd00:AAAA:BBBB:CCCC::1/64`:  Assigns a stable Unique Local Address (ULA) to the LAN interface. For use with internal-only services (like DNS via `unbound`), providing consistent local IPv6 reachability even if the delegated GUA prefix changes or is unavailable.
 
@@ -301,7 +298,9 @@ inet6 autoconf
 ```
 
 - `inet autoconf`: Enables DHCPv4 on the WAN interface. The system will automatically obtain a public IPv4 address, subnet mask, and default gateway from the ISP via `dhcpleased`.
-- `inet6 autoconf`: Enables IPv6 autoconfiguration on the WAN interface. This allows the router to obtain a link-local IPv6 address on the WAN (ostensibily from the kernel), a default route via `slaacd`, and communicate with the ISP’s DHCPv6 server for prefix delegation via `dhcp6leased`.
+- `inet6 autoconf`: Enables IPv6 autoconfiguration on the WAN interface. This brings up the interface with a link-local IPv6 address, and allows a default route via `slaacd`, and simultaneous communication with the ISP’s DHCPv6 server for prefix delegation via `dhcp6leased`.
+
+`dhcp6leased` is now configured to receive the delegated prefix on the WAN, write it to `/var/db/dhcp6leased/ix1` and install a GUA within its subnet ending in ::1 to the LAN interface. 
   
 ### 🔥 `/etc/pf.conf` (Firewall Rules)  (IPv4/IPv6)
 
@@ -381,7 +380,30 @@ pass in quick on egress inet6 proto udp from any port 547 to any port 546
 pfctl -f /etc/pf.conf
 ```
 
-## 5. Acquire Delegated Prefix (IPv6)
+## 5. Start `dhcpleased` (IPv4)
+Now that we have a proper firewall in place, we can start connections.
+
+Start `dhcpleased` with:
+```sh
+rcctl start dhcpleased
+```
+At this point, you may wish to go back and re-check your resolv.conf, to ensure it has not been overwritten.
+### Check WAN for public IPv4 address:
+```sh
+ifconfig ix1
+```
+You should see a valid IPv4 address.
+
+## 6. Start `slaacd`:  (IPv6)
+
+`slaacd` will work to establish a default route on the WAN interface (`ix1`)
+
+```sh
+rcctl enable slaacd
+rcctl start slaacd
+```
+
+## 7. Acquire Delegated Prefix (IPv6)
 
 ### Enable and run `dhcp6leased` manually to observe prefix delegation
 
@@ -403,7 +425,7 @@ rcctl start dhcp6leased
 ```
 Having negotiated the lease, `dhcp6leased` writes the prefix to `/var/db/dhcp6leased/ix1` for persistence.
 
-## 6. 📡 Create `/etc/rad.conf` (Router Advertisement)  (IPv6)
+## 8. 📡 Create `/etc/rad.conf` (Router Advertisement)  (IPv6)
 
 ```conf
 # /etc/rad.conf
@@ -436,16 +458,7 @@ But, IPv6 actually encourages this for:
 - Simplicity: You avoid having to dynamically reconfigure Unbound or whenever your GUA changes.
 - Reachability: Clients can always find Unbound at fd00:AAAA:BBBB:CCCC::1, even if your global prefix changes.
 
-## 7. Start `slaacd`:  (IPv6)
-
-`slaacd` will work to establish a default route on the WAN interface (`ix1`)
-
-```sh
-rcctl enable slaacd
-rcctl start slaacd
-```
-
-## 8. Enable and start `rad`  (IPv6)
+## 9. Enable and start `rad`  (IPv6)
 Enable and start rad, so that it advertises both the delegated prefix and DNS info on LAN.  
 
 You can verify that both the delegated prefix and ULA are advertised using `tcpdump`:
@@ -463,13 +476,13 @@ Then switch back to watch the output from `tcpdump`. You should see both your de
 
 *I struggled understanding this for weeks until dave14305 was kind enough to share his insight on this. Thank you, dave!*
 
-## 8b. Enable and start `dhcpd` to serve IPv4 addresses on the LAN: (IPv4)
+## 10. Enable and start `dhcpd` to serve IPv4 addresses on the LAN: (IPv4)
 ```sh
 rcctl enable dhcpd
 rcctl set dhcpd flags ix0
 rcctl start dhcpd
 ```
-## 9. Reboot and verify.
+## 11. Reboot and verify.
 Rebooting is not strictly necessary at this point, but it will prove our configurations survive a system restart.
 
 ```sh
@@ -499,9 +512,9 @@ Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your route
 
 ## How It Works on OpenBSD 7.7
 
-**`dhcp6leased`** handles all *DHCPv6* communication with Verizon on the WAN interface. It sends a request for prefix delegation (IA_PD) and receives a delegated prefix, usually a /56. It then subdivides that prefix according to its configuration and **records subprefixes assigned to each LAN interface** in its internal lease database located at `/var/db/dhcp6leased/`. In our example `hostname.ix1`, `dhcp6leased` is directed to assign the prefix to `ix0`.
-
 **`slaacd`** runs on the OpenBSD router's WAN interface, processing the RA from the ISP, and installs a default route.
+
+**`dhcp6leased`** handles all *DHCPv6* communication with Verizon on the WAN interface. It sends a request for prefix delegation (IA_PD) and receives a delegated prefix, usually a /56. It then subdivides that prefix according to its configuration and **records subprefixes assigned to each LAN interface** in its internal lease database located at `/var/db/dhcp6leased/`. In our example `hostname.ix1`, `dhcp6leased` is directed to assign the prefix to `ix0`.
 
 **`rad`** (Router Advertisement Daemon) obtains its prefix information via `getifaddrs()` or the routing socket. It uses this interface information to construct the router advertisement messages and sends Router Advertisements (RAs) on the LAN interface(s), to advertise the corresponding prefix (subnet) (and DNS, if configured as such). This allows clients to self-configure IPv6 addresses using SLAAC.
 
@@ -519,7 +532,7 @@ The router receives its own IPv6 address on each LAN interface via `dhcp6leased`
 **Efficient and Compliant**  
 This design reflects IPv6 best practices and conserves address space while enabling native, end-to-end IPv6 routing for all LAN clients- without NAT.
 
-## 10. DNS and `unbound`  (IPv4/IPv6)
+## 12. DNS and `unbound`  (IPv4/IPv6)
 
 Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TLS, and RPZ support. The following example allows for using the root servers or forwarding DNS over TLS to Google, as well as blocking malicious domains, depending on how you wish to proceed.
 
@@ -607,7 +620,7 @@ rcctl enable unbound
 rcctl start unbound
 ```
 
-## 11. Reboot and test
+## 13. Reboot and test
 Ensure `dhcpleased`, `dhcpd`, `dhcp6leased`, `rad`, `slaacd` and `unbound` are enabled and running:
 ```sh
 rcctl ls on
@@ -639,7 +652,7 @@ If the RA contains a prefix with the “autonomous address-configuration” (A) 
 ### Default route installation:
 If the RA’s router lifetime is non-zero, `slaacd` installs an IPv6 default route via the RA source.
 
-**`slaacd` only processes RAs on interfaces configured for autoconf in hostname.if. It does not serve LAN clients - its scope is inbound RAs from upstream.**
+**`slaacd` only processes RAs on interfaces configured for `inet6 autoconf` in `hostname.if`. It does not serve LAN clients - its scope is inbound RAs from upstream.**
 
 ## 2. `dhcp6leased` - DHCPv6 client and PD handler
 `dhcp6leased` is OpenBSD’s built-in DHCPv6 client daemon, introduced in 7.3 and now the standard for 7.7.
@@ -650,10 +663,10 @@ Its core responsibilities:
 Requests and maintains an IPv6 prefix (often /56 or /60) from the ISP’s DHCPv6 server. This is typically used for downstream LAN addressing.
 
 ### Address assignment :
-Verizon FiOS typically assigns only a delegated prefix (IA_PD) via DHCPv6 to the CPE (router). If configured, `dhcp6leased` then assigns IPv6 addresses (GUAs) on its LAN interface(s) using that delegated prefix. (Recall the `inet6` flag in our `hostname.ix0` which allows for inet6 on LAN, and our `dhcp6leased.conf` which directs `dhcp6leased` to assign the delegated prefix to our LAN- `ix0`.). 
+Verizon FiOS typically assigns only a delegated prefix (IA_PD) via DHCPv6 to the CPE (router). If configured, `dhcp6leased` then assigns IPv6 addresses (GUAs) on its LAN interface(s) using that delegated prefix. (Recall the `inet6` flag in our `hostname.ix0` which allows for IPv6 on LAN, and our `dhcp6leased.conf` which directs `dhcp6leased` to assign the delegated prefix to our LAN- `ix0`.). 
 
 ### Lease persistence:
-State is stored under /var/db/dhcp6leased/<ifname> so leases survive daemon restarts and reboots.
+State is stored under `/var/db/dhcp6leased/<ifname>` so leases survive daemon restarts and reboots.
 
 **On many Verizon FiOS connections, the WAN interface will have only a link-local address and no GUA, even though PD works. This is expected.**
 
@@ -680,8 +693,8 @@ If the delegated prefix changes (e.g., after a DHCPv6 renewal), `rad` can be rel
 # What is happening here (summary):
 | Step | Daemon               | Role                                                                                                       |
 | ---- | -------------------- | ---------------------------------------------------------------------------------------------------------- |
-| 1    | **`dhcp6leased`**    | Sends DHCPv6 request to Verizon on WAN `ix1`, receives delegated prefix, writes lease info to `/var/db/dhcp6leased/ix1` and assigns GUA to LAN |
-| 2    | **`slaacd`**         | Runs on router WAN interface aongside `dhcp6leased`, assigns default route  |
+| 1    | **`slaacd`**         | Runs on router WAN interface aongside `dhcp6leased`, assigns default route  |
+| 2    | **`dhcp6leased`**    | Sends DHCPv6 request to Verizon on WAN `ix1`, receives delegated prefix, writes lease info to `/var/db/dhcp6leased/ix1` and assigns GUA to LAN |
 | 3    | **`rad`**            | Obtains prefix information via `getifaddrs()`, advertises delegated prefix, gateway (and DNS) on LAN `ix0`   |
 | 4    | **`unbound`**        | Serves DNS to LAN clients using ULA address, accepts queries on ULA subnet                                               |
 | 5    | **`dhcpleased`**     | Handles IPv4 DHCP on WAN `ix1`, assigns IPv4 address and default route                                    |
