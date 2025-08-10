@@ -591,13 +591,12 @@ remote-control:
     control-enable: yes
     control-interface: /var/run/unbound.sock
 # Uncomment to forward to Google DNS
-#forward-zone:
-    #name: "."
-    #forward-tls-upstream: yes
-    #forward-addr: 8.8.8.8@853#dns.google
-    #forward-addr: 8.8.4.4@853#dns.google
-    #forward-addr: 2001:4860:4860::8888@853#dns.google
-    #forward-addr: 2001:4860:4860::8844@853#dns.google
+forward-zone:
+    name: "."
+    forward-tls-upstream: yes
+    forward-addr: 8.8.8.8@853#dns.google
+    forward-addr: 8.8.4.4@853#dns.google
+    forward-addr: 2001:4860:4860::8888@853#dns.google
 
 #rpz:
 #    name: my preferred blocklist
