@@ -214,9 +214,9 @@ Example subnet:
 
 :: = 64 zero bits available for host addresses
 
-On that subnet, device SLAAC clients can assign:
+2006:4040:1234:5601::1 (assigned by `dhcp6leased` on OpenBSD router `ix0` (LAN))
 
-2006:4040:1234:5601::1 (assigned by `slaacd` on OpenBSD router)
+On the 2006:4040:1234:5601::/64 subnet, device SLAAC clients can assign:
 
 2006:4040:1234:5601::a1b2:c3ff:fed4:5678 (assigned by device 1 SLAAC client)
 
