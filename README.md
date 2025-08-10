@@ -301,9 +301,9 @@ inet6 autoconf
 ```
 
 - `inet autoconf`: Enables DHCPv4 on the WAN interface. The system will automatically obtain a public IPv4 address, subnet mask, and default gateway from the ISP via `dhcpleased`.
-- `inet6 autoconf`: Enables IPv6 autoconfiguration on the WAN interface. This brings up the interface with a link-local IPv6 address, and allows a default route via `slaacd`, and simultaneous communication with the ISP’s DHCPv6 server for prefix delegation via `dhcp6leased`.
+- `inet6 autoconf`: Enables IPv6 autoconfiguration on the WAN interface. This brings up the interface with a link-local IPv6 address, installs a default route via `slaacd`, and simultaneous communication with the ISP’s DHCPv6 server for prefix delegation via `dhcp6leased`.
 
-`dhcp6leased` is now configured to receive the delegated prefix on the WAN, write it to `/var/db/dhcp6leased/ix1` and install a GUA within its subnet ending in ::1 to the LAN interface. 
+With `hostname.ix1`, `hostname.ix0`, and `dhcp6leased.conf` complete, `dhcp6leased` is now configured to receive the delegated prefix on the WAN, write it to `/var/db/dhcp6leased/ix1` and install a GUA within its subnet ending in ::1 to the LAN interface.
   
 ### 🔥 `/etc/pf.conf` (Firewall Rules)  (IPv4/IPv6)
 
@@ -400,7 +400,7 @@ You should see a valid IPv4 address.
 
 ## 6. Start `slaacd`:  (IPv6)
 
-`slaacd` will work to establish a default route on the WAN interface (`ix1`)
+`slaacd` will process RAs from the ISP to establish a default route on the WAN interface (`ix1`)
 
 ```sh
 rcctl enable slaacd
@@ -409,13 +409,20 @@ rcctl start slaacd
 
 ## 7. Acquire Delegated Prefix (IPv6)
 
-### Enable and run `dhcp6leased` manually to observe prefix delegation
+### Enable and run `dhcp6leased` to initiate prefix delegation
 
+Open another terminal and do:
+```sh
+tcpdump -ni ix1 udp and port 546 or port 547 and ip6
+```
+Go back to the original terminal and do:
 ```sh
 rcctl enable dhcp6leased
-dhcp6leased -d
+rcctl start dhcp6leased
 ```
 Recall from above that we configured `/etc/hostname.ix1` with `inet6 autoconf`. Therefore, `dhcp6leased` is called on `ix1`.
+
+Return to the `tcpdump` terminal.
 
 You should see something like:
 
@@ -423,10 +430,6 @@ You should see something like:
 ...prefix delegation #1 2600:4040:AAAA:BBBB::/56 received on ix1 from server ...
 ```
 
-Stop `dhcp6leased` (Ctrl+C) and start it normally:
-```sh
-rcctl start dhcp6leased
-```
 Having negotiated the lease, `dhcp6leased` writes the prefix to `/var/db/dhcp6leased/ix1` for persistence.
 
 ## 8. 📡 Create `/etc/rad.conf` (Router Advertisement)  (IPv6)
@@ -441,7 +444,7 @@ interface ix0 {
 ```
 *Substitute with your actual ULA.*
 
-This configures `rad` to advertise the delegated prefix and DNS nameserver (ULA) to your LAN. `rad` will automatically advertise all IPv6 addresses assigned to an interface by default; At this point, our GUA and LUA.
+This configures `rad` to advertise the delegated prefix and DNS nameserver (ULA) to your LAN. `rad` will automatically advertise all IPv6 addresses assigned to an interface by default; At this point, our GUA and ULA.
 
 This means:
 - Clients will receive both the delegated prefix (2600:4040....::/64) and the DNS (ULA) address (fd00:AAAA:BBBB:CCCC::1) configured above.
@@ -478,7 +481,7 @@ rcctl start rad
 ```
 Then switch back to watch the output from `tcpdump`. You should see both your delegated prefix as well as the ULA being advertised.
 
-*I struggled understanding this for weeks until dave14305 was kind enough to share his insight on this. The `-s 256` was the key. Without it, output was truncated and confused me for a long time. Thank you, dave!*
+*I struggled understanding this for weeks until dave14305 was kind enough to share his insight on this. The `-s 256` was the key. Without it, output was truncated (it would contain either the ULA or GUA, but never both) and confused me for a long time. Thank you, dave!*
 
 ## 10. Enable and start `dhcpd` to serve IPv4 addresses on the LAN: (IPv4)
 ```sh
