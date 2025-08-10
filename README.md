@@ -385,6 +385,7 @@ Now that we have a proper firewall in place, we can start connections.
 
 Start `dhcpleased` with:
 ```sh
+rcctl enable dhcpleased
 rcctl start dhcpleased
 ```
 At this point, you may wish to go back and re-check your resolv.conf, to ensure it has not been overwritten.
@@ -474,7 +475,7 @@ rcctl start rad
 ```
 Then switch back to watch the output from `tcpdump`. You should see both your delegated prefix as well as the ULA being advertised.
 
-*I struggled understanding this for weeks until dave14305 was kind enough to share his insight on this. Thank you, dave!*
+*I struggled understanding this for weeks until dave14305 was kind enough to share his insight on this. The `-s 256` was the key. Without it, output was truncated and confused me for a long time. Thank you, dave!*
 
 ## 10. Enable and start `dhcpd` to serve IPv4 addresses on the LAN: (IPv4)
 ```sh
@@ -495,7 +496,7 @@ Verify LAN address assignments:  (IPv4/IPv6)
 ifconfig ix0
 ```
 
-In addition to your IPv4 LAN address, you should see your IPv6 Global Unicast Address (GUA):
+In addition to your static IPv4 LAN address, you should see your IPv6 Global Unicast Address (GUA):
 
 ```
 ...
