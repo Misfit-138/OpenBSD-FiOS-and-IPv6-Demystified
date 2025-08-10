@@ -109,6 +109,15 @@ Turning the system into a router that will forward IPv4/IPv6 packets between net
 net.inet.ip.forwarding=1
 net.inet6.ip6.forwarding=1
 ```
+However, this will not take effect until a reboot. Use `sysctl` to enact these immediately:
+
+```sh
+sysctl net.inet.ip.forwarding=1
+
+sysctl net.inet6.ip6.forwarding=1
+```
+
+
 ### `/etc/dhcpd.conf`  (IPv4)
 Setting up an IPv4 DHCP server is also straightforward.
 
