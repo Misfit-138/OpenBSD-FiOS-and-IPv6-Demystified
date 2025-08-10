@@ -189,11 +189,7 @@ request prefix delegation on ix1 for { ix0/64 }
 
 56 bits: Fixed by Verizon (2006:4040:1234:56)
 
-+
-
 8 bits: Yours for subnetting (00, 01, 02... ff)
-
-+
 
 64 bits: Host addresses within each subnet (SLAAC territory)
 
@@ -233,7 +229,7 @@ So yes - we get 256 massive subnets, each capable of holding far more devices th
 > * **Unique worldwide**: No other network uses your specific `/56` prefix
 > 
 > **So all of these are GUAs:**
-> * `2006:4040:1234:5600::1` (router on subnet 0)
+> * `2006:4040:1234:5600::1` (router LAN interface on subnet 0)
 > * `2006:4040:1234:5601::dead:beef` (device on subnet 1)
 > * `2006:4040:1234:56ff::a1b2:c3d4` (device on subnet 255)
 > 
