@@ -67,13 +67,18 @@ During the install set up a WAN interface configured with automatic IPv4/IPv6 an
 rcctl ls started
 rcctl ls on
 ```
-`slaacd` **should** be enabled by default in a fresh install, but disable for now:
+
+*Disable these daemons until we have a proper firewall.*
+
+`slaacd` is automatically started on interfaces marked with `inet6 autoconf` in `/etc/hostname.if`, so it should be enabled and running on `ix1` after a fresh install if you chose IPv6 autoconf. 
+
+Disable for now:
 ```sh
 rcctl stop slaacd
 rcctl disable slaacd
 ```
 
-`dhcp6leased` might be running also.
+`dhcp6leased` is automatically started on interfaces marked with `inet6 autoconf` in `/etc/hostname.if`, so it should be enabled and running on `ix1` after a fresh install if you chose IPv6 autoconf. 
 
 Disable for now:
 ```sh
@@ -81,7 +86,7 @@ rcctl stop dhcp6leased
 rcctl disable dhcp6leased 
 ```
 
-`dhcpleased` is automatically started on interfaces marked with `inet autoconf` in `/etc/hostname.if`, so it should be enabled and running on `ix1` after a fresh install if you chose (autoconf). 
+`dhcpleased` is automatically started on interfaces marked with `inet autoconf` in `/etc/hostname.if`, so it should be enabled and running on `ix1` after a fresh install if you chose IPv4 autoconf. 
 
 Disable for now:
 ```sh
