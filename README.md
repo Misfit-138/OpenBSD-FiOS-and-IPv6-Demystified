@@ -81,7 +81,6 @@ rcctl stop dhcp6leased
 rcctl disable dhcp6leased 
 ```
 
-## 2b. Disable `dhcpleased`
 `dhcpleased` is automatically started on interfaces marked with `inet autoconf` in `/etc/hostname.if`, so it should be enabled and running on `ix1` after a fresh install if you chose (autoconf). 
 
 Disable for now:
@@ -89,7 +88,6 @@ Disable for now:
 rcctl stop dhcpleased 
 rcctl disable dhcpleased 
 ```
-
 
 ## 3. Disable `resolvd` (recommended for a router)  (IPv4/IPv6)
 I would recommend having full control over DNS (to avoid ISP DNS being assigned to router via DHCP):
