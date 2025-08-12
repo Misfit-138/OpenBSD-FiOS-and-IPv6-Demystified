@@ -68,7 +68,7 @@ rcctl ls started
 rcctl ls on
 ```
 
-*Disable these daemons until we have a proper firewall.*
+*Disable the following daemons until we have a proper firewall.*
 
 `slaacd` is automatically started on interfaces marked with `inet6 autoconf` in `/etc/hostname.if`, so it should be enabled and running on `ix1` after a fresh install if you chose IPv6 autoconf. 
 
