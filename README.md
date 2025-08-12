@@ -610,10 +610,11 @@ forward-zone:
     forward-addr: 2001:4860:4860::8888@853#dns.google
 
 rpz:
-    name: multi-list-pro
-	url: https://raw.githubusercontent.com/hagezi/dns-blocklists/refs/heads/main/rpz/light.txt
-	# A stronger list which I personally use with complete reliability:
-    # url: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/rpz/pro.txt
+    name: dns-block-list
+	# Find a list which suits your needs
+    # A simple search for 'rpz dns blocklists' will work fine
+    url: https://url-for-myrpz-list.com/list.txt
+	
 ```
 Notice first, the `interface: ix0` clause.
 
