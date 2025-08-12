@@ -126,7 +126,7 @@ A simple, sane, working example:
 # /etc/dhcpd.conf
 subnet 192.168.1.0 netmask 255.255.255.0 {
 	option routers 192.168.1.1;
-	domain-name-servers 192.168.1.1;
+	option domain-name-servers 192.168.1.1;
 	range 192.168.1.10 192.168.1.254;
 }
 ```
