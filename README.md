@@ -573,8 +573,7 @@ server:
     # Include a localhosts.conf file for reverse lookups
     # see https://openbsdrouterguide.net/
     #include: "/var/unbound/etc/unbound.localhosts.conf"
-
-    local-zone: "192.168.1.0/24" static
+    #local-zone: "192.168.1.0/24" static
 
     # Default deny everything:
     access-control: 0.0.0.0/0 refuse
@@ -649,6 +648,7 @@ reboot
 Test your configuration from the router using the tools of your choice, e.g.:
 ```sh
 ifconfig ix0
+ftp -o - -V -M https://myipv6.addr.tools/
 ping6 example.com
 dig -6 @fd00:AAAA:BBBB:CCCC::1 example.com AAAA
 dig example.com AAAA
