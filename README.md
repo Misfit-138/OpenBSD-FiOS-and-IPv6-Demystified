@@ -457,7 +457,7 @@ By default, `rad` discovers prefixes to announce by inspecting the IPv6 addresse
 `dns.. nameserver fd00:AAAA:BBBB:CCCC::1..` configures `rad` to advertise the DNS nameserver (ULA) to your LAN. 
 
 This means:
-- Clients will receive both the delegated prefix (2600:4040....::/64), the ULA's prefix (fd00:AAAA:BBBB:CCCC::/64) even though not explicitly included in `rad.conf`
+- Clients will receive both the delegated prefix (2600:4040....::/64) and the ULA's prefix (fd00:AAAA:BBBB:CCCC::/64) even though not explicitly included in `rad.conf`
 - Clients also receive the custom DNS (ULA) address (fd00:AAAA:BBBB:CCCC::1) configured above.
 - They will autoconfigure GUA addresses like 2600:4040:AAAA:BBBB::abcd for themselves derived from the delegated prefix using SLAAC.
 - These GUAs give each device on your network a publicly routable IPv6 address.
