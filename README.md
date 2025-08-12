@@ -718,7 +718,7 @@ State is stored under `/var/db/dhcp6leased/<ifname>` so leases survive daemon re
 
 **On many Verizon FiOS connections, the WAN interface will have only a link-local address and no GUA, even though PD works. This is expected.**
 
-## 3. rad — Router Advertisement Daemon for downstream
+## 3. `rad` - Router Advertisement Daemon for downstream
 `rad` advertises IPv6 configuration to LAN clients by sending periodic and solicited RAs on LAN interfaces.
 
 Its core responsibilities:
