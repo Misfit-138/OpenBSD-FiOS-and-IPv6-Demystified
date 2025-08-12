@@ -570,8 +570,9 @@ server:
     private-domain: home.arpa
 
     tls-cert-bundle: "/etc/ssl/cert.pem"
+
     # Include a localhosts.conf file for reverse lookups
-    # see https://openbsdrouterguide.net/
+    # see https://openbsdrouterguide.net/ 
     #include: "/var/unbound/etc/unbound.localhosts.conf"
     #local-zone: "192.168.1.0/24" static
 
@@ -592,7 +593,7 @@ server:
     # auto-trust-anchor-file: "/var/unbound/db/root.key"
 
     # Uncomment to load rpz module and configure below:
-    # module-config: "respip validator iterator"
+    module-config: "respip validator iterator"
 
     cache-min-ttl: 3600
     serve-expired: yes
@@ -608,12 +609,13 @@ forward-zone:
     forward-addr: 8.8.4.4@853#dns.google
     forward-addr: 2001:4860:4860::8888@853#dns.google
 
-#rpz:
-#    name: my preferred blocklist
-#    url: https://raw-rpz-blocklist  # enter the url of a well-maintained, raw blocklist in rpz format
-#    rpz-action-override: nxdomain
+rpz:
+    name: multi-list-pro
+	url: https://raw.githubusercontent.com/hagezi/dns-blocklists/refs/heads/main/rpz/light.txt
+	# A stronger list which I personally use with complete reliability:
+    # url: https://raw.githubusercontent.com/hagezi/dns-blocklists/main/rpz/pro.txt
 ```
-Notice the `interface: ix0` clause.
+Notice first, the `interface: ix0` clause.
 
 This directs `unbound` to **listen** on all addresses assigned to the LAN interface. 
 
@@ -629,6 +631,34 @@ access-control: fd00:AAAA:BBBB:CCCC::/64
 ```
 Only the RFC 1918 subnet 192.168.1.0/24 and our RFC 4193 ULA subnet fd00:AAAA:BBBB:CCCC::/64 are granted access.
 So, essentially, unbound listens on the interface, and the `access-control:` limits which addresses are granted access. Therefore, the `interface: ix0` is being used as shorthand. We could also explicitly configure by addresses using `interface:` if we so choose.
+
+### `rpz` section:
+
+This is one of the incredible features of `unbound` that really pushes it over the top; RPZ
+
+RPZ, or Response Policy Zone is an `unbound` module that lets you rewrite DNS responses based on a local or remote policy list - usually to block, redirect, or modify answers for certain domains.
+
+*Think of it like a DNS-based firewall:*
+
+- You load a zone file (or pull one from the internet from a url, as in our example) that lists domains you want to block or change.
+- When a client queries one of those domains, `unbound` applies the RPZ rules instead of returning the normal DNS answer.
+- The list is automatically updated:
+-- The SOA record of the rpz list contains a refresh field, which tells unbound how often to poll for an update.
+
+You can:
+
+Return NXDOMAIN (pretend it doesn’t exist)
+
+Return a specific IP (sinkhole or block page)
+
+Pass it through unmodified (if not matched)
+
+Example use cases:
+- Blocking ads/tracking domains
+- Blocking known malware/phishing sites
+- Forcing certain domains to resolve to internal servers
+
+In our example we download a list from the internet, (which is updated automatically), and and return NXDOMAIN for all domains which have a match on the list.
 
 Enable and start `unbound`
 ```sh
