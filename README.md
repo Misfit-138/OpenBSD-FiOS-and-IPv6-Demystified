@@ -542,7 +542,7 @@ Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your route
 Unlike IPv4, where a public WAN address is necessary for NAT, IPv6 routers simply route packets using their delegated prefix. There’s no need for a GUA on the WAN interface in this setup.
 
 **Link-Local Sufficient**  
-Simply bringing an interface up with the `inet6` or `inet6 autoconf` flags will give the interface a link-local address. The router's WAN interface uses this link-local IPv6 address (`fe80::/10`) to communicate with Verizon’s upstream router, which is sufficient for routing. 
+Simply bringing an interface up with the `inet6` or `inet6 autoconf` flags will give the interface a link-local address. The router's WAN interface uses this link-local IPv6 address (`fe80::/10`) to communicate with Verizon’s ONT, which is sufficient for routing. 
 
 **Delegated GUA on LAN**  
 The router receives its own IPv6 address on each LAN interface via `dhcp6leased`. These addresses are derived from the delegated prefix. The LAN interface prefixes are then advertised throughout their internal networks via `rad`, so that client devices may configure their own GUAs, using SLAAC.
@@ -628,8 +628,8 @@ However, notice the `access-control:` section:
 access-control: 192.168.1.0/24 allow
 access-control: fd00:AAAA:BBBB:CCCC::/64
 ```
-Only the RFC 1918 subnet 192.168.1.0/24 subnet and our ULA subnet fd00:AAAA:BBBB:CCCC::/64 are granted access.
-So, essentially, unbound listens on the interface, and the `access-control:` limits which addresses are granted access. Therefore, the `interface: ix0` is being used as shorthand. We could also explicitly configure by addresses using `interface:` if we choose.
+Only the RFC 1918 subnet 192.168.1.0/24 and our RFC 4193 ULA subnet fd00:AAAA:BBBB:CCCC::/64 are granted access.
+So, essentially, unbound listens on the interface, and the `access-control:` limits which addresses are granted access. Therefore, the `interface: ix0` is being used as shorthand. We could also explicitly configure by addresses using `interface:` if we so choose.
 
 Enable and start `unbound`
 ```sh
@@ -693,8 +693,9 @@ State is stored under `/var/db/dhcp6leased/<ifname>` so leases survive daemon re
 Its core responsibilities:
 
 ### Prefix advertisement:
-Announces the IPv6 prefix derived from the ISP’s delegated prefix so LAN clients can configure their own GUAs via SLAAC.
-
+Automatically discovers prefixes to announce by inspecting the IPv6 addresses configured on an interface, including:
+- The IPv6 prefix derived from the ISP’s delegated prefix so LAN clients can configure their own GUAs via SLAAC.
+- Any other addresses assign to the interface (the ULA prefix we assigned in `hostname.ix0` in our case)
 ### Router lifetime advertisement:
 Informs LAN clients of the router’s availability as the default gateway.
 
@@ -710,9 +711,9 @@ If the delegated prefix changes (e.g., after a DHCPv6 renewal), `rad` can be rel
 # What is happening here (summary):
 | Step | Daemon               | Role                                                                                                       |
 | ---- | -------------------- | ---------------------------------------------------------------------------------------------------------- |
-| 1    | **`slaacd`**         | Runs on router WAN interface aongside `dhcp6leased`, assigns default route  |
+| 1    | **`slaacd`**         | Runs on router WAN interface aongside `dhcp6leased`, processes ISP RAs, assigns default route  |
 | 2    | **`dhcp6leased`**    | Sends DHCPv6 request to Verizon on WAN `ix1`, receives delegated prefix, writes lease info to `/var/db/dhcp6leased/ix1` and assigns GUA to LAN |
-| 3    | **`rad`**            | Obtains prefix information via `getifaddrs()`, advertises delegated prefix, gateway (and DNS) on LAN `ix0`   |
+| 3    | **`rad`**            | Obtains prefix information via `getifaddrs()`, advertises all prefixes, gateway (and DNS) on LAN `ix0`   |
 | 4    | **`unbound`**        | Serves DNS to LAN clients using ULA address, accepts queries on ULA subnet                                               |
 | 5    | **`dhcpleased`**     | Handles IPv4 DHCP on WAN `ix1`, assigns IPv4 address and default route                                    |
 | 6    | **`dhcpd`**          | The IPv4 dhcp server; hands out IPv4 local addresses on LAN |
