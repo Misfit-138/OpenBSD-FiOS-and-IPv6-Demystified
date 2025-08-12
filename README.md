@@ -479,7 +479,7 @@ But, IPv6 actually encourages this for:
 ## 9. Enable and start `rad`  (IPv6)
 Enable and start rad, so that it advertises both the delegated prefix and DNS info on LAN.  
 
-You can verify that both the delegated prefix and ULA are advertised using `tcpdump`:
+You can verify that both the delegated prefix, ULA prefix and ULA are advertised using `tcpdump`:
 
 Open another terminal and do:
 ```sh
@@ -490,7 +490,7 @@ Switch to your original terminal and do:
 rcctl enable rad
 rcctl start rad
 ```
-Then switch back to watch the output from `tcpdump`. You should see both your delegated prefix as well as the ULA being advertised.
+Then switch back to watch the output from `tcpdump`. You should see your delegated prefix, ULA prefix, as well as the ULA being advertised.
 
 *I struggled understanding this for weeks until dave14305 was kind enough to share his insight on this. The `-s 256` was the key. Without it, output was truncated (it would contain either the ULA or GUA, but never both) and confused me for a long time. Thank you, dave!*
 
