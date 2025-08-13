@@ -591,7 +591,7 @@ server:
     prefetch: yes
 
     # Enable DNSSEC:
-    # auto-trust-anchor-file: "/var/unbound/db/root.key"
+    auto-trust-anchor-file: "/var/unbound/db/root.key"
 
     # Uncomment to load rpz module and configure below:
     module-config: "respip validator iterator"
@@ -618,9 +618,42 @@ rpz:
     url: https://url-for-myrpz-list.com/list.txt
 	
 ```
-`unbound`'s default behavior is to query the root servers directly. Uncommenting the `forward-zone` will forward all queries to Google (or any DNS of your choosing).
++ `unbound`'s default behavior is to run in full resolver mode, querying the root servers directly. In this configuration your system becomes its own recursive DNS resolver; `unbound` starts at the root servers, follows referrals to TLDs, then authoritative servers, until it finds the answer.
 
-Notice the `interface: ix0` clause.
++ Uncommenting the `forward-zone` will run `unbound` in forwarding mode; all queries go to Google (or any DNS of your choosing).
+
+# **Should you use `unbound` in full resolver mode, or forward to a 3rd-party service?**
+>
+> **Using `unbound` with Root Servers (full resolver)**
+>
+> **Pros:**
+> - Less exposure to any single entity: Queries go directly to the authoritative hierarchy, so no single 3rd-party sees your full browsing history.
+> - Resilience: Not dependent on one provider; if a root/TLD server is slow, others answer.
+> - Independence: Immune to upstream filtering or manipulation by a public resolver. 
+> - DNSSEC trust: You validate directly from the root, not relying on a forwarder’s validation.
+>
+> **Cons:**
+> - Higher latency for first-time lookups because you walk the DNS tree and each step adds a round trip.
+> - More complexity: Root hints must be kept current e.g. using `cron`. `unbound` must handle higher query loads.
+> - Traffic visibility: Your IP becomes visible to many authoritative servers (though not all queries go to each).
+>
+> **Forwarding to Google/Cloudflare/Quad9/et al**
+>
+> **Pros:**
+> - Low latency: Big providers have massive, distributed caches.
+> - Ease: No need to maintain root hints or trace full resolution paths. All work is done upstream and cached.
+> - Anycast resilience: Usually reachable quickly from anywhere.
+>
+> **Cons:**
+> - Privacy trade-off: All queries are visible to the provider (and potentially retained).
+> - Single point of influence: Filtering, logging, or manipulation possible.
+> - DNSSEC trust shift: You rely on their validation instead of doing it yourself.
+>
+> **Bottom line:**
+> - Use root servers if you value independence, and full DNS control at the cost of slightly slower cold lookups.
+> - Use forwarders if you want simplicity by offloading, maximum speed for popular domains, and are comfortable trusting a third party with all your DNS traffic.
+
+## The `interface: ix0` clause.
 
 This directs `unbound` to **listen** on all addresses assigned to the LAN interface. 
 
@@ -637,7 +670,7 @@ access-control: fd00:AAAA:BBBB:CCCC::/64
 Only the RFC 1918 subnet 192.168.1.0/24 and our RFC 4193 ULA subnet fd00:AAAA:BBBB:CCCC::/64 are granted access.
 So, essentially, unbound listens on the interface, and the `access-control:` limits which addresses are granted access. Therefore, the `interface: ix0` is being used as shorthand. We could also explicitly configure by addresses using `interface:` if we so choose.
 
-### `rpz` section:
+## `rpz` section:
 
 This is one of the incredible features of `unbound` that really pushes it over the top; RPZ
 
