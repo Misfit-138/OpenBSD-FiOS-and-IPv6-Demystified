@@ -602,13 +602,14 @@ server:
 remote-control:
     control-enable: yes
     control-interface: /var/run/unbound.sock
-# Uncomment to forward to Google DNS
-forward-zone:
-    name: "."
-    forward-tls-upstream: yes
-    forward-addr: 8.8.8.8@853#dns.google
-    forward-addr: 8.8.4.4@853#dns.google
-    forward-addr: 2001:4860:4860::8888@853#dns.google
+# Uncomment to forward to Google DNS,
+# otherwise, default will query root servers.
+#forward-zone:
+#    name: "."
+#    forward-tls-upstream: yes
+#    forward-addr: 8.8.8.8@853#dns.google
+#    forward-addr: 8.8.4.4@853#dns.google
+#    forward-addr: 2001:4860:4860::8888@853#dns.google
 
 rpz:
     name: dns-block-list
@@ -617,7 +618,9 @@ rpz:
     url: https://url-for-myrpz-list.com/list.txt
 	
 ```
-Notice first, the `interface: ix0` clause.
+`unbound`'s default behavior is to query the root servers directly. Uncommenting the `forward-zone` will forward all queries to Google (or any DNS of your choosing).
+
+Notice the `interface: ix0` clause.
 
 This directs `unbound` to **listen** on all addresses assigned to the LAN interface. 
 
@@ -801,7 +804,6 @@ They're great tools, but I find them unnecessarily complex, especially for routi
 ### Why do you include Google DNS?
 
 - In my region, Google DNS is fast and reliable.
-- Other providers and root servers did not perform well for me.
 - Feel free to configure your system to your own preference.
   
 ## 🙏 Final Thoughts
