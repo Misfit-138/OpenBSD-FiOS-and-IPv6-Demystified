@@ -653,7 +653,7 @@ rpz:
 > - Use root servers if you value independence, and full DNS control at the cost of slightly slower cold lookups.
 > - Use forwarders if you want simplicity by offloading, maximum speed for popular domains, and are comfortable trusting a third party with all your DNS traffic.
 
-## The `interface: ix0` clause.
+### The `interface: ix0` clause.
 
 This directs `unbound` to **listen** on all addresses assigned to the LAN interface. 
 
@@ -670,7 +670,7 @@ access-control: fd00:AAAA:BBBB:CCCC::/64
 Only the RFC 1918 subnet 192.168.1.0/24 and our RFC 4193 ULA subnet fd00:AAAA:BBBB:CCCC::/64 are granted access.
 So, essentially, unbound listens on the interface, and the `access-control:` limits which addresses are granted access. Therefore, the `interface: ix0` is being used as shorthand. We could also explicitly configure by addresses using `interface:` if we so choose.
 
-## `rpz` section:
+### `rpz` section:
 
 This is one of the incredible features of `unbound` that really pushes it over the top; RPZ
 
@@ -684,7 +684,7 @@ RPZ, or Response Policy Zone is an `unbound` module that lets you rewrite DNS re
 
 You can configure `rpz` to:
 
-Return NXDOMAIN (pretend it doesn’t exist)
+Return NXDOMAIN (report the domain doesn’t exist)
 
 Return a specific IP (sinkhole or block page)
 
@@ -697,7 +697,9 @@ Example use cases:
 
 In our example we download a list from the internet, (which is updated automatically), and and return NXDOMAIN for all domains which have a match on the list.
 
-Enable and start `unbound`
+Finding a raw `rpz` blocklist which suits your needs will be quite easy. There are several excellent, freely available lists in `rpz` format updated very regularly. I do not recommend any here, due to the possibility of excessive traffic to any one list.
+
+After configuring to your satisfaction, enable and start `unbound`:
 ```sh
 rcctl enable unbound
 rcctl start unbound
