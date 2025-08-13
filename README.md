@@ -626,7 +626,10 @@ rpz:
 >
 > **Using `unbound` with Root Servers (full resolver)**
 >
+> (Leave `forward-zone` commented out)
+>
 > **Pros:**
+>
 > - Less exposure to any single entity: Queries go directly to the authoritative hierarchy, so no single 3rd-party sees your full browsing history.
 > - Resilience: Not dependent on one provider; if a root/TLD server is slow, others answer.
 > - Independence: Immune to upstream filtering or manipulation by a public resolver. 
@@ -638,6 +641,8 @@ rpz:
 > - Traffic visibility: Your IP becomes visible to many authoritative servers (though not all queries go to each).
 >
 > **Forwarding to Google/Cloudflare/Quad9/et al**
+>
+> (Uncomment `forward-zone`)
 >
 > **Pros:**
 > - Low latency: Big providers have massive, distributed caches.
