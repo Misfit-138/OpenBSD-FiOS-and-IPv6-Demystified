@@ -743,6 +743,7 @@ https://adblock.turtlecute.org/ can be utilized from clients to check for effect
 
 
 # Deeper Dive: The Three Main IPv6 Daemons in OpenBSD 7.7
+![Example Image](3daemons.jpg)
 
 OpenBSD 7.7’s IPv6 stack uses three distinct but complementary daemons for default route and address acquisition, prefix delegation, and router advertisement. Together, these handle both upstream (WAN) and downstream (LAN) IPv6 configuration without requiring third-party tools. Each has a clear purpose, and understanding their separation makes troubleshooting and configuration much easier.
 
