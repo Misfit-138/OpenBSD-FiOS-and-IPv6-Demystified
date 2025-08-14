@@ -509,6 +509,10 @@ Rebooting is not strictly necessary at this point, but it will prove our configu
 ```sh
 reboot
 ```
+Verify WAN public IPv4 and IPV6 link-local addresses:
+```sh
+ifconfig ix1
+```
 
 Verify LAN address assignments:  (IPv4/IPv6)
 
@@ -524,7 +528,11 @@ inet 192.168.1.1
 ...
 inet6 2600:4040:AAAA:BBBB::1 prefixlen 64
 ```
-
+Verify connectivity:
+```sh
+ping google.com 
+ping6 google.com
+```
 *You are getting close to the summit!*
 
 ## The IPv6 Prefix Delegation model (This ain't IPv4!):
