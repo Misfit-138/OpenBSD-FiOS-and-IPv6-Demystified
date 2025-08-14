@@ -546,7 +546,7 @@ Unlike IPv4, where a public WAN address is necessary for NAT, IPv6 routers simpl
 Simply bringing an interface up with the `inet6` or `inet6 autoconf` flags will give the interface a link-local address. The router's WAN interface uses this link-local IPv6 address (`fe80::/10`) to communicate with Verizon’s ONT, which is sufficient for routing. 
 
 **Delegated GUA on LAN**  
-The router receives its own IPv6 address on each LAN interface via `dhcp6leased`. These addresses are derived from the delegated prefix. The LAN interface prefixes are then advertised throughout their internal networks via `rad`, so that client devices may configure their own GUAs, using SLAAC.
+The router receives its own IPv6 address on each LAN interface via `dhcp6leased`. These addresses are derived from the delegated prefix. The LAN interface prefix(es) are then advertised throughout their internal networks via `rad`, so that client devices may configure their own GUAs, (and ULAs, in our case) using SLAAC.
 
 **Efficient and Compliant**  
 This design reflects IPv6 best practices and conserves address space while enabling native, end-to-end IPv6 routing for all LAN clients- without NAT.
