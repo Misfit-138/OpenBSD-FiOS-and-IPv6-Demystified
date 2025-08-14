@@ -744,7 +744,7 @@ https://adblock.turtlecute.org/ can be utilized from clients to check for effect
 
 # Deeper Dive: The Three Main IPv6 Daemons in OpenBSD 7.7
 
-OpenBSD 7.7’s IPv6 stack uses three distinct but complementary daemons for address acquisition, prefix delegation, and router advertisement. Together, these handle both upstream (WAN) and downstream (LAN) IPv6 configuration without requiring third-party tools. Each has a clear purpose, and understanding their separation makes troubleshooting and configuration much easier.
+OpenBSD 7.7’s IPv6 stack uses three distinct but complementary daemons for default route and address acquisition, prefix delegation, and router advertisement. Together, these handle both upstream (WAN) and downstream (LAN) IPv6 configuration without requiring third-party tools. Each has a clear purpose, and understanding their separation makes troubleshooting and configuration much easier.
 
 ## 1. `slaacd` - SLAAC and RA listener for upstream
 `slaacd` (Stateless Address Automatic Configuration Daemon) listens for IPv6 Router Advertisements (RAs) from the upstream ISP router (e.g., Verizon FiOS gateway) on the WAN interface.
