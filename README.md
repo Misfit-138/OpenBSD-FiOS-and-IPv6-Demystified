@@ -310,7 +310,7 @@ inet6 autoconf
 ```
 
 - `inet autoconf`: Enables DHCPv4 on the WAN interface. The system will automatically obtain a public IPv4 address, subnet mask, and default gateway from the ISP via `dhcpleased`.
-- `inet6 autoconf`: Enables IPv6 autoconfiguration on the WAN interface. This brings up the interface with a link-local IPv6 address, installs a default route via `slaacd`, and simultaneous communication with the ISP’s DHCPv6 server for prefix delegation via `dhcp6leased`.
+- `inet6 autoconf`: Enables IPv6 autoconfiguration on the WAN interface. This brings up the interface with a link-local IPv6 address, installs a default route via `slaacd`, and opens communication with the ISP’s DHCPv6 server for prefix delegation via `dhcp6leased`.
 
 With `hostname.ix1`, `hostname.ix0`, and `dhcp6leased.conf` complete, `dhcp6leased` is now configured to receive the delegated prefix on the WAN, write it to `/var/db/dhcp6leased/ix1` and install a GUA within its subnet ending in ::1 to the LAN interface. `slaacd` is now configured to process ISP router advertisements and install the default route.
   
