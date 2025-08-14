@@ -745,9 +745,10 @@ https://adblock.turtlecute.org/ can be utilized from clients to check for effect
 # Deeper Dive: The Three Main IPv6 Daemons in OpenBSD 7.7
 ![Example Image](3daemons.jpg)
 
-OpenBSD 7.7’s IPv6 stack uses three distinct but complementary daemons for default route and address acquisition, prefix delegation, and router advertisement. Together, these handle both upstream (WAN) and downstream (LAN) IPv6 configuration without requiring third-party tools. Each has a clear purpose, and understanding their separation makes troubleshooting and configuration much easier.
+OpenBSD 7.7’s IPv6 stack uses three distinct but complementary daemons for upstream RA processing, default route installation, DHCPv6 lease negotiation, prefix delegation, address assignment, and router advertisement. Together, these daemons handle both upstream (WAN) and downstream (LAN) IPv6 configuration without requiring third-party tools. Each has a clear purpose, and understanding their separation makes troubleshooting and configuration much easier.
 
 ## 1. `slaacd` - SLAAC and RA listener for upstream
+
 `slaacd` (Stateless Address Automatic Configuration Daemon) listens for IPv6 Router Advertisements (RAs) from the upstream ISP router (e.g., Verizon FiOS gateway) on the WAN interface.
 Its core responsibilities:
 
@@ -757,7 +758,7 @@ If the RA contains a prefix with the “autonomous address-configuration” (A) 
 ### Default route installation:
 If the RA’s router lifetime is non-zero, `slaacd` installs an IPv6 default route via the RA source.
 
-**`slaacd` only processes RAs on interfaces configured for `inet6 autoconf` in `hostname.if`. It does not serve LAN clients - its scope is inbound RAs from upstream.**
+**`slaacd` only processes RAs on interfaces configured for `inet6 autoconf` in `hostname.if`. It does not serve downstream LAN clients - its scope is inbound RAs from upstream.**
 
 ## 2. `dhcp6leased` - DHCPv6 client and PD handler
 `dhcp6leased` is OpenBSD’s built-in DHCPv6 client daemon, introduced in 7.3 and now the standard for 7.7.
@@ -765,7 +766,7 @@ If the RA’s router lifetime is non-zero, `slaacd` installs an IPv6 default rou
 Its core responsibilities:
 
 ### Prefix Delegation (PD):
-Requests and maintains an IPv6 prefix (often /56 or /60) from the ISP’s DHCPv6 server. This is typically used for downstream LAN addressing.
+Requests and maintains a leased IPv6 prefix (often /56 or /60) from the ISP’s DHCPv6 server. This is typically used for downstream LAN addressing.
 
 ### Address assignment :
 Verizon FiOS typically assigns only a delegated prefix (IA_PD) via DHCPv6 to the CPE (router). If configured, `dhcp6leased` then assigns IPv6 addresses (GUAs) on its LAN interface(s) using that delegated prefix. (Recall the `inet6` flag in our `hostname.ix0` which allows for IPv6 on LAN, and our `dhcp6leased.conf` which directs `dhcp6leased` to assign the delegated prefix to our LAN- `ix0`.). 
