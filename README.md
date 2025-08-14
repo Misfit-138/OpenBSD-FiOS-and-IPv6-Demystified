@@ -783,7 +783,7 @@ Can optionally advertise DNS servers (as in our case) to LAN clients, allowing f
 If the delegated prefix changes (e.g., after a DHCPv6 renewal), `rad` can be reloaded to advertise the updated prefix without restarting the daemon.
 
 ## Key Point:
-`rad` only sends outbound RAs to LAN clients. It does not listen for or process inbound RAs from upstream — that’s `slaacd`’s job.
+`rad` only sends outbound RAs to LAN clients. It does not listen for or process inbound RAs from upstream - that’s `slaacd`’s job.
 
 # What is happening here (summary):
 | Step | Daemon               | Role                                                                                                       |
