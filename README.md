@@ -480,7 +480,7 @@ But, IPv6 actually encourages this for:
 ## 9. Enable and start `rad`  (IPv6)
 Enable and start rad, so that it advertises the delegated prefix, the ULA prefix, and DNS info (ULA address) on the LAN.  
 
-You can verify that both the delegated prefix, ULA prefix and ULA are advertised using `tcpdump`:
+You can verify that the delegated prefix, ULA prefix and ULA are advertised using `tcpdump`:
 
 Open another terminal and do:
 ```sh
