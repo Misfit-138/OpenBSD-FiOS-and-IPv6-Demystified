@@ -693,7 +693,7 @@ RPZ, or Response Policy Zone is an `unbound` module that lets you rewrite DNS re
 
 *Think of it like a DNS-based firewall:*
 
-- You load a zone file (or pull one from the internet from a url, as in our example) that lists domains you want to block or change.
+- `unbound` loads a zone file (or pulls one from the internet, as in our example) that lists domains to block or change.
 - When a client queries one of those domains, `unbound` applies the RPZ rules instead of returning the normal DNS answer.
 - The list is automatically updated (The SOA record of the rpz list contains a refresh field, which tells unbound how often to poll for an update.)
 
