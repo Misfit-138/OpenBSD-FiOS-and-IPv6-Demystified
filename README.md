@@ -478,7 +478,7 @@ But, IPv6 actually encourages this for:
 - Reachability: Clients can always find Unbound at fd00:AAAA:BBBB:CCCC::1, even if your global prefix changes.
 
 ## 9. Enable and start `rad`  (IPv6)
-Enable and start rad, so that it advertises both the delegated prefix and DNS info on LAN.  
+Enable and start rad, so that it advertises the delegated prefix, the ULA prefix, and DNS info (ULA address) on the LAN.  
 
 You can verify that both the delegated prefix, ULA prefix and ULA are advertised using `tcpdump`:
 
