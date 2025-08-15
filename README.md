@@ -228,7 +228,7 @@ On the 2006:4040:1234:5601::/64 subnet, device SLAAC clients can assign:
 
 2006:4040:1234:5601::a1b2:c3ff:fed4:5678 (assigned by device 1 SLAAC client)
 
-2006:4040:1234:5601::dead:beef:cafe:1234 (assigned by device 2 SLAAC client)
+2006:4040:1234:5601::f3d5:12ef:57fe:1234 (assigned by device 2 SLAAC client)
 
 ...etc.
 
