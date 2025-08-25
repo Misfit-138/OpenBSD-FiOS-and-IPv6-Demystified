@@ -456,28 +456,30 @@ interface ix0 {
 ```
 *Substitute with your actual ULA.*
 
-By default, `rad` discovers prefixes to announce by inspecting the IPv6 addresses configured on an interface (rad.conf(5)); At this point, the delegated prefix, and the prefix (subnet) encompassing our ULA.
+By default, `rad` discovers prefixes to announce by inspecting the IPv6 addresses configured on an interface; At this point, the delegated prefix from the ISP, and the prefix (subnet) encompassing our ULA.
 
-`dns.. nameserver fd00:AAAA:BBBB:CCCC::1..` configures `rad` to advertise the DNS nameserver (ULA) to your LAN. 
+`dns {nameserver fd00:AAAA:BBBB:CCCC::1}` configures `rad` to advertise the DNS nameserver (ULA) to your LAN. 
 
 This means:
 - Clients will receive both the delegated prefix (2600:4040....::/64) and the ULA's prefix (fd00:AAAA:BBBB:CCCC::/64) even though not explicitly included in `rad.conf`
 - Clients also receive the custom DNS (ULA) address (fd00:AAAA:BBBB:CCCC::1) configured above.
-- They will autoconfigure GUA addresses like 2600:4040:AAAA:BBBB::abcd for themselves derived from the delegated prefix using SLAAC.
+- They will autoconfigure GUA addresses like 2600:4040:AAAA:BBBB::abcd for themselves derived from the delegated prefix using their own SLAAC client.
 - These GUAs give each device on your network a publicly routable IPv6 address.
-- They will autoconfigure private ULA addresses like fd00:AAAA:BBBB:CCCC::abcd for themselves derived from the ULA's prefix using SLAAC.
+- They will autoconfigure private ULA addresses like fd00:AAAA:BBBB:CCCC::abcd for themselves derived from the ULA's prefix using their own SLAAC client.
 - *They then use those private ULA source addresses to query DNS* at your router’s ULA (fd00:AAAA:BBBB:CCCC::1).
 
-## *Why use a ULA for DNS? Why not use our GUA derived from Verizon's delegated prefix? After all, it's our LAN IP address.*
+## *Why use a ULA for DNS? Why not use our GUA derived from Verizon's delegated prefix? After all, it's our LAN interface's IP address!*
 
-By creating a ULA alias for our LAN ix0, and a corresponding prefix, we've essentially created a *private* ULA subnet (fd00:AAAA:BBBB:CCCC::/64) on the LAN for the specific purpose of stable internal DNS service, and we will configure `unbound` to listen on the ULA address fd00:AAA:BBBB:CCCC::1 and allow traffic in from its subnet. Advertising our GUA as our DNS is not best practice, because GUAs are publicly routable addresses. Yes, `pf` will block the advertisement from leaving, but using a private subnet is advantageous.
+By creating a ULA alias for our LAN `ix0`, and a corresponding prefix, we've essentially created a *private* ULA subnet (fd00:AAAA:BBBB:CCCC::/64) on the LAN for the specific purpose of stable internal DNS service, and we will configure `unbound` to listen on the LAN interface, and *allow traffic in from the ULA address fd00:AAA:BBBB:CCCC::1, and its subnet*. 
+
+Advertising our GUA as our DNS is not best practice, because GUAs are publicly routable addresses. Yes, `pf` will block the advertisement from leaving, but using a private subnet is advantageous.
 
 This concept was strange to me at first, since, coming from the frugality of IPv4, it seemed excessive to create 18 quintillion addresses simply for my little network's DNS. 
 
 But, IPv6 actually encourages this for:
 - Stability: Your ULA doesn’t change like your Verizon-assigned GUA. This makes it a perfect anchor for DNS, which needs consistency.
-- Privacy: ULAs aren't routable on the public Internet, so there's no exposure.
-- Simplicity: You avoid having to dynamically reconfigure Unbound or whenever your GUA changes.
+- Privacy: ULAs are not routable on the public Internet, so there is no exposure.
+- Simplicity: You avoid having to dynamically reconfigure `unbound` whenever your GUA changes.
 - Reachability: Clients can always find Unbound at fd00:AAAA:BBBB:CCCC::1, even if your global prefix changes.
 
 ## 9. Enable and start `rad`  (IPv6)
