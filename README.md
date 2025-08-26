@@ -583,6 +583,9 @@ server:
     private-address: fe80::/10
     private-domain: home.arpa
 
+	# A fresh OpenBSD install includes /etc/ssl/cert.pem
+	# (a prebuilt PEM bundle from Mozilla’s trusted root store).
+	# Necessary for DNS over TLS:
     tls-cert-bundle: "/etc/ssl/cert.pem"
 
     # Include a localhosts.conf file for reverse lookups
