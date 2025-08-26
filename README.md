@@ -615,7 +615,7 @@ server:
 remote-control:
     control-enable: yes
     control-interface: /var/run/unbound.sock
-# Uncomment to forward to Google DNS,
+# Uncomment to forward to Google DNS, using DNS over TLS.
 # otherwise, default will query root servers.
 #forward-zone:
 #    name: "."
@@ -633,7 +633,7 @@ rpz:
 ```
 + `unbound`'s default behavior is to run in full resolver mode, querying the root servers directly. In this configuration your system becomes its own recursive DNS resolver; `unbound` starts at the root servers, follows referrals to TLDs, then authoritative servers, until it finds the answer.
 
-+ Uncommenting the `forward-zone` will run `unbound` in forwarding mode; all queries go to Google (or any DNS of your choosing).
++ Uncommenting the `forward-zone` will run `unbound` in forwarding mode; all queries go to Google (or any DNS of your choosing) and, since we have `tls-cert-bundle: "/etc/ssl/cert.pem"`, `forward-tls-upstream: yes`, and port 853 specified, DNS over TLS is utilized.
 
 # **Should you use `unbound` in full resolver mode, or forward to a 3rd-party service?**
 >
