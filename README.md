@@ -143,17 +143,17 @@ nameserver ::1
 lookup file bind
 search home.arpa  # <--- replace with your local domain name
 ```
-`nameserver 127.0.0.1`→ Use the local DNS server running on IPv4 loopback (localhost). This means the system will try to send DNS queries to itself at 127.0.0.1.
+`nameserver 127.0.0.1`: Use the local DNS server running on IPv4 loopback (localhost). This means the system will try to send DNS queries to itself at 127.0.0.1.
 
-`nameserver ::1`→ Same as above, but for IPv6 loopback. This allows DNS queries to be sent to localhost using IPv6.
+`nameserver ::1`: Same as above, but for IPv6 loopback. This allows DNS queries to be sent to localhost using IPv6.
 
-`lookup file bind`→ This controls the order of name resolution:
+`lookup file bind`: This controls the order of name resolution:
 
-`file`→ means check /etc/hosts first.
+`file`: means check the /etc/hosts **file** first.
 
-`bind`→ Originally meant the **Berkeley Internet Name Domain (BIND)** software, which is the original and widely used DNS resolver and server suite developed at Berkeley in the early days of the Internet. It’s a legacy term that stuck. Now, it simply means *ask the DNS servers listed above (127.0.0.1 and ::1) if the name wasn’t found in /etc/hosts*.
+`bind`: Originally meant the **Berkeley Internet Name Domain (BIND)** software, which is the original and widely used DNS resolver and server suite developed at Berkeley in the early days of the Internet. It’s a legacy term that stuck. Now, it simply means *ask the DNS servers listed above (127.0.0.1 and ::1) if the name wasn’t found in /etc/hosts*.
 
-`search home.arpa`→ If you type just a short hostname (like, myserver), the system will try appending .home.arpa to it, making it myserver.home.arpa. This helps with resolving names in your home network automatically *from the router itself*.
+`search home.arpa` (replace with your actual domain name): If you type just a short hostname (like, *myserver*), the system will try appending .home.arpa to it, making it *myserver.home.arpa*. This helps with resolving names in your home network automatically *from the router itself*.
 
 
 ### Create `/etc/dhcpleased.conf`  (IPv4)
