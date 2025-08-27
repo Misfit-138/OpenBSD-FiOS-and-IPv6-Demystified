@@ -806,11 +806,11 @@ If the delegated prefix changes (e.g., after a DHCPv6 renewal), `rad` can be rel
 # What is happening here (summary):
 | Step | Daemon               | Role                                                                                                       |
 | ---- | -------------------- | ---------------------------------------------------------------------------------------------------------- |
-| 1    | **`slaacd`**         | Runs on router WAN interface aongside `dhcp6leased`, processes ISP RAs, assigns default route  |
+| 1    | **`slaacd`**         | Runs on router WAN interface aongside `dhcp6leased`, processes ISP RAs, installs default route  |
 | 2    | **`dhcp6leased`**    | Sends DHCPv6 request to Verizon on WAN `ix1`, receives delegated prefix, writes lease info to `/var/db/dhcp6leased/ix1` and assigns GUA to LAN |
 | 3    | **`rad`**            | Obtains prefix information via `getifaddrs()`, advertises all prefixes, gateway (and DNS) on LAN `ix0`   |
 | 4    | **`unbound`**        | Serves DNS to LAN clients using ULA address, accepts queries on ULA subnet                                               |
-| 5    | **`dhcpleased`**     | Handles IPv4 DHCP on WAN `ix1`, assigns IPv4 address and default route                                    |
+| 5    | **`dhcpleased`**     | Handles IPv4 DHCP on WAN `ix1`; installs IPv4 address and default route                                    |
 | 6    | **`dhcpd`**          | The IPv4 dhcp server; hands out IPv4 local addresses on LAN |
 
 That's it! Hopefully, this guide has been valuable to you. 
