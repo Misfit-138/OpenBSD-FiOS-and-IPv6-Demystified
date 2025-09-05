@@ -865,6 +865,7 @@ They're great tools, but I find them unnecessarily complex, especially for routi
 ### Why do you include Google DNS?
 
 - In my region, Google DNS is fast and reliable.
+- It supports TLS.
 - Feel free to configure your system to your own preference.
   
 ## 🙏 Final Thoughts
