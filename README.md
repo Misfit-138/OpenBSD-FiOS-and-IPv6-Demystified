@@ -834,11 +834,11 @@ OpenBSD and this project are licensed under the **BSD style License** in the sou
 
 ## 👤 Author
 
-**Misfit-138**
+Misfit-138 discovered computers in 1982, and has struggled to understand them ever since. He served as an admin and major contributor to the Arch Linux Wiki from 2005-2015. His contributions to documentation and code of conduct framework have been adopted throughout many distributions and projects.
 
 **"Standing on the shoulders of giants"**
 
-Without the following resources and people, this guide would have been impossible for me.
+Without the following resources and people, this guide would have been impossible.
 
 * Florian Obser: Created OpenBSD's modern IPv6 infrastructure by writing slaacd (OpenBSD 6.2), rad (OpenBSD 6.4), and dhcp6leased (OpenBSD 7.6) - the three daemons that handle IPv6 autoconfiguration, router advertisements, and prefix delegation respectively. https://www.youtube.com/watch?v=Q4b26mqb_G8
 * N.M. Hansteen: Author of **The Book of PF, 4th edition** (Yes, I preordered and got the early access PDF!)
