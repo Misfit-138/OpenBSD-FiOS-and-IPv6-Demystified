@@ -653,7 +653,8 @@ rpz:
 >
 > **Cons:**
 > - Higher latency for first-time lookups because you walk the DNS tree and each step adds a round trip.
-> - More complexity: Root hints must be kept current e.g. using `cron`. `unbound` must handle higher query loads.
+> - More complexity: Root hints must be kept current either manually or e.g. using `cron` (though updates are very rare)
+> - `unbound` must handle higher query loads.
 > - Traffic visibility: Your IP becomes visible to many authoritative servers (though not all queries go to each).
 >
 > **Forwarding to Google/Cloudflare/Quad9/et al**
