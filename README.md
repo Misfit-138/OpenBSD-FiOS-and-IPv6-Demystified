@@ -566,7 +566,20 @@ This design reflects IPv6 best practices and conserves address space while enabl
 
 ## 12. DNS and `unbound`  (IPv4/IPv6)
 
-Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TLS, and RPZ support. The following example allows for using the root servers or forwarding DNS over TLS to Google, as well as blocking malicious domains, depending on how you wish to proceed.
+### Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TLS, and RPZ support. 
+
+If you intend on using the Root Servers, download the root.hints file from internic.net:
+
+```sh
+ftp -o /var/unbound/etc/root.hints https://www.internic.net/domain/named.root
+```
+
+Ensure the files is not empty:
+```sh
+wc -l /var/unbound/etc/root.hints
+```
+
+### The following example allows for using the root servers or forwarding DNS over TLS to Google, as well as blocking malicious domains, depending on how you wish to proceed.
 
 ### `/var/unbound/etc/unbound.conf`
 
@@ -608,6 +621,9 @@ server:
 
     # Enable DNSSEC:
     auto-trust-anchor-file: "/var/unbound/db/root.key"
+
+	# Official Root hints file from https://www.internic.net/domain/named.root:
+    root-hints: "/var/unbound/etc/root.hints"
 
     # Uncomment to load rpz module and configure below:
     module-config: "respip validator iterator"
