@@ -65,14 +65,16 @@ Official instructions at: https://www.openbsd.org/faq/faq4.html
 
 During the install set up a WAN interface configured with automatic IPv4/IPv6 and a LAN interface with static IPv4 for now.
 
-## 2. Check for *running* and *enabled* daemons 
+## 2. Temporarily disable daemons 
+
+Check for *running* and *enabled* daemons 
 
 ```sh
 rcctl ls started
 rcctl ls on
 ```
 
-*Disable the following daemons until we have a proper firewall.*
+*Temporarily disable the following daemons until we have a proper firewall.*
 
 `slaacd` is automatically started on interfaces marked with `inet6 autoconf` in `/etc/hostname.if`, so it should be enabled and running on `ix1` after a fresh install if you chose IPv6 autoconf. 
 
@@ -98,8 +100,9 @@ rcctl stop dhcpleased
 rcctl disable dhcpleased 
 ```
 
-## 3. Disable `resolvd` (recommended for a router)  (IPv4/IPv6)
-I would recommend having full control over DNS (to avoid ISP DNS being assigned to router via DHCP):
+## 3. Permanently disable `resolvd` (recommended for a router)  (IPv4/IPv6)
+
+I would recommend having full control over DNS, otherwise, `resolvd` will continually overwrite `/etc/resolve.conf` and the ISP DNS will be assigned to the router via DHCP:
 
 ```sh
 rcctl stop resolvd
