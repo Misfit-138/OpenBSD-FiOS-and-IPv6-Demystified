@@ -330,7 +330,7 @@ A clean and concise dual stack PF configuration with minimal logging, which work
     echoreq, echorep, unreach, toobig, timex, paramprob,
     neighbrsol, neighbradv, routersol, routeradv
 } keep state`
-- `dhcp6leased` <-> server traffic (udp port 546 <- 547) must be enabled on WAN ix1. Our example covers this with `pass in quick on egress inet6 proto udp from any port 547 to any port 546`.
+- The router's WAN `ix1` must allow inbound UDP port 546 traffic from the ISP DHCPv6 server’s UDP port 547. This is how `dhcp6leased` communicates and receives its IPv6 delegated prefix. Our example covers this with `pass in quick on egress inet6 proto udp from any port 547 to any port 546`.
 
 # ⚠️ IMPORTANT SECURITY DISCLAIMER ⚠️
 
