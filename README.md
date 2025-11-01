@@ -1,10 +1,10 @@
-# Demystifying OpenBSD 7.7 Router/Firewalls with Verizon FiOS Dual Stack (IPv4 + IPv6)
+# Demystifying OpenBSD 7.8 Router/Firewalls with Verizon FiOS Dual Stack (IPv4 + IPv6)
 
 ![Example Image](openbsdmountain2.jpg)
 
 ## Overview
 
-This guide describes a **proven method** to configure an OpenBSD 7.7-based router/firewall with **dual stack IPv4 and IPv6** using residential **Verizon FiOS**. It includes support for dynamic IPv6 prefix delegation, DNS advertisement to LAN clients, DNSSEC, root server querying, or DNS over TLS using `unbound` to forward to Google, and optionally, DNS blocklisting utilizing RPZ.
+This guide describes a **proven method** to configure an OpenBSD 7.8-based router/firewall with **dual stack IPv4 and IPv6** using residential **Verizon FiOS**. It includes support for dynamic IPv6 prefix delegation, DNS advertisement to LAN clients, DNSSEC, root server querying, or DNS over TLS using `unbound` to forward to Google, and optionally, DNS blocklisting utilizing RPZ.
 
 (It can also work with other ISPs that use similar connectivity)
 
@@ -23,7 +23,7 @@ After reading, you should have a working understanding of what your OpenBSD fire
 
 ## 🔧 OpenBSD `base` Tools Used
 
-- OpenBSD 7.7
+- OpenBSD 7.8
 - `pf` (OpenBSD's Packet Filter)
 - `dhcpd` (IPv4 DHCP server daemon)
 - `dhcpleased` - (OpenBSD's IPv4 DHCP client daemon replacing the older ISC dhclient)
@@ -60,7 +60,7 @@ This guide contains network security configurations that will control your firew
 
 ## 📦 Installation Steps
 
-## 1. Install OpenBSD 7.7
+## 1. Install OpenBSD 7.8
 Official instructions at: https://www.openbsd.org/faq/faq4.html
 
 During the install set up a WAN interface configured with automatic IPv4/IPv6 and a LAN interface with static IPv4 for now.
@@ -545,7 +545,7 @@ ping6 google.com
 
 Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your router via DHCPv6 rather than assigning a Global Unicast Address (GUA) directly to the router’s WAN interface. This aligns with IPv6’s design principles, which support end-to-end connectivity without the need for NAT.
 
-## How It Works on OpenBSD 7.7
+## How It Works on OpenBSD 7.8
 
 **`slaacd`** runs on the OpenBSD router's WAN interface, processing the RA from the ISP, and installs a default route.
 
@@ -768,10 +768,10 @@ https://test-ipv6.com/ can be utilized from clients to check for IPv4/IPv6 funct
 https://adblock.turtlecute.org/ can be utilized from clients to check for effective domain blocking with `unbound`/`rpz` (turn off all browser adblocking to isolate). 
 
 
-# Deeper Dive: The Three Main IPv6 Daemons in OpenBSD 7.7
+# Deeper Dive: The Three Main IPv6 Daemons in OpenBSD 7.8
 ![Example Image](3daemons.jpg)
 
-OpenBSD 7.7’s IPv6 stack uses three distinct but complementary daemons for upstream RA processing, default route installation, DHCPv6 lease negotiation, prefix delegation, address assignment, and router advertisement. Together, these daemons handle both upstream (WAN) and downstream (LAN) IPv6 configuration without requiring third-party tools. Each has a clear purpose, and understanding their separation makes troubleshooting and configuration much easier.
+OpenBSD 7.8’s IPv6 stack uses three distinct but complementary daemons for upstream RA processing, default route installation, DHCPv6 lease negotiation, prefix delegation, address assignment, and router advertisement. Together, these daemons handle both upstream (WAN) and downstream (LAN) IPv6 configuration without requiring third-party tools. Each has a clear purpose, and understanding their separation makes troubleshooting and configuration much easier.
 
 ## 1. `slaacd` - SLAAC and RA listener for upstream
 
@@ -787,7 +787,7 @@ If the RA’s router lifetime is non-zero, `slaacd` installs an IPv6 default rou
 **`slaacd` only processes RAs on interfaces configured for `inet6 autoconf` in `hostname.if`. It does not serve downstream LAN clients - its scope is inbound RAs from upstream.**
 
 ## 2. `dhcp6leased` - DHCPv6 client and PD handler
-`dhcp6leased` is OpenBSD’s built-in DHCPv6 client daemon, introduced in 7.3 and now the standard for 7.7.
+`dhcp6leased` is OpenBSD’s built-in DHCPv6 client daemon, introduced in 7.3.
 
 Its core responsibilities:
 
