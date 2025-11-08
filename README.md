@@ -268,16 +268,11 @@ Why it's useful:
 * Unlike **GUA**s (which can change when your ISP changes your delegated prefix), **ULA**s remain constant.
 * Ensures local services and device-to-device communication continues working even if your ISP prefix changes-Provides a fallback for local network services.
 
-You *could* easily create your own random ULA/prefix using `jot`:
-```sh
-jot -r 6 0 255 | xargs printf "fd00:%02x%02x:%02x%02x:%02x%02x::1/64\n"
-```
-The output should be something like:
-```sh
-fd00:AAAA:BBBB:CCCC::1/64
-```
-But, ULAs are private and not routable on the internet, so feel free to arbitrarily create your own ULA which is more readable;
-```fd00:feed:dead::1/64``` is perfectly fine as well.
+ULAs are private and not routable on the internet, so feel free to arbitrarily create your own ULA which is human readable;
+```fd00:feed:dead::1/64``` 
+```fd10:dead:fade:1/64```
+```fd1a:abad:code::1/64```
+are all perfectly acceptable.
 
 So, now we have:
 - A ULA: fd00:AAAA:BBBB:CCCC::1 = ULA (the individual address)
