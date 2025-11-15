@@ -892,3 +892,10 @@ They're great tools, but I find them unnecessarily complex, especially for routi
 ## 🙏 Final Thoughts
 
 This guide exists to help others get a solid OpenBSD dual stack router working with Verizon FiOS. I spent weeks testing, reading, and tweaking. If it helps one person, it was worth the effort. If you are that person, or, if you find value in this guide, I would be honored if you clicked on the star. Thanks for reading.
+
+## Contact me
+misfit138x
+
+[at]
+
+proton.me
