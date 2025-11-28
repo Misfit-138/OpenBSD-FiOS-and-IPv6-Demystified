@@ -294,7 +294,7 @@ inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create you
 ```
 - `inet 192.168.1.1 255.255.255.0 192.168.1.255`:  Assigns a static IPv4 address to the interface, using a standard /24 subnet. Devices on the LAN will use this as their IPv4 gateway.
 
-- `inet6`:  Enables IPv6 processing on the LAN interface. With this flag, the kernel will create a link-local address (LLA) for our interface, and allow `dhcp6leased` to assign a Global Unicast Address (GUA) later. Recall our `dhcp6leased.conf`; `request prefix delegation on ix1 for { ix0/64 }`
+- `inet6`:  Enables IPv6 processing on the LAN interface. With this flag, the kernel will create a link-local address (LLA) for our LAN interface when it is brought up, and allow `dhcp6leased` to assign a Global Unicast Address (GUA) to it later. Recall our `dhcp6leased.conf`; `request prefix delegation on ix1 for { ix0/64 }`
 
 - `inet6 alias fd00:AAAA:BBBB:CCCC::1/64`:  Assigns a stable Unique Local Address (ULA) to the LAN interface. For use with internal-only services (like DNS via `unbound`), providing consistent local IPv6 reachability even if the delegated GUA prefix changes or is unavailable.
 
