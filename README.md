@@ -294,7 +294,7 @@ inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create you
 ```
 - `inet 192.168.1.1 255.255.255.0 192.168.1.255`:  Assigns a static IPv4 address to the interface, using a standard /24 subnet. Devices on the LAN will use this as their IPv4 gateway.
 
-- `inet6`:  Enables IPv6 processing on the LAN interface. With this flag, the kernel will create a link-local address for our interface, and allow `dhcp6leased` to assign a Global Unicast Address (GUA) later. Recall our `dhcp6leased.conf`; `request prefix delegation on ix1 for { ix0/64 }`
+- `inet6`:  Enables IPv6 processing on the LAN interface. With this flag, the kernel will create a link-local address (LLA) for our interface, and allow `dhcp6leased` to assign a Global Unicast Address (GUA) later. Recall our `dhcp6leased.conf`; `request prefix delegation on ix1 for { ix0/64 }`
 
 - `inet6 alias fd00:AAAA:BBBB:CCCC::1/64`:  Assigns a stable Unique Local Address (ULA) to the LAN interface. For use with internal-only services (like DNS via `unbound`), providing consistent local IPv6 reachability even if the delegated GUA prefix changes or is unavailable.
 
@@ -311,7 +311,7 @@ inet6 autoconf
 ```
 
 - `inet autoconf`: Enables DHCPv4 on the WAN interface. The system will automatically obtain a public IPv4 address, subnet mask, and default gateway from the ISP via `dhcpleased`.
-- `inet6 autoconf`: Enables IPv6 autoconfiguration on the WAN interface. This brings up the interface with a link-local IPv6 address, installs a default route via `slaacd`, and opens communication with the ISP’s DHCPv6 server for prefix delegation via `dhcp6leased`.
+- `inet6 autoconf`: Enables IPv6 autoconfiguration on the WAN interface. This brings up the interface with a link-local IPv6 address (LLA), installs a default route via `slaacd`, and opens communication with the ISP’s DHCPv6 server for prefix delegation via `dhcp6leased`.
 
 With `hostname.ix1`, `hostname.ix0`, and `dhcp6leased.conf` complete, `dhcp6leased` is now configured to receive the delegated prefix on the WAN, write it to `/var/db/dhcp6leased/ix1` and install a GUA within its subnet ending in ::1 to the LAN interface. `slaacd` is now configured to process ISP router advertisements and install the default route.
   
