@@ -227,7 +227,7 @@ Example subnet:
 
 2006:4040:1234:5601::1 (assigned by `dhcp6leased` on OpenBSD router `ix0` (LAN))
 
-On the 2006:4040:1234:5601::/64 subnet, device SLAAC clients can assign:
+On the 2006:4040:1234:5601::/64 subnet, the various PCs/phones/laptops on your LAN running their own SLAAC clients assign their own GUAs like so:
 
 2006:4040:1234:5601::a1b2:c3ff:fed4:5678 (assigned by device 1 SLAAC client)
 
