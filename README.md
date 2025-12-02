@@ -260,7 +260,7 @@ So yes - we get 256 massive subnets, each capable of holding far more devices th
 
 ### `/etc/hostname.ix0` (LAN):  (IPv4/IPv6)
 
-### Create a ULA (Unique Local Address)- IPv6's equivalent to RFC 1918 private addresses like 192.168.x.x in IPv4.
+### For internal network services, create a ULA (Unique Local Address)- IPv6's equivalent to RFC 1918 private addresses like 192.168.x.x in IPv4.
 Why it's useful:
 
 * **ULA**s provide stable, predictable addresses for local network communication.
@@ -295,12 +295,25 @@ inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create you
 
 - `inet6`:  Enables IPv6 processing on the LAN interface. With this flag, the kernel will create a link-local address (LLA) for our LAN interface when it is brought up, and allow `dhcp6leased` to assign a Global Unicast Address (GUA) to it later. Recall our `dhcp6leased.conf`; `request prefix delegation on ix1 for { ix0/64 }`
 
-- `inet6 alias fd00:AAAA:BBBB:CCCC::1/64`:  Assigns a stable Unique Local Address (ULA) to the LAN interface. For use with internal-only services (like DNS via `unbound`), providing consistent local IPv6 reachability even if the delegated GUA prefix changes or is unavailable.
+- `inet6 alias fd00:AAAA:BBBB:CCCC::1/64`:  Assigns a stable Unique Local Address (ULA) to the LAN interface. For use with internal-only services (like DNS via `unbound`, `ssh` from LAN clients, etc), providing consistent local IPv6 reachability even if the delegated GUA prefix changes or is unavailable.
 
 This simple setup ensures:
-- Dual-stack (IPv4 + IPv6) support on the LAN  
+- Dual-stack (IPv4 + IPv6) support on the LAN
+- A fixed local IPv4 address   
 - A fixed local IPv6 address for internal services (via ULA)
-  
+
+As an example, with this setup, from local machines, you will be able to:
+```sh
+ssh myuser@192.168.1.1
+```
+for IPv4,
+
+And,
+```sh
+ssh myuser@fd00:AAAA:BBBB:CCCC::1
+```
+for IPv6 as well.
+
 ### `/etc/hostname.ix1` (WAN) should *probably* be configured during install:  (IPv4/IPv6)
 Simple, clean and brainless. And, it *just works*:
 ```sh
