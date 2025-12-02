@@ -245,8 +245,8 @@ So yes - we get 256 massive subnets, each capable of holding far more devices th
 > 
 > **So all of these are GUAs:**
 > * `2006:4040:1234:5600::1` (router LAN interface on subnet 0)
-> * `2006:4040:1234:5601::dead:beef` (device on subnet 1)
-> * `2006:4040:1234:56ff::a1b2:c3d4` (device on subnet 255)
+> * `2006:4040:1234:5601::4axx:93cb` (a device on subnet 1)
+> * `2006:4040:1234:56ff::a1b2:c3d4` (a device on subnet 255)
 > 
 > **What makes them "global":**
 > * They're not private/local addresses (like `fc00::/7` or `fe80::/10`)
