@@ -153,7 +153,7 @@ search home.arpa  # <--- replace with your local domain name
 
 `file`: means check the /etc/hosts **file** first.
 
-`bind`: Originally meant the **Berkeley Internet Name Domain (BIND)** software, which is the original and widely used DNS resolver and server suite developed at Berkeley in the early days of the Internet. It’s a legacy term that stuck. Now, it simply means *ask the DNS servers listed above (127.0.0.1 and ::1) if the name wasn’t found in /etc/hosts*.
+`bind`: Originally meant the **Berkeley Internet Name Domain (BIND)** software, which is the original and widely used DNS resolver and server suite developed at Berkeley in the early days of the Internet. It’s a legacy term that stuck. Nowadays, it simply means *ask the DNS servers listed above (127.0.0.1 and ::1) if the name wasn’t found in /etc/hosts*.
 
 `search home.arpa` (replace with your actual domain name): If you type just a short hostname (like, *myserver*), the system will try appending .home.arpa to it, making it *myserver.home.arpa*. This helps with resolving names in your home network automatically *from the router itself*.
 
