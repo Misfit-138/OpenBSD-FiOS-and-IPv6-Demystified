@@ -268,7 +268,7 @@ Why it's useful:
 * Ensures local services and device-to-device communication continues working even if your ISP prefix changes-Provides a fallback for local network services.
 
 ULAs are private and not routable on the internet, so feel free to arbitrarily create your own ULA which is human readable;
-```fd00:feed:dead::1/64``` 
+```fd00:feed:face::1/64``` 
 ```fd10:dead:fade:1/64```
 ```fd1a:abad:code::1/64```
 are all perfectly acceptable.
@@ -295,24 +295,14 @@ inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create you
 
 - `inet6`:  Enables IPv6 processing on the LAN interface. With this flag, the kernel will create a link-local address (LLA) for our LAN interface when it is brought up, and allow `dhcp6leased` to assign a Global Unicast Address (GUA) to it later. Recall our `dhcp6leased.conf`; `request prefix delegation on ix1 for { ix0/64 }`
 
-- `inet6 alias fd00:AAAA:BBBB:CCCC::1/64`:  Assigns a stable Unique Local Address (ULA) to the LAN interface. For use with internal-only services (like DNS via `unbound`, `ssh` from LAN clients, etc), providing consistent local IPv6 reachability even if the delegated GUA prefix changes or is unavailable.
+- `inet6 alias fd00:AAAA:BBBB:CCCC::1/64`:  Assigns a stable Unique Local Address (ULA) to the LAN interface for use with internal-only services (like DNS via `unbound`, `ssh` from LAN clients, etc), providing consistent local IPv6 reachability even if the delegated GUA prefix changes or is unavailable.
 
 This simple setup ensures:
+- A fixed local IPv4 address,   
+- A fixed local IPv6 address for internal services,
+
+resulting in 
 - Dual-stack (IPv4 + IPv6) support on the LAN
-- A fixed local IPv4 address   
-- A fixed local IPv6 address for internal services (via ULA)
-
-As an example, with this setup, from local machines, you will be able to:
-```sh
-ssh myuser@192.168.1.1
-```
-for IPv4,
-
-And,
-```sh
-ssh myuser@fd00:AAAA:BBBB:CCCC::1
-```
-for IPv6 as well.
 
 ### `/etc/hostname.ix1` (WAN) should *probably* be configured during install:  (IPv4/IPv6)
 Simple, clean and brainless. And, it *just works*:
