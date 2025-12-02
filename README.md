@@ -785,7 +785,7 @@ If the RA contains a prefix with the “autonomous address-configuration” (A) 
 ### Default route installation:
 If the RA’s router lifetime is non-zero, `slaacd` installs an IPv6 default route via the RA source.
 
-**`slaacd` only processes RAs on interfaces configured for `inet6 autoconf` in `hostname.if`. It does not serve downstream LAN clients - its scope is inbound RAs from upstream.**
+**On our router, `slaacd` only processes RAs on interfaces configured for `inet6 autoconf` in `hostname.if`. It does not serve downstream LAN clients - its scope is inbound RAs from upstream.**
 
 ## 2. `dhcp6leased` - DHCPv6 client and PD handler
 `dhcp6leased` is OpenBSD’s built-in DHCPv6 client daemon, introduced in 7.3.
