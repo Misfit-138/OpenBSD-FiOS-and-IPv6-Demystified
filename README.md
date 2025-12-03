@@ -299,9 +299,8 @@ inet6 alias fd00:AAAA:BBBB:CCCC::1/64  # ULA alias for LAN interface (Create you
 
 This simple setup ensures:
 - Dual-stack (IPv4 + IPv6) support on the LAN
-- A fixed local IPv4 address,   
-- A fixed local IPv6 address for internal services (ULA) like local `ssh` and DNS
-
+- A fixed local IPv4 address  
+- A fixed local IPv6 address (ULA) for internal services, like DNS
 
 ### `/etc/hostname.ix1` (WAN) should *probably* be configured during install:  (IPv4/IPv6)
 Simple, clean and brainless. And, it *just works*:
