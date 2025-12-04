@@ -814,7 +814,7 @@ Automatically discovers prefixes to announce by inspecting the IPv6 addresses co
 ### Router lifetime advertisement:
 Informs LAN clients of the router’s availability as the default gateway.
 
-### RDNSS and DNSSL options:
+### DNS options:
 Can optionally advertise DNS servers (as in our case) to LAN clients, allowing for SLAAC-only networks without the need for DHCPv6.
 
 ### Dynamic reconfiguration:
