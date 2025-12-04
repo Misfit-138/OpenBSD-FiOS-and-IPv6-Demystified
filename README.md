@@ -810,7 +810,7 @@ Its core responsibilities:
 ### Prefix advertisement:
 Automatically discovers prefixes to announce by inspecting the IPv6 addresses configured on an interface, including:
 - The IPv6 prefix derived from the ISP’s delegated prefix so LAN clients can configure their own GUAs via SLAAC.
-- Any other addresses and prefixes assigned to an interface. 
+- Any other addresses and prefixes assigned to an interface (like the ULA prefix and ULA address in our case). 
 ### Router lifetime advertisement:
 Informs LAN clients of the router’s availability as the default gateway.
 
