@@ -464,12 +464,12 @@ By default, `rad` discovers prefixes to announce by inspecting the IPv6 addresse
 `dns {nameserver fd00:AAAA:BBBB:CCCC::1}` configures `rad` to advertise the DNS nameserver (ULA) to your LAN. 
 
 This means:
-- Clients will receive both the delegated prefix (2600:4040....::/64) and the ULA's prefix (fd00:AAAA:BBBB:CCCC::/64) even though not explicitly included in `rad.conf`
-- Clients also receive the custom DNS (ULA) address (fd00:AAAA:BBBB:CCCC::1) configured above.
-- They will autoconfigure GUA addresses like 2600:4040:AAAA:BBBB::abcd for themselves derived from the delegated prefix using their own SLAAC client.
+- Clients will receive both the *delegated prefix* (2600:4040....::/64) and the *ULA's prefix* (fd00:AAAA:BBBB:CCCC::/64) even though not explicitly included in `rad.conf`
+- Clients also receive the custom DNS (ULA) *address* (fd00:AAAA:BBBB:CCCC::1) configured above.
+- Clients will autoconfigure GUA addresses like 2600:4040:AAAA:BBBB::abcd for themselves, derived from the delegated prefix, using their own SLAAC client.
 - These GUAs give each device on your network a publicly routable IPv6 address.
-- They will autoconfigure private ULA addresses like fd00:AAAA:BBBB:CCCC::abcd for themselves derived from the ULA's prefix using their own SLAAC client.
-- *They then use those private ULA source addresses to query DNS* at your router’s ULA (fd00:AAAA:BBBB:CCCC::1).
+- Clients will autoconfigure private ULA addresses like fd00:AAAA:BBBB:CCCC::abcd for themselves derived from the ULA's prefix using their own SLAAC client.
+- *Clients then use those private ULA source addresses to query DNS* at your router’s ULA (fd00:AAAA:BBBB:CCCC::1).
 
 ## *Why use a ULA for DNS? Why not use our GUA derived from Verizon's delegated prefix? After all, it's our LAN interface's IP address!*
 
@@ -480,13 +480,13 @@ Advertising our GUA as our DNS is not best practice, because GUAs are publicly r
 This concept was strange to me at first, since, coming from the frugality of IPv4, it seemed excessive to create 18 quintillion addresses simply for my little network's DNS. 
 
 But, IPv6 actually encourages this for:
-- Stability: Your ULA doesn’t change like your Verizon-assigned GUA. This makes it a perfect anchor for DNS, which needs consistency.
+- Stability: Your ULA doesn’t change like your ISP-assigned dynamic GUA. This makes it a perfect anchor for DNS, which needs consistency.
 - Privacy: ULAs are not routable on the public Internet, so there is no exposure.
-- Simplicity: You avoid having to dynamically reconfigure `unbound` whenever your GUA changes.
+- Simplicity: You avoid having to dynamically reconfigure `unbound` in case your dynamic GUA changes.
 - Reachability: Clients can always find Unbound at fd00:AAAA:BBBB:CCCC::1, even if your global prefix changes.
 
 ## 9. Enable and start `rad`  (IPv6)
-Enable and start rad, so that it advertises the delegated prefix, the ULA prefix, and DNS info (ULA address) on the LAN.  
+Enable and start rad, so that it advertises the delegated *prefix*, the ULA *prefix*, and DNS info (*ULA address* in our case) on the LAN.  
 
 You can verify that the delegated prefix, ULA prefix and ULA are advertised using `tcpdump`:
 
@@ -499,7 +499,7 @@ Switch to your original terminal and do:
 rcctl enable rad
 rcctl start rad
 ```
-Then switch back to watch the output from `tcpdump`. You should see your delegated prefix, ULA prefix, as well as the ULA being advertised.
+Then switch back to watch the output from `tcpdump`. You should see your delegated prefix (DP), ULA prefix, as well as the ULA being advertised.
 
 *I struggled understanding this for weeks until dave14305 was kind enough to share his insight on this. The `-s 256` was the key. Without it, output was truncated (it would contain either the ULA or GUA, but never both) and confused me for a long time. Thank you, dave!*
 
@@ -549,9 +549,9 @@ Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your route
 
 **`slaacd`** runs on the OpenBSD router's WAN interface, processing the RA from the ISP, and installs a default route.
 
-**`dhcp6leased`** handles all *DHCPv6* communication with Verizon on the WAN interface. It sends a request for prefix delegation (IA_PD) and receives a delegated prefix, usually a /56. It then subdivides that prefix according to its configuration and **records subprefixes assigned to each LAN interface** in its internal lease database located at `/var/db/dhcp6leased/`. In our example `hostname.ix1`, `dhcp6leased` is directed to assign the prefix to `ix0`.
+**`dhcp6leased`** handles all *DHCPv6* communication with the ISP on the WAN interface. It sends a request for prefix delegation (IA_PD) and receives a delegated prefix, usually a /56. It then subdivides that prefix according to its configuration and **records subprefixes assigned to each LAN interface** in its internal lease database located at `/var/db/dhcp6leased/`. In our example `hostname.ix1`, `dhcp6leased` is configured to assign the prefix to `ix0`.
 
-**`rad`** (Router Advertisement Daemon) obtains its prefix information via `getifaddrs()` or the routing socket. It uses this interface information to construct the router advertisement messages and sends Router Advertisements (RAs) on the LAN interface(s), to advertise the corresponding prefix (subnet) (and DNS, if configured as such). This allows clients to self-configure IPv6 addresses using SLAAC.
+**`rad`** (Router Advertisement Daemon) obtains the delegated prefix (DP) information from the WAN interface according to its configuration in ```/etc/rad.conf```. It then constructs the router advertisement messages and sends them out on the LAN interface(s), to advertise the corresponding prefix (subnet) (and DNS subnet based on our ULA, as configured in our case). This allows clients to self-configure IPv6 addresses using SLAAC. Note that clients will end up with several IPv6 addresses, including their own GUAs and ULAs based on the advertised DP and ULA prefix- this is normal and by design on IPv6.
 
 ### Why This Design Works
 
