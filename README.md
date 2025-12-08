@@ -477,7 +477,7 @@ By creating a ULA alias for our LAN `ix0`, and a corresponding prefix, we've ess
 
 Advertising our GUA as our DNS is not best practice, because GUAs are publicly routable addresses. Yes, `pf` will block the advertisement from leaving, but using a private subnet is advantageous.
 
-This concept was strange to me at first, since, coming from the frugality of IPv4, it seemed excessive to create 18 quintillion addresses simply for my little network's DNS. 
+This concept was strange to me at first, since, coming from the frugality of IPv4, it seemed excessive to theoretically provision 18 quintillion addresses simply for my little network's DNS. 
 
 But, IPv6 actually encourages this for:
 - Stability: Your ULA doesn’t change like your ISP-assigned dynamic GUA. This makes it a perfect anchor for DNS, which needs consistency.
