@@ -556,7 +556,8 @@ Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your route
 ### Why This Design Works
 
 **No WAN GUA Needed**  
-Unlike IPv4, where a public WAN address is translated to the LAN using NAT, IPv6 routers simply route packets using their delegated prefix. There’s no need for a GUA on the WAN interface in this setup.
+Unlike IPv4, where a public WAN address is translated to the LAN using NAT, IPv6 routers simply route packets using their delegated prefix. There is no need for a GUA on the WAN interface in this setup.
+
 **Link-Local Sufficient**  
 Simply bringing an interface up with the `inet6` or `inet6 autoconf` flags will give the interface a link-local address. The router's WAN interface uses this link-local IPv6 address (`fe80::/10`) to communicate with Verizon’s ONT, which is sufficient for routing. 
 
