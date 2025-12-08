@@ -1,4 +1,4 @@
-# Demystifying OpenBSD 7.8 Router/Firewalls with Dual Stack (IPv4 + IPv6)
+# Creating an OpenBSD 7.8 Router/Firewall with Dual Stack (IPv4 + IPv6)
 
 ![Example Image](openbsdmountain2.jpg)
 
