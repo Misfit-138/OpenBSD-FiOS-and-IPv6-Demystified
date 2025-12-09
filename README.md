@@ -143,7 +143,7 @@ This file configures the resolving behavior of *the router itself.*
 nameserver 127.0.0.1
 nameserver ::1
 lookup file bind
-search home.arpa  # <--- replace with your local domain name
+search home.arpa  # <--- you may choose to replace 'home.arpa' with a custom local domain name
 ```
 `nameserver 127.0.0.1`: Use the local DNS server running on IPv4 loopback (localhost). This means the system will try to send DNS queries to itself at 127.0.0.1.
 
@@ -155,7 +155,9 @@ search home.arpa  # <--- replace with your local domain name
 
 `bind`: Originally meant the **Berkeley Internet Name Domain (BIND)** software, which is the original and widely used DNS resolver and server suite developed at Berkeley in the early days of the Internet. It’s a legacy term that stuck. Nowadays, it simply means *ask the DNS servers listed above (127.0.0.1 and ::1) if the name wasn’t found in /etc/hosts*.
 
-`search home.arpa` (replace with your actual domain name): If you type just a short hostname (like, *myserver*), the system will try appending .home.arpa to it, making it *myserver.home.arpa*. This helps with resolving names in your home network automatically *from the router itself*.
+`search home.arpa`: If you type just a short hostname within a command (like, `ping myserver`), *from the router command line*, the system will try appending `.home.arpa` to it, making it `ping myserver.home.arpa`. This just expedites resolving names from the router in your home network automatically. 
+
+*(RFC 8375 `home.arpa` is recommended. It provides a dedicated, reserved, and safe domain for local home use. Of course, you may replace with a custom domain name of your choosing)*
 
 
 ### Create `/etc/dhcpleased.conf`  (IPv4)
