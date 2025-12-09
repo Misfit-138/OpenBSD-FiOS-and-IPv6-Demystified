@@ -481,7 +481,7 @@ This means:
 
 ## *Why use a ULA for DNS? Why not use our GUA derived from Verizon's delegated prefix? After all, it's our LAN interface's IP address!*
 
-By creating a ULA alias for our LAN `ix0`, and a corresponding prefix, we've essentially created a *private* ULA subnet (fd00:AAAA:BBBB:CCCC::/64) on the LAN for the specific purpose of stable internal DNS service, and we will configure `unbound` to listen on the LAN interface, and *allow traffic in from the ULA address fd00:AAA:BBBB:CCCC::1, and its subnet*. 
+By creating a ULA alias for our LAN `ix0`, and a corresponding prefix, we've essentially created a *private* ULA subnet (fd00:AAAA:BBBB:CCCC::/64) on the LAN for the purpose of stable internal services (like DNS, and `ssh` from LAN clients). We will configure `unbound` to listen on the LAN interface, and *allow traffic in from the ULA address fd00:AAA:BBBB:CCCC::1, and its subnet*. You will also be able to `ssh` into the router using the ULA.
 
 Advertising our GUA as our DNS is not best practice, because GUAs are publicly routable addresses. Yes, `pf` will block the advertisement from leaving, but using a private subnet is advantageous.
 
