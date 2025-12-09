@@ -393,6 +393,13 @@ pass in quick inet6 proto ipv6-icmp from any to any icmp6-type { \
 # DHCPv6 client
 pass in quick on egress inet6 proto udp from any port 547 to any port 546
 ```
+### Check `pf.conf` for errors:
+```sh
+pfctl -nf /etc/pf.conf
+```
+
+No output=No errors.
+
 ### Reload `pf` rules:  (IPv4/IPv6)
 
 ```sh
