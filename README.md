@@ -552,7 +552,7 @@ Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your route
 
 **`dhcp6leased`** handles all *DHCPv6* communication with the ISP on the WAN interface. It sends a request for prefix delegation (IA_PD) and receives a delegated prefix, usually a /56. It then subdivides that prefix according to its configuration and **records subprefixes assigned to each LAN interface** in its internal lease database located at `/var/db/dhcp6leased/`. In our `hostname.ix1` file, `dhcp6leased` is configured to assign the prefix to `ix0` (our LAN interface).
 
-**`rad`** (Router Advertisement Daemon) obtains the delegated prefix (DP) information from the WAN interface according to its configuration in ```/etc/rad.conf```. It then constructs the router advertisement messages and sends them out on the LAN interface(s), to advertise the corresponding prefix (subnet) (and DNS subnet based on our ULA, as configured in our case). This allows clients to self-configure IPv6 addresses using SLAAC. Note that LAN clients will end up with several IPv6 addresses, including their own LLAs, as well as the SLAAC-configured GUAs and ULAs based on the advertised DP and ULA prefix- this is normal and by design on IPv6.
+**`rad`** (Router Advertisement Daemon) obtains the delegated prefix (DP) information from the WAN interface according to its configuration in ```/etc/rad.conf```. It then constructs the router advertisement messages and sends them out on the LAN interface(s), to advertise the corresponding prefix (subnet) (and DNS subnet based on our ULA, as configured in our case). This allows LAN clients to self-configure IPv6 addresses using their own SLAAC services. Note that LAN clients will end up with several IPv6 addresses, including their own LLAs, as well as the SLAAC-configured GUAs and ULAs based on the advertised DP and ULA prefix- this is normal and by design on IPv6.
 
 ### Why This Design Works
 
@@ -560,7 +560,7 @@ Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your route
 Unlike IPv4, where a public WAN address is translated to the LAN using NAT, IPv6 routers simply route packets using their delegated prefix. There is no need for a GUA on the WAN interface in this setup.
 
 **Link-Local Sufficient**  
-Simply bringing an interface up with the `inet6` or `inet6 autoconf` flags will give the interface a link-local address. The router's WAN interface uses this link-local IPv6 address (`fe80::/10`) to communicate with Verizon’s ONT, which is sufficient for routing. 
+Simply bringing an interface up with the `inet6` or `inet6 autoconf` flags will give the interface a link-local address. The router's WAN interface uses this link-local IPv6 address (`fe80::/10`) to communicate with Verizon’s ONT, which is sufficient for routing. (An LLA on WAN is also sufficient for Comcast/Xfinity according to one user. Please drop me a line with information on your ISP so I may list it here: misfit138x[at]proton[dot]me)
 
 **Delegated GUA on LAN interface**  
 The router receives its own IPv6 address on each LAN interface via `dhcp6leased`. These addresses are derived from the delegated prefix. The LAN interface prefix(es) are then advertised throughout their internal networks via `rad`, so that client devices may configure their own GUAs, (and ULAs, in our case) using SLAAC.
