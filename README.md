@@ -331,19 +331,20 @@ A clean and concise dual stack PF configuration with minimal logging, which work
 
 **THIS CODE DEFINES THE SYSTEM FIREWALL BEHAVIOR. USE AT YOUR OWN RISK.**
 
-```pf
-# /etc/pf.conf
+```
+# OpenBSD pf.conf - Clean and Concise - Dual Stack (IPv4 + IPv6)
+
 # Interface macros
 lan = "ix0"
 
-# Martian addresses
-table <martians> {
-    0.0.0.0/8 10.0.0.0/8 100.64.0.0/10 127.0.0.0/8 169.254.0.0/16
-    172.16.0.0/12 192.0.0.0/24 192.0.2.0/24 192.168.0.0/16
-    198.18.0.0/15 198.51.100.0/24 203.0.113.0/24 224.0.0.0/3
+# Martian (unroutable) addresses
+table <martians> { \
+    0.0.0.0/8 10.0.0.0/8 100.64.0.0/10 127.0.0.0/8 169.254.0.0/16 \
+    172.16.0.0/12 192.0.0.0/24 192.0.2.0/24 192.168.0.0/16 \
+    198.18.0.0/15 198.51.100.0/24 203.0.113.0/24 224.0.0.0/3 \
 }
 # NAT64 well-known prefixes (RFC 6052, RFC 8215) are safe to block *unless* you
-# later deploy NAT64 or CLAT. If so, remove or adjust the 64:ff9b:: entries.
+#   later deploy NAT64 or CLAT. If so, remove or adjust the 64:ff9b:: entries.
 table <martians6> { \
     ::/128, ::1/128, ::/96, ::ffff:0:0/96, \
     64:ff9b::/96, 64:ff9b:1::/48, \
@@ -352,41 +353,41 @@ table <martians6> { \
 }
 
 
+# Global options
 set block-policy drop
 set loginterface egress
 set skip on lo
 
+# Traffic normalization
 match in all scrub (no-df random-id max-mss 1440)
 
-# NAT for IPv4
+# NAT
 match out on egress inet from !(egress:network) to any nat-to (egress:0)
 
 # Anti-spoofing
 antispoof quick for { egress $lan }
 
-# Block martian traffic
+# Block martian addresses
 block in quick on egress inet from <martians> to any
 block return out quick on egress inet from any to <martians>
 block in quick on egress inet6 from <martians6> to any
 block return out quick on egress inet6 from any to <martians6>
 
-# Default deny
+# Default Deny
 block log all
 
 # Allow anything out
 pass out quick inet keep state
 pass out quick inet6 keep state
 
-# Allow LAN clients
+# Allow LAN in
 pass in on $lan keep state
 
-# ICMP
-# IPv4
+# ICMP 
 pass in quick inet proto icmp from any to any icmp-type { echoreq, unreach } keep state
-# IPv6
-pass in quick inet6 proto ipv6-icmp from any to any icmp6-type {
-    echoreq, echorep, unreach, toobig, timex, paramprob,
-    neighbrsol, neighbradv, routersol, routeradv
+pass in quick inet6 proto ipv6-icmp from any to any icmp6-type { \
+    echoreq, echorep, unreach, toobig, timex, paramprob, \
+    neighbrsol, neighbradv, routersol, routeradv \
 } keep state
 
 # DHCPv6 client
