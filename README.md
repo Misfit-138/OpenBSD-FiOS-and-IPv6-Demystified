@@ -302,7 +302,7 @@ This simple setup ensures:
 - A fixed local IPv4 address  
 - A fixed local IPv6 address (ULA) for internal services, like DNS
 
-### `/etc/hostname.ix1` (WAN) should *probably* be configured during install:  (IPv4/IPv6)
+### `/etc/hostname.ix1` (WAN) should *probably* be configured during install if you followed the directions above:  (IPv4/IPv6)
 Simple, clean and brainless. And, it *just works*:
 ```sh
 # /etc/hostname.ix1 (WAN)
