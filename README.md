@@ -663,6 +663,7 @@ rcctl start unbound
 Quick DNS test:
 ```sh
 ping google.com
+ping6 google.com
 ```
 The above configuration is in forwarding mode. You may wish to leave it that way, in which case you may skip down to step 13. If you would like to use full resolver mode, keep unbound in forwarding mode at least temporarily for the next step; It will solve a chicken-or-egg issue.
 
