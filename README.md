@@ -768,6 +768,7 @@ rcctl restart unbound
 You should be able to resolve domains:
 ```sh
 ping google.com
+ping6 google.com
 ```
 
 ## 13. Reboot and full test
