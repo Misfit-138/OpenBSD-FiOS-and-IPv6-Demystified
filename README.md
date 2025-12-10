@@ -546,8 +546,8 @@ inet6 2600:4040:AAAA:BBBB::1 prefixlen 64
 ```
 Verify connectivity:
 ```sh
-ping google.com 
-ping6 google.com
+ping 8.8.8.8
+ping6 2001:4860:4860::8888
 ```
 *You are getting close to the summit!*
 
