@@ -563,19 +563,96 @@ Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your route
 
 **`rad`** (Router Advertisement Daemon) obtains the delegated prefix (DP) information from the WAN interface according to its configuration in ```/etc/rad.conf```. It then constructs the router advertisement messages and sends them out on the LAN interface(s), to advertise the corresponding prefix (subnet) (and DNS subnet based on our ULA, as configured in our case). This allows LAN clients to self-configure IPv6 addresses using their own SLAAC services. Note that LAN clients will end up with several IPv6 addresses, including their own LLAs, as well as the SLAAC-configured GUAs and ULAs based on the advertised DP and ULA prefix- this is normal and by design on IPv6.
 
-### Why This Design Works
+### Why This Design Works and is Superior
 
 **No WAN GUA Needed**  
 Unlike IPv4, where a public WAN address is translated to the LAN using NAT, IPv6 routers simply route packets using their delegated prefix. There is no need for a GUA on the WAN interface in this setup.
 
 **Link-Local Sufficient**  
-Simply bringing an interface up with the `inet6` or `inet6 autoconf` flags will give the interface a link-local address. The router's WAN interface uses this link-local IPv6 address (`fe80::/10`) to communicate with Verizon’s ONT, which is sufficient for routing. (An LLA on WAN is also sufficient for Comcast/Xfinity according to one user. Please drop me a line with information on your ISP so I may list it here: misfit138x[at]proton[dot]me)
+Simply bringing an interface up with the `inet6` or `inet6 autoconf` flags will give the interface a link-local address and calls `slaacd`. `slaacd` then negotiates the default route; Our router's WAN interfaces link-local IPv6 address (`fe80::/10`) communicates with the Verizon upstream routers LLA.  This is sufficient because routing globally (sending packets out to the internet) does not require a Global Unicast Address (GUA) on the WAN interface. *It only requires a default route.* (An LLA on WAN is also sufficient for Comcast/Xfinity according to one user. Please drop me a line with information on your ISP so I may list it here: misfit138x[at]proton[dot]me)
 
 **Delegated GUA on LAN interface**  
-The router receives its own IPv6 address on each LAN interface via `dhcp6leased`. These addresses are derived from the delegated prefix. The LAN interface prefix(es) are then advertised throughout their internal networks via `rad`, so that client devices may configure their own GUAs, (and ULAs, in our case) using SLAAC.
+Our router receives its own IPv6 address on each LAN interface via `dhcp6leased`. These addresses are derived from the delegated prefix. The LAN interface prefix(es) are then advertised throughout their internal networks via `rad`, so that client devices may configure their own GUAs, (and ULAs, in our case) using SLAAC.
 
 **Efficient and Compliant**  
 This design reflects IPv6 best practices and conserves address space while enabling native, end-to-end IPv6 routing for all LAN clients- without NAT.
+
+**No Direct Global Reachability** 
+The WAN's LLA is strictly non-routable beyond the local link (our router's LLA to the ISP router's LLA). An attacker on the internet attempting to connect directly to the router's WAN IP via a GUA will fail because no such address exists on that interface.
+
+**Reduced Scanning Footprint** 
+Many botnets and general vulnerability scanners run automated sweeps across the IPv6 GUA space. Since our router is not using a GUA on the WAN and it is not being advertised by the ISP, it falls entirely outside these global sweeps. 
+
+**Reduced Attack Surface**
+This configuration provides maximum reduction in two crucial ways:
+
+1.) Elimination of the WAN Target: Removing the GUA from the WAN interface eliminates the easiest and most frequently targeted address on the router itself. If our router had a GUA, the ISP would have placed a route for that GUA into the global routing tables. The only way to engage the router is via the LLA, which is non-routable, or by attacking an internal host's GUA, which forces the traffic through the full `pf` rule set. This elimination is a genuine reduction in the target surface.
+
+The Hacker's View: Botnets sweep address blocks that are known to be routed through a major ISP (like FiOS). If they sweep the block containing the router's WAN GUA, the traffic finds its way directly to our router's WAN port.
+
+LLA-only WAN: Since our router doesn't configure a GUA on the WAN, the destination address is missing, and the packet is immediately dropped by the kernel.
+
+2.) Perfect PF Granularity: The remaining attack surface is the entire 2600:xxxx:yyyy:zzzz::/64 prefix, which is now entirely protected by a stateful firewall. Every single incoming connection requires a specific, explicit pass rule in our pf.conf.
+
+This is the key difference from typical consumer routers, which often have GUAs on both interfaces (and may expose ports by default). Our setup gives absolute control over the routing table and firewall.
+
+## *But, a decent `pf.conf` could just as easily "block all" on a WAN with a GUA, right? So is the reduced attack surface merely an illusion?*
+
+It is true that a decent pf.conf rule set could simply:
+```sh
+block in quick on $WAN_IF inet6 proto tcp from any to $WAN_GUA
+```
+This rule seems to achieve the same result as having no GUA at all. However, the reduced attack surface is not an illusion; it is a real, subtle, and critical security gain due to OpenBSD's architecture.
+
+Here is the technical comparison:
+
+🔍 LLA-Only WAN vs. GUA-Configured WAN
+
+The difference lies in where the packet is discarded and the system resources required to do so.
+
+Scenario A: Our Configuration (LLA-Only WAN)
+
+Incoming Packet: A malicious packet arrives at our router's WAN port, destined for a GUA (e.g., 2600:xxxx:yyyy:zzzz::f00d).
+
+Kernel Check: The packet is processed by the network interface driver and the kernel's IP stack.
+
+The Decision: The kernel checks its interface list and sees that no interface is configured with that GUA.
+
+Action: The packet is immediately and efficiently discarded by the kernel's IP stack. It never reaches the `pf` daemon.
+
+Resource Load: Minimal. This is the fastest and most resource-efficient way to discard traffic.
+
+Scenario B: GUA-Configured WAN with a block Rule
+
+Incoming Packet: A malicious packet arrives at our router's WAN port, destined for a GUA (e.g., 2600:xxxx:yyyy:zzzz::f00d).
+
+Kernel Check: The kernel checks its interface list and sees that the GUA exists on the $WAN_IF interface.
+
+Action: The kernel accepts the packet and passes it to the firewall, `pf(4)`.
+
+PF Check: `pf` must load, parse, and match the packet against all active rules until it hits the explicit blocking rule.
+
+Action: `pf` then discards the packet.
+
+Resource Load: Increased. The packet consumes CPU cycles for kernel-to-PF communication, rule processing, and state evaluation (even if no state is created). In a DDoS or large-scale sweep, this can contribute to resource exhaustion.
+
+💡 The Security and Stability Advantage
+
+The reduced attack surface comes down to two key points:
+
+**Defense-in-Depth:**
+
+With an LLA-only WAN, we are relying on a kernel feature (address non-existence) as our first line of defense.
+
+With a GUA-configured WAN, we are relying on a daemon (`pf`) as our first line of defense. While `pf` is highly robust, relying on the kernel's basic functionality provides a more fundamental layer of protection that is less susceptible to misconfiguration or potential daemon issues.
+
+**Performance and Stability:**
+
+In a high-volume attack (DDoS or intense sweep), every packet that bypasses the kernel's quick discard and forces `pf` to do work contributes to potential system slowdown or instability. By eliminating the GUA, we are offloading the majority of scanning traffic from the firewall daemon entirely, ensuring `pf` is only busy filtering valid traffic meant for forwarding.
+
+Therefore, the reduced attack surface is a tangible benefit in both stability and security hardening. It leverages the design philosophy of OpenBSD: simplify the network stack and remove unnecessary elements that could be attacked or misconfigured.
+
+The LLA-only WAN configuration ensures the kernel performs the most immediate and efficient blocking of global attacks against the router itself.
 
 ## 12. DNS and `unbound`  (IPv4/IPv6)
 
