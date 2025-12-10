@@ -660,9 +660,13 @@ Enable and start `unbound`:
 rcctl enable unbound
 rcctl start unbound
 ```
-The above configuration is in forwarding mode. You may wish to leave it that way, but if not, keep it that way temporarily for the next step; It will solve a chicken-or-egg issue.
+Quick DNS test:
+```sh
+ping google.com
+```
+The above configuration is in forwarding mode. You may wish to leave it that way, in which case you may skip down to step 13. If you would like to use full resolver mode, keep unbound in forwarding mode at least temporarily for the next step; It will solve a chicken-or-egg issue.
 
-If you intend on using unbound in full resolver mode, utilizing the Root Servers, download the official root.hints file from internic.net and save it to ```/var/unbound/etc```:
+### If you intend on using unbound in full resolver mode, utilizing the Root Servers, download the official root.hints file from internic.net and save it to ```/var/unbound/etc```:
 
 ```sh
 ftp -o /var/unbound/etc/root.hints https://www.internic.net/domain/named.root
