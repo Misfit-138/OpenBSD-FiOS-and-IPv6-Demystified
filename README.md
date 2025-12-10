@@ -155,7 +155,7 @@ search home.arpa  # <--- you may choose to replace 'home.arpa' with a custom loc
 
 `bind`: Originally meant the **Berkeley Internet Name Domain (BIND)** software, which is the original and widely used DNS resolver and server suite developed at Berkeley in the early days of the Internet. It’s a legacy term that stuck. Nowadays, it simply means *ask the DNS servers listed above (127.0.0.1 and ::1) if the name wasn’t found in /etc/hosts*.
 
-`search home.arpa`: If you type just a short hostname within a command (like, `ping myserver`), *from the router command line*, the system will try appending `.home.arpa` to it, making it `ping myserver.home.arpa`. This just expedites resolving names from the router in your home network automatically. 
+`search home.arpa`: If you type just a short hostname within a command (like, `ping myserver`), *from the router command line*, the system will try appending `.home.arpa` to it, making it `ping myserver.home.arpa`. This just expedites resolving local hostnames *from the router*. 
 
 *(RFC 8375 `home.arpa` is recommended. It provides a dedicated, reserved, and safe domain for local home use. Of course, you may replace with a custom domain name of your choosing)*
 
