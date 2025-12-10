@@ -581,16 +581,6 @@ This design reflects IPv6 best practices and conserves address space while enabl
 
 ### Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TLS, and RPZ support. 
 
-If you intend on using the Root Servers, download the root.hints file from internic.net:
-
-```sh
-ftp -o /var/unbound/etc/root.hints https://www.internic.net/domain/named.root
-```
-
-Ensure the files is not empty:
-```sh
-wc -l /var/unbound/etc/root.hints
-```
 
 ### The following example allows for using the root servers or forwarding DNS over TLS to Google, as well as blocking malicious domains, depending on how you wish to proceed.
 
@@ -600,7 +590,7 @@ wc -l /var/unbound/etc/root.hints
 # /var/unbound/etc/unbound.conf
 # uncomment what is needed/preferred
 server:
-    interface: ix0  # All IPv4 and IPv6 addresses assigned to this interface. (192.168.1.1, GUA and ULA)
+    interface: ix0  # All IPv4 and IPv6 addresses assigned to this LAN interface. (192.168.1.1, GUA and ULA)
     interface: 127.0.0.1  # Loopback on the router itself
     interface: ::1  # ipv6 Loopback on the router itself
     
@@ -636,10 +626,10 @@ server:
     auto-trust-anchor-file: "/var/unbound/db/root.key"
 
 	# Official Root hints file from https://www.internic.net/domain/named.root:
-    root-hints: "/var/unbound/etc/root.hints"
+#    root-hints: "/var/unbound/etc/root.hints"
 
-    # Uncomment to load rpz module and configure below:
-    module-config: "respip validator iterator"
+    # Uncomment to enable and load rpz module. Then, uncomment and configure in rpz section below:
+#    module-config: "respip validator iterator"
 
     cache-min-ttl: 3600
     serve-expired: yes
@@ -648,24 +638,39 @@ remote-control:
     control-enable: yes
     control-interface: /var/run/unbound.sock
 # Uncomment to forward to Google DNS, using DNS over TLS.
-# otherwise, default will query root servers.
-#forward-zone:
-#    name: "."
-#    forward-tls-upstream: yes
-#    forward-addr: 8.8.8.8@853#dns.google
-#    forward-addr: 8.8.4.4@853#dns.google
-#    forward-addr: 2001:4860:4860::8888@853#dns.google
-
-rpz:
-    name: dns-block-list
+# otherwise, unbound will query root servers referring to root-hints file
+forward-zone:
+    name: "."
+    forward-tls-upstream: yes
+    forward-addr: 8.8.8.8@853#dns.google
+    forward-addr: 8.8.4.4@853#dns.google
+    forward-addr: 2001:4860:4860::8888@853#dns.google
+# Uncomment rpz module above, in addition to the following rpz section
+#to enable and configure rpz:
+#rpz:
+#    name: dns-block-list  # <-- give your list a name of your choosing 
 	# Find a list which suits your needs
     # A simple search for 'rpz dns blocklists' will work fine
-    url: https://url-for-myrpz-list.com/list.txt
+#    url: https://url-for-myrpz-list.com/list.txt
 	
 ```
-+ `unbound`'s default behavior is to run in full resolver mode, querying the root servers directly. In this configuration your system becomes its own recursive DNS resolver; `unbound` starts at the root servers, follows referrals to TLDs, then authoritative servers, until it finds the answer.
 
-+ Uncommenting the `forward-zone` will run `unbound` in forwarding mode; all queries go to Google (or any DNS of your choosing) and, since we have `tls-cert-bundle: "/etc/ssl/cert.pem"`, `forward-tls-upstream: yes`, and port 853 specified, DNS over TLS is utilized.
+Enable and start `unbound`:
+```sh
+rcctl enable unbound
+rcctl start unbound
+```
+The above configuration is in forwarding mode. You may wish to leave it that way, but if not, keep it that way temporarily for the next step; It will solve a chicken-or-egg issue.
+
+If you intend on using unbound in full resolver mode, utilizing the Root Servers, download the official root.hints file from internic.net and save it to ```/var/unbound/etc```:
+
+```sh
+ftp -o /var/unbound/etc/root.hints https://www.internic.net/domain/named.root
+```
+
++ `unbound`'s typical behavior is to run in full resolver mode, querying the root servers directly. In this configuration your system becomes its own recursive DNS resolver; `unbound` starts at the root servers, follows referrals to TLDs, then authoritative servers, until it finds the answer.
+
++ Keeping the `forward-zone` uncommented will run `unbound` in forwarding mode; all queries go to Google (or any DNS of your choosing) and, since we have `tls-cert-bundle: "/etc/ssl/cert.pem"`, `forward-tls-upstream: yes`, and port 853 specified, DNS over TLS is utilized.
 
 # **Should you use `unbound` in full resolver mode, or forward to a 3rd-party service?**
 >
@@ -706,7 +711,7 @@ rpz:
 
 ### The `interface: ix0` clause.
 
-This directs `unbound` to **listen** on all addresses assigned to the LAN interface. 
+This line directs `unbound` to **listen** on all addresses assigned to the LAN interface. 
 
 In our example, this now includes:
 - 192.168.1.1
@@ -719,7 +724,8 @@ access-control: 192.168.1.0/24 allow
 access-control: fd00:AAAA:BBBB:CCCC::/64
 ```
 Only the RFC 1918 subnet 192.168.1.0/24 and our RFC 4193 ULA subnet fd00:AAAA:BBBB:CCCC::/64 are granted access.
-So, essentially, unbound listens on the interface, and the `access-control:` limits which addresses are granted access. Therefore, the `interface: ix0` is being used as shorthand. We could also explicitly configure by addresses using `interface:` if we so choose.
+
+So, essentially, unbound listens on the interface, and the `access-control:` clause limits which addresses are granted access. Therefore, the `interface: ix0` is being used as shorthand. We could also explicitly configure by addresses using the `interface:` clause if we so choose.
 
 ### `rpz` section:
 
@@ -750,13 +756,16 @@ In our example we download a list from the internet, (which is updated automatic
 
 Finding a raw `rpz` blocklist which suits your needs will be quite easy. There are several excellent, freely available lists in `rpz` format updated very regularly. I do not recommend any here, due to the possibility of excessive traffic to any one list.
 
-After configuring to your satisfaction, enable and start `unbound`:
+If configured to your satisfaction, restart `unbound`:
 ```sh
-rcctl enable unbound
-rcctl start unbound
+rcctl restart unbound
+```
+You should be able to resolve domains:
+```sh
+ping google.com
 ```
 
-## 13. Reboot and test
+## 13. Reboot and full test
 Ensure `dhcpleased`, `dhcpd`, `dhcp6leased`, `rad`, `slaacd` and `unbound` are enabled and running:
 ```sh
 rcctl ls on
