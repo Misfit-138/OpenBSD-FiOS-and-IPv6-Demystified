@@ -569,7 +569,7 @@ Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your route
 Unlike IPv4, where a public WAN address is translated to the LAN using NAT, IPv6 routers simply route packets using their delegated prefix. There is no need for a GUA on the WAN interface in this setup.
 
 **Link-Local Sufficient**  
-Simply bringing an interface up with the `inet6` or `inet6 autoconf` flags will give the interface a link-local address and calls `slaacd`. `slaacd` then negotiates the default route; Our router's WAN interfaces link-local IPv6 address (`fe80::/10`) communicates with the Verizon upstream routers LLA.  This is sufficient because routing globally (sending packets out to the internet) does not require a Global Unicast Address (GUA) on the WAN interface. *It only requires a default route.* (An LLA on WAN is also sufficient for Comcast/Xfinity according to one user. Please drop me a line with information on your ISP so I may list it here: misfit138x[at]proton[dot]me)
+Simply bringing an interface up with the `inet6` or `inet6 autoconf` flags will give the interface a link-local address and calls `slaacd`. `slaacd` then negotiates the default route; Our router WAN interface link-local IPv6 address (`fe80::/10`) communicates with the Verizon upstream router LLA.  This is sufficient because routing globally (sending packets out to the internet) does not require a Global Unicast Address (GUA) on the WAN interface; *It only requires a default route.* (An LLA on WAN is also sufficient for Comcast/Xfinity according to one user. Please drop me a line with information on your ISP so I may list it here: misfit138x[at]proton[dot]me)
 
 **Delegated GUA on LAN interface**  
 Our router receives its own IPv6 address on each LAN interface via `dhcp6leased`. These addresses are derived from the delegated prefix. The LAN interface prefix(es) are then advertised throughout their internal networks via `rad`, so that client devices may configure their own GUAs, (and ULAs, in our case) using SLAAC.
@@ -586,17 +586,17 @@ Many botnets and general vulnerability scanners run automated sweeps across the 
 **Reduced Attack Surface**
 This configuration provides maximum reduction in two crucial ways:
 
-1.) Elimination of the WAN Target: Removing the GUA from the WAN interface eliminates the easiest and most frequently targeted address on the router itself. If our router had a GUA, the ISP would have placed a route for that GUA into the global routing tables. The only way to engage the router is via the LLA, which is non-routable, or by attacking an internal host's GUA, which forces the traffic through the full `pf` rule set. This elimination is a genuine reduction in the target surface.
+1.) Elimination of the WAN Target: Removing the GUA from the WAN interface eliminates the easiest and most frequently targeted address on the router itself. If our router had a GUA, the ISP would have placed a route for that GUA into the global routing tables. The only way to engage the router is via the LLA, which is non-routable beyond the local link, or by attacking an internal host's GUA, which forces the traffic through the full `pf` rule set. This elimination is a genuine reduction in the target surface.
 
 The Hacker's View: Botnets sweep address blocks that are known to be routed through a major ISP (like FiOS). If they sweep the block containing the router's WAN GUA, the traffic finds its way directly to our router's WAN port.
 
 LLA-only WAN: Since our router doesn't configure a GUA on the WAN, the destination address is missing, and the packet is immediately dropped by the kernel.
 
-2.) Perfect PF Granularity: The remaining attack surface is the entire 2600:xxxx:yyyy:zzzz::/64 prefix, which is now entirely protected by a stateful firewall. Every single incoming connection requires a specific, explicit pass rule in our pf.conf.
+2.) Perfect PF Granularity: The remaining attack surface is the  2600:4040:AAAA:BBBB::/64 prefix, which is now entirely protected by a stateful firewall. Every single incoming connection requires a specific, explicit pass rule in our pf.conf.
 
-This is the key difference from typical consumer routers, which often have GUAs on both interfaces (and may expose ports by default). Our setup gives absolute control over the routing table and firewall.
+This is the key difference from typical consumer routers, which often have GUAs on both interfaces (and which may also expose ports by default). Our setup gives absolute control over the routing table and firewall.
 
-## *But, a decent `pf.conf` could just as easily "block all" on a WAN with a GUA, right? So is the reduced attack surface merely an illusion?*
+## *But, a decent `pf.conf` could just as easily "block all" on a WAN with a GUA, right? So is the reduced attack surface merely an illusion or semantics?*
 
 It is true that a decent pf.conf rule set could simply:
 ```sh
