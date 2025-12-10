@@ -272,7 +272,7 @@ Why it's useful:
 ULAs are private and not routable on the internet, so feel free to arbitrarily create your own ULA which is human readable;
 ```fd00:feed:face::1/64``` 
 ```fd10:dead:fade:1/64```
-```fd1a:abad:code::1/64```
+```fd1a:cafe:c0de::1/64```
 are all perfectly acceptable.
 
 So, now we have:
