@@ -62,7 +62,17 @@ This guide contains network security configurations that will control your firew
 ## 1. Install OpenBSD 7.8
 Official instructions at: https://www.openbsd.org/faq/faq4.html
 
-During the install set up a WAN interface configured with automatic IPv4/IPv6 and a LAN interface with static IPv4 for now.
+Note that if you are installing over serial console, you will need to specify it at the `boot>` prompt using `set`:
+```sh
+boot> set tty com0
+```
+You may then hit `[ENTER]` at the next `boot>` prompt to boot the system, or, if you need to specify the baud rate for your device:
+```sh
+boot> stty com0 115200
+```
+Followed by `[ENTER]` at the final `boot>` prompt.
+
+During the install, set up a WAN interface configured with automatic IPv4/IPv6 and a LAN interface with static IPv4 for now.
 
 ## 2. Temporarily disable daemons 
 
