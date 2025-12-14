@@ -455,7 +455,9 @@ Go back to the original terminal and do:
 rcctl enable dhcp6leased
 rcctl start dhcp6leased
 ```
-Recall from above that we configured `/etc/hostname.ix1` with `inet6 autoconf`. Therefore, `dhcp6leased` is called on `ix1`.
+Recall from above that we configured `/etc/hostname.ix1` with `inet6 autoconf` and `/etc/dhcp6leased.conf` with `request prefix delegation on ix1 for { ix0/64 }`. 
+
+Therefore, `dhcp6leased` will negotiate prefix delegation on `ix1`.
 
 Return to the `tcpdump` terminal.
 
