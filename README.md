@@ -93,7 +93,7 @@ rcctl stop slaacd
 rcctl disable slaacd
 ```
 
-`dhcp6leased` is automatically started on interfaces marked with `inet6 autoconf` in `/etc/hostname.if`, so it should be enabled and running on `ix1` after a fresh install if you chose IPv6 autoconf. 
+`dhcp6leased` runs in concert with `slaacd`, which is called on interfaces marked with `inet6 autoconf` in `/etc/hostname.if`, so it may be enabled and running on `ix1` after a fresh install if you chose IPv6 autoconf. 
 
 Disable for now:
 ```sh
