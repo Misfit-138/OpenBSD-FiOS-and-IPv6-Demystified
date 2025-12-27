@@ -198,7 +198,9 @@ This simple file is all that is needed:
 # /etc/dhcp6leased.conf
 request prefix delegation on ix1 for { ix0/64 }
 ```
-**(WAN interface: ix1, LAN interface: ix0)**
+**(WAN interface: ix1, LAN interface: ix0)
+Note: the ```/64``` is not strictly necessary, as it is the default prefix length. It is included here simply for a bit more readability and correctness.**
+
 ## Explaining this simple file with IPv6 Math
 - IPv6 addresses are 128 bit.
 - Verizon gives out /56 prefixes; The first 56 bits are *fixed* by Verizon.
