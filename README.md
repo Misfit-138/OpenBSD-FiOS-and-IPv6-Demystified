@@ -198,11 +198,11 @@ This simple file is all that is needed:
 # /etc/dhcp6leased.conf
 request prefix delegation on ix1 for { ix0/64 }
 ```
-**(WAN interface: ix1, LAN interface: ix0)
+**(WAN interface: ix1, LAN interface: ix0)**
 
-Note: The ```/64``` is not strictly necessary, as the default prefix length is already /64 (meaning 64 bits). We could simply use: ```request prefix delegation on ix1 for { ix0 }``` 
+**Note: The ```/64``` is not strictly necessary, as the default prefix length is already /64 (meaning 64 bits). We could simply use: ```request prefix delegation on ix1 for { ix0 }``` **
 
-The ```/64``` is included here simply for more clarity and correctness.**
+**The ```/64``` is included here simply for more clarity and correctness.**
 
 ## Explaining this simple file with IPv6 Math
 - IPv6 addresses are 128 bit.
