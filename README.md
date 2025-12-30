@@ -117,6 +117,8 @@ Unless it is stopped and disabled, `resolvd` will continually overwrite `/etc/re
 rcctl stop resolvd
 rcctl disable resolvd
 ```
+
+
 ## 4. Edit configuration files
 ### `/etc/sysctl.conf`  (IPv4/IPv6)
 Turning the system into a router that will forward IPv4/IPv6 packets between network interfaces is simple and easy:
