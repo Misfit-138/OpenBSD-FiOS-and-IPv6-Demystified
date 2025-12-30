@@ -62,7 +62,7 @@ This guide contains network security configurations that will control your firew
 ## 1. Install OpenBSD 7.8
 Official instructions at: https://www.openbsd.org/faq/faq4.html
 
-Note that if you are installing over serial console, you will need to specify it at the `boot>` prompt using `set`:
+Note that if you are installing over serial console, (i.e., in a headless configuration) you will need to specify it at the `boot>` prompt using `set`:
 ```sh
 boot> set tty com0
 ```
