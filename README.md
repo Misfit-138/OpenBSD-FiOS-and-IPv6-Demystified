@@ -270,9 +270,9 @@ So yes - we get 256 massive subnets, each capable of holding far more devices th
 > * `2006:4040:1234:56ff::a1b2:c3d4` (a device on subnet 255)
 > 
 > **What makes them "global":**
-> * They're not private/local addresses (like `fc00::/7` or `fe80::/10`)
-> * They're not multicast (`ff00::/8`) or reserved ranges
-> * They're part of the global IPv6 routing table
+> * They are not private/local addresses (like `fc00::/7` or `fe80::/10`)
+> * They are not multicast (`ff00::/8`) or reserved ranges
+> * They are part of the global IPv6 routing table
 > 
 > **The beauty of IPv6:** Unlike IPv4 where you typically get one public IP and NAT everything else, with IPv6 every device gets its own globally routable address. Your laptop, phone, IoT devices - they all get real internet addresses that can be reached directly (subject to firewall rules).
 > 
