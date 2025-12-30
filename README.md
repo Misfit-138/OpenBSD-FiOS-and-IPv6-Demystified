@@ -128,7 +128,9 @@ sysctl net.inet.ip.forwarding=1
 
 sysctl net.inet6.ip6.forwarding=1
 ```
-Ensure persistence across reboots:
+Ensure persistence across reboots by editing `/etc/sysctl.conf`: 
+
+
 ```conf
 # /etc/sysctl.conf for router/firewall
 net.inet.ip.forwarding=1
