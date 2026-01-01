@@ -195,7 +195,7 @@ interface ix1 { ignore dns }
 
 ### `/etc/dhcp6leased.conf`:  (IPv6)
 
-`dhcp6leased` is based on `dhcpleased` and serves a similar purpose and function, but for IPv6. It runs on interface(s) configured with `inet6 autoconf`.
+`dhcp6leased` is the DHCPv6 client and Prefix Delegation handler. It runs on interface(s) configured with `inet6 autoconf`.
 
 This simple file is all that is needed:
 ```conf
@@ -590,7 +590,7 @@ Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your route
 Unlike IPv4, where a public WAN address is translated to the LAN using NAT, IPv6 routers simply route packets using their delegated prefix. There is no need for a GUA on the WAN interface in this setup.
 
 **Link-Local Sufficient**  
-Configuring the WAN interface with the `inet6 autoconf` flag will give the interface a link-local address and will call `slaacd` and `dhcp6leased`. `dhcp6leased` handles all *DHCPv6* communication with the ISP on the WAN interface. `slaacd` negotiates the default route; Our router WAN interface link-local IPv6 address (`fe80::/10`) communicates with the Verizon upstream router link-local IPv6 address.  This communication link is sufficient because routing globally (sending packets out to the internet) does not require a Global Unicast Address (GUA) on the WAN interface; *It only requires a default route.* (An LLA on WAN is also sufficient for Comcast/Xfinity according to one user. Please drop me a line with information on your ISP so I may list it here: misfit138x[at]proton[dot]me)
+Configuring the WAN interface with the `inet6 autoconf` flag will give the interface a link-local address and will call `slaacd` and `dhcp6leased`. `dhcp6leased` handles the *DHCPv6* and PD with the ISP on the WAN interface. `slaacd` negotiates the default route; Our router WAN interface link-local IPv6 address (`fe80::/10`) communicates with the Verizon upstream router link-local IPv6 address.  This communication link is sufficient because routing globally (sending packets out to the internet) does not require a Global Unicast Address (GUA) on the WAN interface; *It only requires a default route.* (An LLA on WAN is also sufficient for Comcast/Xfinity according to one user. Please drop me a line with information on your ISP so I may list it here: misfit138x[at]proton[dot]me)
 
 **Delegated GUA on LAN interface**  
 Our router receives its own IPv6 address on each LAN interface via `dhcp6leased`. These addresses are derived from the delegated prefix. The LAN interface prefix is then advertised throughout the internal network via `rad`, so that local client devices may configure their own GUAs, (and ULAs, in our case) using SLAAC.
