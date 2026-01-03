@@ -14,7 +14,7 @@ Additionally, it attempts to explain how all the relevant components work togeth
 - Because IPv6 is new and mysterious to me, and in my pursuit of understanding it, I wanted to share something with the community that may be helpful.
 - Because I simply could not find a guide like this anywhere.
 - Because if you cannot explain it, you do not understand it.
-- Because simplicity is beautiful; OpenBSD is beautiful. It excels as a firewall/router platform, offering correctness, security, elegance and transparency. It resists the trend to incorporate bloatware disguised as features, inefficiency disguised as modernity, and unnecessary complexity. 
+- Because simplicity is beautiful; OpenBSD is beautiful. It excels as a firewall/router platform, offering correctness, security, elegance and transparency.
 
 This guide shares a working configuration to help others build a reliable OpenBSD-based network gateway using the default tools found in the `base` system.
 
