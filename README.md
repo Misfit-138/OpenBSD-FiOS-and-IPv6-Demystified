@@ -14,7 +14,6 @@ Additionally, it attempts to explain how all the relevant components work togeth
 - Because IPv6 is new and mysterious to me, and in my pursuit of understanding it, I wanted to share something with the community that may be helpful.
 - Because I simply could not find a guide like this anywhere.
 - Because if you cannot explain it, you do not understand it.
-- Because simplicity is beautiful; OpenBSD is beautiful. It excels as a firewall/router platform, offering correctness, security, elegance and transparency.
 
 This guide shares a working configuration to help others build a reliable OpenBSD-based network gateway using the default tools found in the `base` system.
 
@@ -998,9 +997,9 @@ Without the following resources and people, this guide would have been impossibl
 ## ❓ FAQ
 
 ### Why OpenBSD?
-
-Because it does the job simply, securely, and elegantly. It's ideal for a firewall/router role (I use it on my desktop and laptop as well). OpenBSD is simply the most beautiful modern OS.
-I found it 20 years ago, (though I am still a novice) fell in love with it, and I have donated to the project. I hope this page contributes to the project by helping someone.
+Because simplicity is beautiful; OpenBSD is beautiful. It excels as a firewall/router platform, offering correctness, security, elegance and transparency.
+It's ideal for a firewall/router role (I use it on my desktop and laptop as well). OpenBSD is simply the most beautiful OS.
+I found it 22 years ago, (though I am still a novice) fell in love with it, and I have donated to the project. I hope this page contributes to the project by helping someone.
 
 ### Why not Linux or FreeBSD?
 
@@ -1014,7 +1013,7 @@ They're great tools, but I find them unnecessarily complex, especially for routi
   
 ## 🙏 Final Thoughts
 
-This guide exists to help others get a solid OpenBSD dual stack router working with Verizon FiOS. I spent weeks testing, reading, and tweaking. If it helps one person, it was worth the effort. If you are that person, or, if you find value in this guide, I would be honored if you clicked on the star. Thanks for reading.
+This guide exists to help others get a solid OpenBSD dual stack firewall/router up and running. I have spent many months testing, reading, and tweaking. If it helps one person, it was worth the effort. If you are that person, or, if you find value in this guide, I would be honored if you clicked on the star! Thanks for reading.
 
 misfit138x
 
