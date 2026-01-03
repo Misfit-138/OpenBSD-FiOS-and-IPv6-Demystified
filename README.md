@@ -363,15 +363,17 @@ table <martians> { \
     172.16.0.0/12 192.0.0.0/24 192.0.2.0/24 192.168.0.0/16 \
     198.18.0.0/15 198.51.100.0/24 203.0.113.0/24 224.0.0.0/3 \
 }
+
+# IPv6 Martian (unroutable) addresses
 # NAT64 well-known prefixes (RFC 6052, RFC 8215) are safe to block *unless* you
 #   later deploy NAT64 or CLAT. If so, remove or adjust the 64:ff9b:: entries.
 table <martians6> { \
-    ::/128, ::1/128, ::/96, ::ffff:0:0/96, \
-    64:ff9b::/96, 64:ff9b:1::/48, \
-    100::/64, 2001::/23, 2001:2::/48, 2001:10::/28, 2001:20::/28, \
-    2001:db8::/32, 2002::/16, fc00::/7, fec0::/10 \
+    ::/128 ::1/128 ::ffff:0:0/96 \
+    64:ff9b::/96 64:ff9b:1::/48 \
+    100::/64 2001::/23 2001:0::/32 2001:2::/48 \
+    2001:10::/28 2001:20::/28 2001:db8::/32 \
+    2002::/16 fc00::/7 fec0::/10 \
 }
-
 
 # Global options
 set block-policy drop
