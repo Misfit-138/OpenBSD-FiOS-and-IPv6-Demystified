@@ -998,7 +998,7 @@ Without the following resources and people, this guide would have been impossibl
 
 ### Why OpenBSD?
 Because simplicity is beautiful; OpenBSD is beautiful. It excels as a firewall/router platform, offering correctness, security, elegance and transparency.
-It's ideal for a firewall/router role (I use it on my desktop and laptop as well). OpenBSD is simply the most beautiful OS.
+It's ideal for a firewall/router role. OpenBSD is simply the most beautiful OS.
 I found it 22 years ago, (though I am still a novice) fell in love with it, and I have donated to the project. I hope this page contributes to the project by helping someone.
 
 ### Why not Linux or FreeBSD?
