@@ -420,6 +420,8 @@ pass in quick on egress inet6 proto udp from any port 547 to any port 546
 pfctl -nf /etc/pf.conf
 ```
 
+```-n```: Do not actually load rules, just parse them.
+
 No output=No errors.
 
 ### Reload `pf` rules:  (IPv4/IPv6)
