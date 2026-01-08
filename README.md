@@ -4,7 +4,7 @@
 
 ## Overview
 
-This guide describes a **proven method** to configure an OpenBSD 7.8-based router/firewall using the default tools found in the `base` system with **dual stack IPv4 and IPv6** using residential **Verizon FiOS** (It will also work with other ISPs that use similar connectivity). It includes support for dynamic IPv6 prefix delegation, DNS advertisement to LAN clients, DNSSEC, root server querying, or DNS over TLS using `unbound` to forward to Google, and optionally, DNS blocklisting utilizing RPZ.
+This guide describes a **proven method** to configure an OpenBSD 7.8-based router/firewall using the default tools found in the `base` system with **dual stack IPv4 and IPv6** on residential **Verizon FiOS** (It will also work with other ISPs that use similar connectivity). It includes support for dynamic IPv6 prefix delegation, DNS advertisement to LAN clients, DNSSEC, root server querying, or DNS over TLS using `unbound` to forward to Google, and optionally, DNS blocklisting utilizing RPZ.
 
 ## Why?
 
