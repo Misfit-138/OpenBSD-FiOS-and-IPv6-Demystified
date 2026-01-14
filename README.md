@@ -769,7 +769,10 @@ The above configuration is in forwarding mode. You may wish to leave it that way
 ftp -o /var/unbound/etc/root.hints https://www.internic.net/domain/named.root
 ```
 
-Then, uncomment ```root-hints: "/var/unbound/etc/root.hints"```
+Then, uncomment the line:
+
+```sh
+root-hints: "/var/unbound/etc/root.hints"```
 
 + `unbound`'s typical behavior is to run in full resolver mode, querying the root servers directly. In this configuration your system becomes its own recursive DNS resolver; `unbound` starts at the root servers, follows referrals to TLDs, then authoritative servers, until it finds the answer.
 
