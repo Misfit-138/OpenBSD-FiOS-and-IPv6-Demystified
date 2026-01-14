@@ -410,6 +410,47 @@ pass in quick inet6 proto ipv6-icmp from any to any icmp6-type { \
 # DHCPv6 client
 pass in quick on egress inet6 proto udp from any port 547 to any port 546
 ```
+
+## ```pf.conf``` Explained
+
+### I. Macros and Tables
+* `lan = "ix0"`: Defines a macro for the internal interface. This allows you to update your hardware configuration in one place.
+* `table <martians>`: A list of IPv4 addresses that are reserved for private or special use and should never appear on the public internet.
+* `table <martians6>`: The IPv6 equivalent of the martians table, containing reserved ranges like Unique Local Addresses (ULA) and documentation prefixes.
+
+### II. Global Options
+* `set block-policy drop`: Tells PF to silently discard packets that are blocked, rather than sending a "Connection Refused" response. This makes the system less visible to scanners.
+* `set loginterface egress`: Collects packet and byte statistics for the interface facing the internet (the "egress" group).
+* `set skip on lo`: Disables filtering on the loopback interface (`lo0`). This is critical because many system services rely on internal communication that must not be blocked.
+
+### III. Traffic Normalization
+* `match in all scrub`: This "cleans" incoming packets. 
+    * `no-df`: Removes the "Don't Fragment" bit to prevent connectivity issues.
+    * `random-id`: Replaces the IP identification field with random values to prevent OS fingerprinting.
+    * `max-mss 1440`: Ensures the Maximum Segment Size fits within standard MTU limits, preventing "black hole" routing issues.
+
+### IV. Network Address Translation (NAT)
+* `match out on egress inet ... nat-to (egress:0)`: This enables IPv4 NAT. It translates private internal LAN IP addresses into the firewall's public IP address so they can communicate with the internet.
+
+### V. Security and Anti-Spoofing
+* `antispoof quick for { egress $lan }`: Automatically creates rules that block packets claiming to come from your network if they arrive on the wrong interface (e.g., a packet from your LAN IP arriving on the WAN port).
+* `block in quick on egress ... <martians>`: Drops any incoming traffic from unroutable/fake IP addresses at the front door.
+* `block return out quick ... <martians>`: Prevents your internal systems from accidentally sending traffic to unroutable addresses.
+
+### VI. The Default Deny Policy
+* `block log all`: This is the core of the firewall. It blocks every single packet by default and logs it to `pflog0`. Every rule following this one is an explicit exception.
+
+### VII. Passing Traffic
+* `pass out quick inet/inet6 keep state`: Allows the firewall and LAN clients to go "out" to the internet. `keep state` ensures that the return traffic for these connections is automatically allowed back in.
+* `pass in on $lan keep state`: Grants full trust to your local network, allowing packets to enter the firewall from the LAN side.
+
+### VIII. ICMP (Internet Control Message Protocol)
+* `pass in ... inet proto icmp`: Allows essential IPv4 diagnostic traffic like Ping (`echoreq`) and "Unreachable" notices.
+* `pass in ... inet6 proto ipv6-icmp`: Allows essential IPv6 control messages. Unlike IPv4, IPv6 relies on ICMPv6 for basic functions like finding routers and neighbor devices.
+
+### IX. IPv6 Connectivity
+* `pass in quick on egress inet6 proto udp from any port 547 to any port 546`: This rule allows the firewall to receive DHCPv6 replies from your ISP, which is how the firewall obtains its global IPv6 address and prefix delegation.*
+
 ### Check `pf.conf` for errors:
 ```sh
 pfctl -nf /etc/pf.conf
