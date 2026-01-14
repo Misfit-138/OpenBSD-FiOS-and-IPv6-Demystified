@@ -449,7 +449,7 @@ pass in quick on egress inet6 proto udp from any port 547 to any port 546
 * `pass in ... inet6 proto ipv6-icmp`: Allows essential IPv6 control messages. Unlike IPv4, IPv6 relies on ICMPv6 for basic functions like finding routers and neighbor devices.
 
 ### IX. IPv6 Connectivity
-* `pass in quick on egress inet6 proto udp from any port 547 to any port 546`: This rule allows the firewall to receive DHCPv6 replies from your ISP, which is how the firewall obtains its global IPv6 address and prefix delegation.*
+* `pass in quick on egress inet6 proto udp from any port 547 to any port 546`: This rule allows the firewall to receive DHCPv6 replies from your ISP, which is how the firewall obtains its global IPv6 address and prefix delegation.
 
 ### Check `pf.conf` for errors:
 ```sh
