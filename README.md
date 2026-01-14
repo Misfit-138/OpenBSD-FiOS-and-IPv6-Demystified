@@ -775,9 +775,11 @@ Then, uncomment the line:
 root-hints: "/var/unbound/etc/root.hints"
 ```
 
+And comment out the entire ```forward-zone:``` header and section.
+
 + `unbound`'s typical behavior is to run in full resolver mode, querying the root servers directly. In this configuration your system becomes its own recursive DNS resolver; `unbound` starts at the root servers, follows referrals to TLDs, then authoritative servers, until it finds the answer.
 
-+ Keeping the `forward-zone` uncommented will run `unbound` in forwarding mode; all queries go to Google (or any DNS of your choosing) and, since we have `tls-cert-bundle: "/etc/ssl/cert.pem"`, `forward-tls-upstream: yes`, and port 853 specified, DNS over TLS is utilized.
++ Keeping the `forward-zone` header and section *uncommented* will run `unbound` in forwarding mode; all queries go to Google (or any DNS of your choosing) and, since we have `tls-cert-bundle: "/etc/ssl/cert.pem"`, `forward-tls-upstream: yes`, and port 853 specified, DNS over TLS is utilized.
 
 # **Should you use `unbound` in full resolver mode, or forward to a 3rd-party service?**
 >
