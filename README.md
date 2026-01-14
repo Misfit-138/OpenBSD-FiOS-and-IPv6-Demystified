@@ -769,6 +769,8 @@ The above configuration is in forwarding mode. You may wish to leave it that way
 ftp -o /var/unbound/etc/root.hints https://www.internic.net/domain/named.root
 ```
 
+Then, uncomment ```root-hints: "/var/unbound/etc/root.hints"```
+
 + `unbound`'s typical behavior is to run in full resolver mode, querying the root servers directly. In this configuration your system becomes its own recursive DNS resolver; `unbound` starts at the root servers, follows referrals to TLDs, then authoritative servers, until it finds the answer.
 
 + Keeping the `forward-zone` uncommented will run `unbound` in forwarding mode; all queries go to Google (or any DNS of your choosing) and, since we have `tls-cert-bundle: "/etc/ssl/cert.pem"`, `forward-tls-upstream: yes`, and port 853 specified, DNS over TLS is utilized.
