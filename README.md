@@ -810,7 +810,7 @@ The above configuration is in forwarding mode. You may wish to leave it that way
 ftp -o /var/unbound/etc/root.hints https://www.internic.net/domain/named.root
 ```
 
-Then, uncomment the line:
+Then, in `unbound.conf`, uncomment the line:
 
 ```sh
 root-hints: "/var/unbound/etc/root.hints"
