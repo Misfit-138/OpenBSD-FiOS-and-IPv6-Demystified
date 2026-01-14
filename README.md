@@ -826,7 +826,7 @@ And comment out the entire ```forward-zone:``` header and section.
 >
 > **Using `unbound` with Root Servers (full resolver)**
 >
-> (Leave `forward-zone` commented out)
+> (Comment out `forward-zone`, download root hints and uncomment `root-hints:` line.)
 >
 > **Pros:**
 >
@@ -843,7 +843,7 @@ And comment out the entire ```forward-zone:``` header and section.
 >
 > **Forwarding to Google/Cloudflare/Quad9/et al**
 >
-> (Uncomment `forward-zone`)
+> (Uncomment `forward-zone` header and section, comment out `root-hints` line.)
 >
 > **Pros:**
 > - Low latency: Big providers have massive, distributed caches.
