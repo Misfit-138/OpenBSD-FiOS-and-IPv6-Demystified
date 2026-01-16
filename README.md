@@ -424,7 +424,7 @@ pass in quick on egress inet6 proto udp from any port 547 to any port 546
 * `set skip on lo`: Disables filtering on the loopback interface (`lo0`). This is critical because many system services rely on internal communication that must not be blocked.
 
 ### III. Traffic Normalization
-* `match in all scrub`: This "cleans" incoming packets. 
+* `match in all scrub`: This "cleans" incoming packets the moment they enter the router from any direction. Whether a packet is coming from a local laptop or a distant web server, it is "cleaned" (IDs randomized, fragments reassembled) before the firewall does anything else with it. This protects your internal privacy and ensures network stability across the board.
     * `no-df`: Removes the "Don't Fragment" bit to prevent connectivity issues.
     * `random-id`: Replaces the IP identification field with random values to prevent OS fingerprinting.
     * `max-mss 1440`: Ensures the Maximum Segment Size fits within standard MTU limits, preventing "black hole" routing issues.
