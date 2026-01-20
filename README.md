@@ -662,7 +662,7 @@ It is true that a decent pf.conf rule set could simply:
 ```sh
 block in quick on $WAN_IF inet6 proto tcp from any to $WAN_GUA
 ```
-This rule seems to achieve the same result as having no GUA at all. However, the reduced attack surface is not an illusion; it is a real, subtle, and critical security gain due to OpenBSD's architecture.
+This rule seems to achieve the same result as having no GUA on the WAN at all. However, the reduced attack surface is not an illusion; it is a real, subtle, and critical security gain due to OpenBSD's architecture.
 
 Here is the technical comparison:
 
