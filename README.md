@@ -60,7 +60,7 @@ Note that if you are installing over serial console, (i.e., in a headless config
 ```sh
 boot> set tty com0
 ```
-You may then hit `[ENTER]` at the next `boot>` prompt to boot the system, or, if you need to specify the baud rate for your device:
+You may then hit `[ENTER]` at the next `boot>` prompt to boot the system, or, if you need to specify the baud rate for your device, use ```stty```. For example:
 ```sh
 boot> stty com0 115200
 ```
