@@ -11,6 +11,8 @@ This guide describes a **proven method** to configure an OpenBSD 7.8-based route
 - Because IPv6 is new and mysterious to me, and in my pursuit of understanding it, I wanted to share something with the community that may be helpful.
 - Because I simply could not find a guide like this anywhere.
 - Because if you cannot explain it, you do not understand it.
+## Why OpenBSD?
+- Because there is simply no better tool for the job.
 
 After reading, you should have a working understanding of what your OpenBSD firewall/router is doing and how it does so.
 
@@ -29,7 +31,7 @@ After reading, you should have a working understanding of what your OpenBSD fire
 ## Hardware requirements:
 
 Your choice of hardware will be dictated by your own network requirements, but, generally, a machine with at least 2 NICs (one for WAN, one for LAN) that is of a supported architecture will work.
-Intel NICs are particularly well supported.
+Intel NICs are particularly well supported. I strongly recommend avoiding the common consumer options. Enterprise-grade appliances, like the AppNeta M50 or the  Silver Peak Systems FWA-ASP1012 Unity Edge Connect EC-XS are perfectly suited for this purpose. They typically are far more affordable and reliable than consumer firewall/routers.
 
 # ⚠️ DISCLAIMER ⚠️
 
@@ -60,7 +62,11 @@ Note that if you are installing over serial console, (i.e., in a headless config
 ```sh
 boot> set tty com0
 ```
-You may then hit `[ENTER]` at the next `boot>` prompt to boot the system, or, if you need to specify the baud rate for your device, use ```stty```. For example:
+Followed by `[ENTER]`.
+
+If you then need to specify the baud rate for your device, use ```stty``` at the next `boot>` prompt. 
+
+For example, if your device requires 115200 baud:
 ```sh
 boot> stty com0 115200
 ```
