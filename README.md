@@ -1,10 +1,10 @@
-# Creating an OpenBSD 7.8 Router/Firewall with Dual Stack (IPv4 + IPv6)
+# Creating an OpenBSD 7.9 Router/Firewall with Dual Stack (IPv4 + IPv6)
 
 ![Example Image](openbsdmountain2.jpg)
 
 ## Overview
 
-This guide describes a **proven method** to configure an OpenBSD 7.8-based router/firewall using the default tools found in the `base` system with **dual stack IPv4 and IPv6** on residential **Verizon FiOS** (It will also work with other ISPs that use similar connectivity). It includes support for dynamic IPv6 prefix delegation, DNS advertisement to LAN clients, DNSSEC, root server querying, or DNS over TLS using `unbound` to forward to Google, and optionally, DNS blocklisting utilizing RPZ.
+This guide describes a **proven method** to configure an OpenBSD 7.9-based router/firewall using the default tools found in the `base` system with **dual stack IPv4 and IPv6** on residential **Verizon FiOS** (It will also work with other ISPs that use similar connectivity). It includes support for dynamic IPv6 prefix delegation, DNS advertisement to LAN clients, DNSSEC, root server querying, or DNS over TLS using `unbound` to forward to Google, and optionally, DNS blocklisting utilizing RPZ.
 
 ## Why?
 
@@ -18,7 +18,7 @@ After reading, you should have a working understanding of what your OpenBSD fire
 
 ## 🔧 OpenBSD `base` Tools Used
 
-- OpenBSD 7.8
+- OpenBSD 7.9
 - `pf` (OpenBSD's Packet Filter)
 - `dhcpd` (IPv4 DHCP server daemon)
 - `dhcpleased` - (OpenBSD's IPv4 DHCP client daemon replacing the older ISC dhclient)
@@ -55,7 +55,7 @@ This guide contains network security configurations that will control your firew
 
 ## 📦 Installation Steps
 
-## 1. Install OpenBSD 7.8
+## 1. Install OpenBSD 7.9
 Official instructions at: https://www.openbsd.org/faq/faq4.html
 
 Note that if you are installing over serial console, (i.e., in a headless configuration) you will need to specify it at the `boot>` prompt using `set`:
@@ -621,7 +621,7 @@ ping6 2001:4860:4860::8888
 
 Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your router via DHCPv6 rather than assigning a Global Unicast Address (GUA) directly to the router’s WAN interface. This aligns with IPv6’s design principles, which support end-to-end connectivity without the need for NAT.
 
-## How It Works on OpenBSD 7.8
+## How It Works on OpenBSD 7.9
 
 **`slaacd`** runs on the OpenBSD router's WAN interface, processing the RA from the ISP, and installs a default route.
 
@@ -944,10 +944,10 @@ https://test-ipv6.com/ can be utilized from clients to check for IPv4/IPv6 funct
 https://adblock.turtlecute.org/ can be utilized from clients to check for effective domain blocking with `unbound`/`rpz` (turn off all browser adblocking to isolate). 
 
 
-# Deeper Dive: The Three Main IPv6 Daemons in OpenBSD 7.8
+# Deeper Dive: The Three Main IPv6 Daemons in OpenBSD 7.9
 ![Example Image](3daemons.jpg)
 
-OpenBSD 7.8’s IPv6 stack uses three distinct but complementary daemons for upstream RA processing, default route installation, DHCPv6 lease negotiation, prefix delegation, address assignment, and router advertisement. Together, these daemons handle both upstream (WAN) and downstream (LAN) IPv6 configuration without requiring third-party tools. Each has a clear purpose, and understanding their separation makes troubleshooting and configuration much easier.
+OpenBSD 7.9’s IPv6 stack uses three distinct but complementary daemons for upstream RA processing, default route installation, DHCPv6 lease negotiation, prefix delegation, address assignment, and router advertisement. Together, these daemons handle both upstream (WAN) and downstream (LAN) IPv6 configuration without requiring third-party tools. Each has a clear purpose, and understanding their separation makes troubleshooting and configuration much easier.
 
 ## 1. `slaacd` - SLAAC and RA listener for upstream
 
