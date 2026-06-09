@@ -1026,6 +1026,7 @@ If you have not done so already, I recommend setting up `dhcpd.conf` and `unboun
 OpenBSD and this project are licensed under the **BSD style License** in the source directory of this repository.
 
 ## 👤 Author
+![Example Image](cromsonghost.jpg)
 
 Misfit-138 discovered computers in 1979, and has struggled to understand them ever since. He served as an admin and major contributor to the Arch Linux Wiki from 2005-2015. His contributions to Linux documentation and code of conduct frameworks have been widely adopted across numerous distributions and projects.
 
