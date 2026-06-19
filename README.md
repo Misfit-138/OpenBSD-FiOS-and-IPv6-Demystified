@@ -350,6 +350,8 @@ A clean and concise dual stack PF configuration with minimal logging, which work
 **THIS CODE DEFINES THE SYSTEM FIREWALL BEHAVIOR. USE AT YOUR OWN RISK.**
 
 ```
+# OpenBSD pf.conf - Clean and Concise - Dual Stack (IPv4 + IPv6)
+
 # --- Macros ---
 lan = "ix0"
 
