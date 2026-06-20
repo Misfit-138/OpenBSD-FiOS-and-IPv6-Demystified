@@ -740,7 +740,7 @@ The LLA-only WAN configuration ensures the kernel performs the most immediate an
 ### Unbound is a recursive, caching DNS resolver with DNSSEC validation, DNS over TLS, and RPZ support. 
 
 
-### The following example allows for using the root servers or forwarding DNS over TLS to Google, as well as blocking malicious domains, depending on how you wish to proceed.
+### The following example allows for using the root servers, or, forwarding DNS over TLS, as well as blocking malicious domains, depending on how you wish to proceed.
 
 ### `/var/unbound/etc/unbound.conf`
 
@@ -795,14 +795,24 @@ server:
 remote-control:
     control-enable: yes
     control-interface: /var/run/unbound.sock
-# Uncomment to forward to Google DNS, using DNS over TLS.
-# otherwise, unbound will query root servers referring to root-hints file
+# Uncomment to forward to Upstream DNS, using DoT (DNS over TLS).
+# Otherwise, unbound will query root servers referring to root-hints file
 forward-zone:
     name: "."
     forward-tls-upstream: yes
-    forward-addr: 8.8.8.8@853#dns.google
-    forward-addr: 8.8.4.4@853#dns.google
-    forward-addr: 2001:4860:4860::8888@853#dns.google
+
+    # Cloudflare (Fast, No Logging, Unfiltered)
+    forward-addr: 1.1.1.1@853#cloudflare-dns.com
+    forward-addr: 1.0.0.1@853#cloudflare-dns.com
+    forward-addr: 2606:4700:4700::1111@853#cloudflare-dns.com
+    forward-addr: 2606:4700:4700::1001@853#cloudflare-dns.com
+
+    # Quad9 Unfiltered (Privacy, No Upstream Blocking)
+    forward-addr: 9.9.9.10@853#dns.quad9.net
+    forward-addr: 149.112.112.10@853#dns.quad9.net
+    forward-addr: 2620:fe::10@853#dns.quad9.net
+    forward-addr: 2620:fe::fe:10@853#dns.quad9.net
+
 # Uncomment rpz module above, in addition to the following rpz section
 #to enable and configure rpz:
 #rpz:
@@ -841,7 +851,7 @@ And comment out the entire ```forward-zone:``` header and section.
 
 + `unbound`'s typical behavior is to run in full resolver mode, querying the root servers directly. In this configuration your system becomes its own recursive DNS resolver; `unbound` starts at the root servers, follows referrals to TLDs, then authoritative servers, until it finds the answer.
 
-+ Keeping the `forward-zone` header and section *uncommented* will run `unbound` in forwarding mode; all queries go to Google (or any DNS of your choosing) and, since we have `tls-cert-bundle: "/etc/ssl/cert.pem"`, `forward-tls-upstream: yes`, and port 853 specified, DNS over TLS is utilized.
++ Keeping the `forward-zone` header and section *uncommented* will run `unbound` in forwarding mode; all queries go to Cloudflare/Quad9 (or any DNS of your choosing) and, since we have `tls-cert-bundle: "/etc/ssl/cert.pem"`, `forward-tls-upstream: yes`, and port 853 specified, DNS over TLS is utilized.
 
 # **Should you use `unbound` in full resolver mode, or forward to a 3rd-party service?**
 >
@@ -862,7 +872,7 @@ And comment out the entire ```forward-zone:``` header and section.
 > - `unbound` must handle higher query loads.
 > - Traffic visibility: Your IP becomes visible to many authoritative servers (though not all queries go to each).
 >
-> **Forwarding to Google/Cloudflare/Quad9/et al**
+> **Forwarding to Cloudflare/Quad9/et al**
 >
 > (Uncomment `forward-zone` header and section, comment out `root-hints` line.)
 >
@@ -1075,12 +1085,6 @@ I found it 22 years ago, (though I am still a novice) fell in love with it, and 
 
 They're great tools, but I find them unnecessarily complex, especially for routing/firewalling. OpenBSD has fewer surprises and a consistent, coherent philosophy.
 
-### Why do you include Google DNS?
-
-- In my region, Google DNS is fast and reliable.
-- It supports TLS.
-- Feel free to configure your system to your own preference.
-  
 ## 🙏 Final Thoughts
 
 This guide exists to help others get a solid OpenBSD dual stack firewall/router up and running. I have spent many months testing, reading, and tweaking. If it helps one person, it was worth the effort. If you are that person, or, if you find value in this guide, I would be honored if you clicked on the star! Thanks for reading.
