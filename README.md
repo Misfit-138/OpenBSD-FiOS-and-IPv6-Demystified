@@ -418,7 +418,6 @@ pass in quick on egress inet6 proto ipv6-icmp from any to { (egress), ff02::/16 
 
 # DHCPv6 client allow (Prefix Delegation)
 pass in quick on egress inet6 proto udp from any port 547 to any port 546
-
 ```
 
 ## ```pf.conf``` Explained
