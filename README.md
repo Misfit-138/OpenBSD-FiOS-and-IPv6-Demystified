@@ -454,7 +454,10 @@ pass in quick on egress inet6 proto udp from any port 547 to (egress) port 546
 * `match out on egress scrub (max-mss 1440)`: This specifically targets traffic leaving the WAN interface. It ensures the Maximum Segment Size fits within standard MTU limits, preventing "black hole" routing issues caused by encapsulation overhead.
 
 ### IV. Network Address Translation (NAT)
-* `match out on egress inet ... nat-to (egress:0)`: This enables IPv4 NAT. It translates private internal LAN IP addresses into the firewall's public IP address so they can communicate with the IPv4 internet. *(Note: IPv6 does not use NAT, as devices are assigned globally routable addresses).*
+* `match out on egress inet from !(egress:network) to any nat-to (egress:0)`: This enables IPv4 NAT using a dynamic, highly scalable syntax. 
+    * **`!(egress:network)`:** Rather than hardcoding a single, specific LAN subnet, the `!` (NOT) exclusion tells the firewall to translate traffic coming from *any* internal network. If you add VLANs or a WireGuard VPN later, they will automatically have internet access without requiring you to update this rule. It also prevents routing loops by strictly ignoring traffic that already exists on the WAN.
+    * **`(egress:0)`:** The `:0` modifier forces the firewall to use only the primary public IPv4 address for translation. This ensures stable web sessions and prevents connection-breaking round-robin behaviors if you ever assign virtual alias IPs to your WAN interface.
+    * *(Note: IPv6 does not use NAT. Internal devices are assigned globally routable addresses directly via the ISP's Prefix Delegation).*
 
 ### V. Security and Anti-Spoofing
 * `antispoof quick for { egress $lan }`: Automatically generates strict rules that drop packets claiming to come from your network if they arrive on the wrong interface (e.g., a packet carrying your internal LAN IP arriving on the WAN port).
