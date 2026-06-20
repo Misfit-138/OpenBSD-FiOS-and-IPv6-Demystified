@@ -454,9 +454,11 @@ pass in quick on egress inet6 proto udp from any port 547 to (egress) port 546
 * `pass out quick inet/inet6 `: Allows the firewall and LAN clients to go "out" to the internet. By default, `pf` will `keep state`, ensuring that the return traffic for these connections is automatically allowed back in.
 * `pass in on $lan `: Grants full trust to your local network, allowing packets to enter the firewall from the LAN side.
 
-### VIII. ICMP (Internet Control Message Protocol)
-* `pass in ... inet proto icmp`: Allows essential IPv4 diagnostic traffic like Ping (`echoreq`) and "Unreachable" notices.
-* `pass in ... inet6 proto ipv6-icmp`: Allows essential IPv6 control messages. Unlike IPv4, IPv6 relies on ICMPv6 for basic functions like finding routers and neighbor devices.
+### VIII. ICMP and DHCPv6 Perimeter Security
+
+* ICMP/ICMPv6: These rules are strictly bound to the egress interface using from any to (egress). This ensures that diagnostic pings are only accepted when directed at the firewall itself. The IPv6 rule adds ff02::/16 (link-local multicast), which is essential for ISP-provided services like Neighbor Discovery and Router Advertisements. This protects your internal network from being directly probed, as global IPv6 addresses inside your LAN are no longer valid targets for external ICMPv6 diagnostic traffic.
+
+* DHCPv6: The rule is restricted to (egress) port 546. This prevents the DHCPv6 client port from being reachable on your internal network addresses, ensuring that your Prefix Delegation remains strictly managed by the ISP.
 
 ### IX. IPv6 Connectivity
 * `pass in quick on egress inet6 proto udp from any port 547 to any port 546`: This rule allows the firewall to receive DHCPv6 replies from your ISP, which is how the firewall obtains its global IPv6 address and prefix delegation.
