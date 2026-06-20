@@ -377,8 +377,8 @@ set block-policy drop
 set loginterface egress
 set skip on lo
 
-# --- Match Rules (Translation) ---
-# Normalization: Clamp MSS only on the egress interface.
+# --- Match Rules (Translation & Normalization) ---
+# Normalization: Clean incoming packets and clamp MSS on egress.
 match in all scrub (no-df random-id)
 match out on egress scrub (max-mss 1440)
 
@@ -402,7 +402,7 @@ block log all
 pass out quick inet
 pass out quick inet6
 
-# Allow general LAN traffic in (Preserves 'last match wins' for internal rules)
+# Allow general LAN traffic in
 pass in on $lan
 
 # ICMP diagnostics strictly bound to WAN ingress
@@ -417,7 +417,8 @@ pass in quick on egress inet6 proto ipv6-icmp from any to { (egress), ff02::/16 
 }
 
 # DHCPv6 client allow (Prefix Delegation)
-pass in quick on egress inet6 proto udp from any port 547 to any port 546
+# Strictly bound to the egress interface
+pass in quick on egress inet6 proto udp from any port 547 to (egress) port 546
 ```
 
 ## ```pf.conf``` Explained
