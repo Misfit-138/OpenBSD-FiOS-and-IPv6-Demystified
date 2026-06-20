@@ -1,16 +1,29 @@
-# Creating an OpenBSD 7.9 Router/Firewall with Dual Stack (IPv4 + IPv6)
+# OpenBSD 7.9 at the Edge: A Dual-Stack IPv4 + IPv6 Router/Firewall Blueprint
 
 ![Example Image](openbsdmountain2.jpg)
 
 ## Overview
 
-This guide describes a **proven method** to configure an OpenBSD 7.9-based router/firewall using the default tools found in the `base` system with **dual stack IPv4 and IPv6** on residential **Verizon FiOS** (It will also work with other ISPs that use similar connectivity). It includes support for dynamic IPv6 prefix delegation, DNS advertisement to LAN clients, DNSSEC, root server querying, or DNS over TLS using `unbound` to forward to Google, and optionally, DNS blocklisting utilizing RPZ.
+This guide provides a pragmatic, hardened edge *baseline* for deploying an OpenBSD 7.9 edge router and firewall. Built entirely using the tools found in the OpenBSD base system, this configuration is heavily optimized for native dual-stack (IPv4 + IPv6) connectivity on Verizon FiOS, though the underlying logic applies to any ISP utilizing similar standards.
 
+Rather than relying on third-party appliances, this setup leverages the strict, uncompromising architecture of OpenBSD's native daemons.
+
+Key capabilities include:
+
+* A Functional Gateway Baseline: A surgically precise pf ruleset that natively handles IPv6 Prefix Delegation and strictly scopes diagnostic traffic to the perimeter.
+
+* Dynamic IPv6 Integration: Seamless DHCPv6-PD configuration for routing global IPv6 addresses to internal subnets.
+
+* Robust DNS Architecture: Local DNS resolution utilizing unbound, featuring DNSSEC validation, root server querying, or DNS-over-TLS (DoT) forwarding to upstream providers.
+
+* Network-Wide Sinkholing (Optional): Integrated DNS blocklisting using Response Policy Zones (RPZ) to drop ads and telemetry at the gateway level.
+  
 ## Why?
 
 - Because IPv6 is new and mysterious to me, and in my pursuit of understanding it, I wanted to share something with the community that may be helpful.
 - Because I simply could not find a guide like this anywhere.
 - Because if you cannot explain it, you do not understand it.
+  
 ## Why OpenBSD?
 - Because there is simply no better tool for the job.
 
