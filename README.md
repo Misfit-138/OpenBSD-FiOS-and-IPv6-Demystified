@@ -163,6 +163,13 @@ subnet 192.168.1.0 netmask 255.255.255.0 {
 	range 192.168.1.10 192.168.1.254;
 }
 ```
+
+* `subnet 192.168.1.0 netmask 255.255.255.0 { ... }`: This block defines the strict scope of your internal network. The DHCP daemon will only listen for requests and assign addresses to clients that fall within this specific subnet.
+* `option routers 192.168.1.1`: This dictates the default gateway for your LAN clients. It points directly to the firewall's internal interface IP, ensuring all outbound client traffic is handed off to your routing table.
+* `option domain-name-servers 192.168.1.1`: This instructs your network clients on where to send their DNS queries. By pointing this back to the firewall's internal IP, you ensure all LAN devices utilize your local DNS resolver (e.g., `unbound`). This is a mandatory step if you are utilizing DNSSEC validation or network-wide RPZ blocklisting at the edge.
+* `range 192.168.1.10 192.168.1.254`: This defines the specific pool of IP addresses the server will dynamically lease to standard client devices (phones, laptops, IoT). Starting the range at `.10` is a pragmatic administrative practice; it leaves addresses `.2` through `.9` open for the static assignment of permanent network infrastructure, such as managed switches or wireless access points.
+* 
+
 ### `/etc/resolv.conf`  (IPv4/IPv6)
 This file configures the resolving behavior of *the router itself.*
 ```conf
