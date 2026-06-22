@@ -359,11 +359,11 @@ A clean and concise dual stack PF configuration with minimal logging, which work
 
 ## *IPv6 essential considerations:*
 - There must be a route-to or pass out rule in `pf.conf` for IPv6 outbound from LAN to WAN. This is easy to forget and will silently block IPv6. This is covered, because our example let's everything out- `pass out quick inet6 keep state`.
-- ICMPv6 needs to be allowed on WAN and LAN or many things break- neighbor discovery, path MTU discovery, RA, etc. This is covered by `pass in quick inet6 proto ipv6-icmp from any to any icmp6-type {
-    echoreq, echorep, unreach, toobig, timex, paramprob,
-    neighbrsol, neighbradv, routersol, routeradv
-} keep state`
-- The router's WAN `ix1` must allow inbound UDP port 546 traffic from the ISP DHCPv6 server’s UDP port 547. This is how `dhcp6leased` communicates and receives its IPv6 delegated prefix. Our example covers this with `pass in quick on egress inet6 proto udp from any port 547 to any port 546`.
+- ICMPv6 needs to be allowed on WAN and LAN or many things break- neighbor discovery, path MTU discovery, RA, etc. This is covered by `pass in quick on egress inet6 proto ipv6-icmp from any to { (egress), ff02::/16 } icmp6-type { \
+    echoreq, echorep, unreach, toobig, timex, paramprob, \
+    neighbrsol, neighbradv, routersol, routeradv \
+}`
+- The router's WAN `ix1` must allow inbound UDP port 546 traffic from the ISP DHCPv6 server’s UDP port 547. This is how `dhcp6leased` communicates and receives its IPv6 delegated prefix. Our example covers this with `pass in quick on egress inet6 proto udp from any port 547 to (egress) port 546`.
 
 # ⚠️ IMPORTANT SECURITY DISCLAIMER ⚠️
 
