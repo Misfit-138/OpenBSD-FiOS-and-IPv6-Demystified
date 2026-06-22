@@ -85,7 +85,7 @@ boot> stty com0 115200
 ```
 Followed by `[ENTER]` at the final `boot>` prompt.
 
-During the install, set up a WAN interface configured with automatic IPv4/IPv6 and a LAN interface with static IPv4 for now. Be sure to set a hostname and domain name. We will use ```home.arpa``` as the domain in this guide.
+During installation, configure the WAN interface for autoconfiguration (IPv4/IPv6) and assign a static IPv4 address to the LAN interface (using 192.168.1.1 for this example). Set the system hostname and domain name. We will use ```home.arpa``` as the domain throughout this guide.
 
 ## 2. Temporarily disable daemons (This guide assumes the machine is connected to the internet.)
 
