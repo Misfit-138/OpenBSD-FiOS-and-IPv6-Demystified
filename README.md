@@ -554,7 +554,7 @@ Having negotiated the lease, `dhcp6leased` writes the prefix to `/var/db/dhcp6le
 
 ## 8. 📡 Create `/etc/rad.conf` (Router Advertisement)  (IPv6)
 
-```conf
+```nginx
 # /etc/rad.conf
 interface ix0 {
     dns {
