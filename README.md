@@ -136,7 +136,7 @@ rcctl disable resolvd
 ### `/etc/sysctl.conf`  (IPv4/IPv6)
 Turning the system into a router that will forward IPv4/IPv6 packets between network interfaces is simple and easy:
 
-```sh
+```conf
 sysctl net.inet.ip.forwarding=1
 
 sysctl net.inet6.ip6.forwarding=1
