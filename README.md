@@ -369,7 +369,7 @@ A clean and concise dual stack PF configuration with minimal logging, which work
 
 **THIS CODE DEFINES THE SYSTEM FIREWALL BEHAVIOR. USE AT YOUR OWN RISK.**
 
-```
+```nginx
 # OpenBSD pf.conf - Clean and Concise - Dual Stack (IPv4 + IPv6)
 # A secure, default-deny baseline for an edge router
 
