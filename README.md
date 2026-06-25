@@ -172,7 +172,7 @@ subnet 192.168.1.0 netmask 255.255.255.0 {
 
 ### `/etc/resolv.conf`  (IPv4/IPv6)
 This file configures the resolving behavior of *the router itself.*
-```conf
+```nginx
 # /etc/resolv.conf
 nameserver 127.0.0.1
 nameserver ::1
@@ -208,7 +208,7 @@ dhcpleased does the following:
   - Renews leases as needed to keep the IP assignment active.
 
 The following simple example will ignore ISP DNS assignment (recommended). Also, be sure to disable `resolvd`, (recommended above). This gives us full control over our DNS:
-```conf
+```nginx
 # /etc/dhcpleased.conf
 interface ix1 { ignore dns }
 ```
@@ -218,7 +218,7 @@ interface ix1 { ignore dns }
 `dhcp6leased` is the DHCPv6 client and Prefix Delegation handler. It runs on interface(s) configured with `inet6 autoconf`.
 
 This simple file is all that is needed:
-```conf
+```nginx
 # /etc/dhcp6leased.conf
 request prefix delegation on ix1 for { ix0/64 }
 ```
