@@ -154,7 +154,7 @@ net.inet6.ip6.forwarding=1
 Setting up an IPv4 DHCP server is also straightforward.
 
 A simple, sane, working example:
-```conf
+```nginx
 
 # /etc/dhcpd.conf
 subnet 192.168.1.0 netmask 255.255.255.0 {
