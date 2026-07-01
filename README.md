@@ -980,6 +980,8 @@ dig example.com AAAA
 ```
 https://test-ipv6.com/ can be utilized from clients to check for IPv4/IPv6 functionality.
 
+https://dnscheck.tools/ is a great tool for testing your DNS.
+
 https://adblock.turtlecute.org/ can be utilized from clients to check for effective domain blocking with `unbound`/`rpz` (turn off all browser adblocking to isolate). 
 
 
