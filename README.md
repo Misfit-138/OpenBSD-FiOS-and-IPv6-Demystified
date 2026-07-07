@@ -35,7 +35,7 @@ After reading, you should have a working understanding of what your OpenBSD fire
 - `pf` (OpenBSD's Packet Filter)
 - `dhcpd` (IPv4 DHCP server daemon)
 - `dhcpleased` - (OpenBSD's IPv4 DHCP client daemon replacing the older ISC dhclient)
-- `dhcp6leased` (OpenBSD's IPv6 prefix delegation and DHCPv6 client)
+- `dhcp6leased` (OpenBSD's DHCPv6 and prefix delegation client)
 - `rad` (OpenBSD's Router Advertisement Daemon)
 - `slaacd` (StateLess Address Automatic Configuration daemon)
 - `unbound` (Validating, recursive, caching DNS resolver)
