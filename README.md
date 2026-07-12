@@ -29,6 +29,8 @@ Key capabilities include:
 
 After reading, you should have a working understanding of what your OpenBSD firewall/router is doing and how it does so.
 
+If you find this guide useful, please consider leaving a star.
+
 ## 🔧 OpenBSD `base` Tools Used
 
 - OpenBSD 7.9
