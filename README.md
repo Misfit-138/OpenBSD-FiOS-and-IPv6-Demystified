@@ -6,7 +6,7 @@
 
 This guide provides a pragmatic *baseline* for deploying an OpenBSD 7.9 edge router and firewall built entirely using the tools found in the OpenBSD base system. This configuration was designed for native dual-stack (IPv4 + IPv6) connectivity on Verizon FiOS, though the logic applies to any ISP utilizing similar standards.
 
-Rather than relying on third-party appliances, this setup leverages the strict, uncompromising architecture of OpenBSD's native daemons.
+Rather than relying on third-party packages, this setup leverages the strict, uncompromising architecture of OpenBSD's native daemons.
 
 Key capabilities include:
 
