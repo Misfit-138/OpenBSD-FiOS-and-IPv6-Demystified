@@ -29,7 +29,7 @@ Key capabilities include:
 
 After reading, you should have a working understanding of what your OpenBSD firewall/router is doing and how it does so.
 
-If you find this guide useful, please consider leaving a star.
+If you find this guide helpful, please consider leaving a ⭐ [star on the repository](https://github.com/Misfit-138/OpenBSD-FiOS-and-IPv6-Demystified). It helps other users find this documentation.
 
 ## 🔧 OpenBSD `base` Tools Used
 
@@ -1063,7 +1063,7 @@ The following table may be useful, especially if you configured your system to b
 | **DNS Resolution Fails** | `dig example.com` fails from router. Clients cannot resolve names. | `rcctl ls on` <br> `rcctl ls started` <br> `unbound-checkconf` <br> `unbound-control status` <br> `cat /etc/resolv.conf` | <ul><li>`unbound` is not running/enabled.</li><li>`unbound.conf` has syntax errors.</li><li>`unbound.conf` `access-control` is **too restrictive**.</li><li>`resolv.conf` on router is not pointing to 127.0.0.1 and ::1.</li><li>Firewall is blocking port 53.</li></ul> |
 | **Clients get IPv4 but not IPv6** | `ifconfig ix0` shows a GUA, but clients only get an IPv4 address. | `rcctl ls on` <br> `rcctl ls started` <br> `tcpdump -ni ix0 ip6` <br> `rcctl restart rad` <br>  | <ul><li>`rad` is not running or enabled.</li><li>Firewall is blocking IPv6 traffic.</li><li>`rad.conf` is missing or misconfigured.</li><li>`rad` may need to be restarted to pick up the new prefix.</li><li>Client OS/configuration issue.</li></ul> |
 
-## *If you find this guide to be helpful, please consider leaving a star.*
+## ⭐ **If you found this guide helpful, I would be honored if you left a [star on the repository](https://github.com/Misfit-138/OpenBSD-FiOS-and-IPv6-Demystified).** It helps other users find this documentation.
 
 ## **ENJOY!**
 
