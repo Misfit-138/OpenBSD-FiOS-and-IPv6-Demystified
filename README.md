@@ -23,6 +23,7 @@ Key capabilities include:
 - Because IPv6 is new and mysterious to me, and in my pursuit of understanding it, I wanted to share something with the community that may be helpful.
 - Because I simply could not find a guide like this anywhere.
 - Because if you cannot explain it, you do not understand it.
+- Autism.
   
 ## Why OpenBSD?
 - Because there is simply no better tool for the job.
