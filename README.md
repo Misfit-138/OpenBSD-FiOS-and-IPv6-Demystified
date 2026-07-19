@@ -309,7 +309,8 @@ Why it's useful:
 
 * **ULA**s provide stable, predictable addresses for local network communication.
 * Unlike **GUA**s (which can change when your ISP changes your delegated prefix), **ULA**s remain constant.
-* Ensures local services and device-to-device communication continues working even if your ISP prefix changes-Provides a fallback for local network services.
+* Ensures local services and device-to-device communication continues working even if your ISP prefix changes.
+* Provides a fallback for local network services.
 
 ULAs are private and not routable on the internet, so feel free to arbitrarily create your own ULA which is human readable;
 ```fd00:feed:face::1/64``` 
