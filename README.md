@@ -476,7 +476,7 @@ pass in quick on egress inet6 proto udp from any port 547 to (egress) port 546
 * `block return out quick ... <martians>`: Prevents your internal systems from accidentally leaking traffic out to unroutable addresses.
 
 ### VI. The Default Deny Policy
-* `block log all`: This is the core of the firewall. It blocks every single packet by default and logs the attempt to `pflog0`. Every `pass` rule following this one is an explicitly defined exception.
+* `block log all`: **This is the core of the firewall.** It blocks every single packet by default and logs the attempt to `pflog0`. *Every `pass` rule following this one is an explicitly defined exception.*
 
 ### VII. Passing Traffic
 * `pass out quick inet` / `inet6`: Allows the firewall and LAN clients to initiate outbound connections to the internet. PF is stateful by default, meaning it will automatically allow the return traffic for these specific connections back in.
