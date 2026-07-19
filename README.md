@@ -483,12 +483,15 @@ pass in quick on egress inet6 proto udp from any port 547 to (egress) port 546
 * `pass in on $lan`: Grants trust to your local network, allowing internal clients to send traffic to the gateway.
 
 ### VIII. ICMP and DHCPv6 Perimeter Security
-* **ICMP (IPv4):** The rule explicitly binds incoming ICMP traffic to the `(egress)` IP address. This ensures that diagnostic pings (`echoreq`) and routing error messages (`unreach`) are only accepted when they are targeting the firewall's public IP, rather than attempting to pass through it.
-* **ICMPv6 (IPv6):** Unlike IPv4, ICMPv6 is the foundational control plane for IPv6 routing. 
+* `pass in quick on egress inet proto icmp from any to (egress) icmp-type { echoreq, unreach }`: This rule explicitly binds incoming ICMP traffic to the `(egress)` IP address. This ensures that diagnostic pings (`echoreq`) and routing error messages (`unreach`) are only accepted when they are targeting the firewall's public IP, rather than attempting to pass through it.
+* `pass in quick on egress inet6 proto ipv6-icmp from any to { (egress), ff02::/16 } icmp6-type { \
+    echoreq, echorep, unreach, toobig, timex, paramprob, \
+    neighbrsol, neighbradv, routersol, routeradv \
+}`: Unlike IPv4, ICMPv6 is the foundational control plane for IPv6 routing. 
     * **The Targets:** The rule restricts incoming ICMPv6 to either the firewall itself `(egress)` or the link-local multicast space `ff02::/16`. This multicast allowance is mandatory for the firewall to hear Neighbor Discovery (NDP) and Router Advertisements (RA) from the ISP. 
     * **The Types:** We explicitly allow necessary control messages like `toobig` (vital for Path MTU Discovery) and the `neighbr*`/`router*` messages required for maintaining the link.
     * **The Security Win:** Because internal LAN clients have globally routable IPv6 addresses, a lazy `to any` rule would allow the entire internet to probe your internal devices. By restricting the destination to `(egress)`, your LAN is completely shielded from external diagnostic probing.
-* **DHCPv6 (Prefix Delegation):** To route IPv6 traffic, the firewall must receive a Prefix Delegation (PD). This rule ensures the firewall only listens for incoming DHCPv6 server replies (port 547) on its own client port (port 546) strictly on the WAN side. This physically prevents the DHCPv6 client process from being hijacked or spoofed by a rogue device on your internal LAN.
+* `pass in quick on egress inet6 proto udp from any port 547 to (egress) port 546`: To route IPv6 traffic, the firewall must receive a Prefix Delegation (PD). This rule ensures the firewall only listens for incoming DHCPv6 server replies (port 547) on its own client port (port 546) strictly on the WAN side. This physically prevents the DHCPv6 client process from being hijacked or spoofed by a rogue device on your internal LAN.
 
 ### Check `pf.conf` for errors:
 ```sh
