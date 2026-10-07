@@ -489,7 +489,7 @@ pass in quick on egress inet6 proto udp from any port 547 to (egress) port 546
 }`: Unlike IPv4, ICMPv6 is the foundational control plane for IPv6 routing. 
     * **The Targets:** The rule restricts incoming ICMPv6 to either the firewall itself `(egress)` or the link-local multicast space `ff02::/16`. This multicast allowance is mandatory for the firewall to hear Neighbor Discovery (NDP) and Router Advertisements (RA) from the ISP. 
     * **The Types:** We explicitly allow necessary control messages like `toobig` (vital for Path MTU Discovery) and the `neighbr*`/`router*` messages required for maintaining the link.
-    * **The Security Win:** Because internal LAN clients have globally routable IPv6 addresses, a lazy `to any` rule would allow the entire internet to probe your internal devices. By restricting the destination to `(egress)`, your LAN is completely shielded from external diagnostic probing.
+    * **The Security Win:** Because internal LAN clients have globally routable IPv6 addresses, a simple `to any` rule would allow the entire internet to probe your internal devices. By restricting the destination to `(egress)`, your LAN is completely shielded from external diagnostic probing.
 * `pass in quick on egress inet6 proto udp from any port 547 to (egress) port 546`: To route IPv6 traffic, the firewall must receive a Prefix Delegation (PD). This rule ensures the firewall only listens for incoming DHCPv6 server replies (port 547) on its own client port (port 546) strictly on the WAN side. This physically prevents the DHCPv6 client process from being hijacked or spoofed by a rogue device on your internal LAN.
 
 ### Check `pf.conf` for errors:
