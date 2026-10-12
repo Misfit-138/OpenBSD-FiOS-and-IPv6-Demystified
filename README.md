@@ -126,8 +126,9 @@ rcctl disable dhcpleased
 
 ## 3. Permanently disable `resolvd` (IPv4/IPv6)
 
-Unless it is stopped and disabled permanently, `resolvd` will continually overwrite `/etc/resolv.conf` and the ISP's DNS will be assigned to the router via DHCP:
+Disable `resolvd` *permanently* to secure complete DNS control; leaving it running allows it to routinely overwrite `/etc/resolv.conf` using DNS addresses pushed by your ISP's DHCP.
 
+Permanently disable:
 ```sh
 rcctl stop resolvd
 rcctl disable resolvd
