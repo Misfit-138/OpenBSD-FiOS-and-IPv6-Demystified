@@ -33,7 +33,7 @@ If you find this guide helpful, please consider leaving a ⭐ [star on the repos
 
 ## 🔧 OpenBSD `base` Tools Used
 
-- OpenBSD 7.9
+- OpenBSD 8.0
 - `pf` (OpenBSD's Packet Filter)
 - `dhcpd` (IPv4 DHCP server daemon)
 - `dhcpleased` - (OpenBSD's IPv4 DHCP client daemon replacing the older ISC dhclient)
