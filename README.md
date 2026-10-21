@@ -1,10 +1,10 @@
-# OpenBSD 7.9 at the Edge: A Dual-Stack IPv4 + IPv6 Router/Firewall Blueprint
+# OpenBSD 8.0 at the Edge: A Dual-Stack IPv4 + IPv6 Router/Firewall Blueprint
 
 ![Example Image](openbsdmountain2.jpg)
 
 ## Overview
 
-This guide provides a pragmatic *baseline* for deploying an OpenBSD 7.9 edge router and firewall built entirely using the tools found in the OpenBSD base system. This configuration was designed for native dual-stack (IPv4 + IPv6) connectivity on Verizon FiOS, though the logic applies to any ISP utilizing similar standards.
+This guide provides a pragmatic *baseline* for deploying an OpenBSD 8.0 edge router and firewall built entirely using the tools found in the OpenBSD base system. This configuration was designed for native dual-stack (IPv4 + IPv6) connectivity on Verizon FiOS, though the logic applies to any ISP utilizing similar standards.
 
 Rather than relying on third-party packages, this setup leverages the strict, uncompromising architecture of OpenBSD's native daemons.
 
