@@ -657,7 +657,7 @@ ping6 2001:4860:4860::8888
 
 Verizon FiOS assigns a **delegated IPv6 prefix** (typically a /56) to your router via DHCPv6 rather than assigning a Global Unicast Address (GUA) directly to the router’s WAN interface. This aligns with IPv6’s design principles, which support end-to-end connectivity without the need for NAT.
 
-## How It Works on OpenBSD 7.9
+## How It Works on OpenBSD
 
 **`slaacd`** runs on the OpenBSD router's WAN interface, processing the RA from the ISP, and installs a default route.
 
