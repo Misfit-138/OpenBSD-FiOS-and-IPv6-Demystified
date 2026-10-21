@@ -70,7 +70,7 @@ This guide contains network security configurations that will control your firew
 
 ## 📦 Installation Steps
 
-## 1. Install OpenBSD 7.9
+## 1. Install OpenBSD
 Official instructions at: https://www.openbsd.org/faq/faq4.html
 
 Note that if you are installing over serial console, (i.e., in a headless configuration) you will need to specify it at the `boot>` prompt using `set`:
