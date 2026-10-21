@@ -992,7 +992,7 @@ https://dnscheck.tools/ is a great tool for testing your DNS.
 https://adblock.turtlecute.org/ can be utilized from clients to check for effective domain blocking with `unbound`/`rpz` (turn off all browser adblocking to isolate). 
 
 
-# Deeper Dive: The Three Main IPv6 Daemons in OpenBSD 7.9
+# Deeper Dive: The Three Main IPv6 Daemons in OpenBSD
 ![Example Image](3daemons.jpg)
 
 OpenBSD 7.9’s IPv6 stack uses three distinct but complementary daemons for upstream RA processing, default route installation, DHCPv6 lease negotiation, prefix delegation, address assignment, and router advertisement. Together, these daemons handle both upstream (WAN) and downstream (LAN) IPv6 configuration without requiring third-party tools. Each has a clear purpose, and understanding their separation makes troubleshooting and configuration much easier.
