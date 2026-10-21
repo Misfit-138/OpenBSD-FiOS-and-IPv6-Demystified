@@ -995,7 +995,7 @@ https://adblock.turtlecute.org/ can be utilized from clients to check for effect
 # Deeper Dive: The Three Main IPv6 Daemons in OpenBSD
 ![Example Image](3daemons.jpg)
 
-OpenBSD 7.9’s IPv6 stack uses three distinct but complementary daemons for upstream RA processing, default route installation, DHCPv6 lease negotiation, prefix delegation, address assignment, and router advertisement. Together, these daemons handle both upstream (WAN) and downstream (LAN) IPv6 configuration without requiring third-party tools. Each has a clear purpose, and understanding their separation makes troubleshooting and configuration much easier.
+OpenBSD’s IPv6 stack uses three distinct but complementary daemons for upstream RA processing, default route installation, DHCPv6 lease negotiation, prefix delegation, address assignment, and router advertisement. Together, these daemons handle both upstream (WAN) and downstream (LAN) IPv6 configuration without requiring third-party tools. Each has a clear purpose, and understanding their separation makes troubleshooting and configuration much easier.
 
 ## 1. `slaacd` - SLAAC and RA listener for upstream
 
